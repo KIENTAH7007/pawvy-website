@@ -1,0 +1,114 @@
+'use client';
+
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { customerApi, setSessionToken } from '../../lib/api';
+
+export default function LoginPage() {
+  const router = useRouter();
+  const [step, setStep] = useState('email');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+
+  async function handleEmailSubmit(e) {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    try {
+      const { exists, has_password } = await customerApi.checkEmail(email);
+      if (!exists) {
+        router.push(`/signup?email=${encodeURIComponent(email)}`);
+        return;
+      }
+      if (has_password) {
+        setStep('password');
+      } else {
+        await customerApi.login(email);
+        setStep('magic-sent');
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handlePasswordSubmit(e) {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await customerApi.loginPassword(email, password);
+      setSessionToken(result.session_token);
+      router.push('/account');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function sendMagicLinkInstead() {
+    setBusy(true);
+    try {
+      await customerApi.login(email);
+      setStep('magic-sent');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (step === 'magic-sent') {
+    return (
+      <div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>
+        <h1>Check your email</h1>
+        <p style={{ color: '#666' }}>We've sent a login link to <strong>{email}</strong>.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px' }}>
+      <h1>Log in to Pawvy</h1>
+
+      {step === 'email' && (
+        <form onSubmit={handleEmailSubmit} style={{ marginTop: 24 }}>
+          <label>
+            Email
+            <input required type="email" value={email} onChange={e => setEmail(e.target.value)} style={{ display: 'block', width: '100%', padding: 8, marginTop: 4 }} />
+          </label>
+          {error && <p style={{ color: 'crimson', fontSize: 13 }}>{error}</p>}
+          <button type="submit" disabled={busy} style={{ padding: '10px 16px', marginTop: 12 }}>
+            {busy ? 'Checking…' : 'Continue'}
+          </button>
+        </form>
+      )}
+
+      {step === 'password' && (
+        <form onSubmit={handlePasswordSubmit} style={{ marginTop: 24 }}>
+          <p style={{ fontSize: 13, color: '#666' }}>{email}</p>
+          <label>
+            Password
+            <input required type="password" value={password} onChange={e => setPassword(e.target.value)} style={{ display: 'block', width: '100%', padding: 8, marginTop: 4 }} />
+          </label>
+          {error && <p style={{ color: 'crimson', fontSize: 13 }}>{error}</p>}
+          <button type="submit" disabled={busy} style={{ padding: '10px 16px', marginTop: 12 }}>
+            {busy ? 'Logging in…' : 'Log In'}
+          </button>
+          <p style={{ fontSize: 13, marginTop: 12 }}>
+            <button type="button" onClick={sendMagicLinkInstead} style={{ background: 'none', border: 'none', color: '#666', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}>
+              Forgot your password? Email me a login link instead
+            </button>
+          </p>
+        </form>
+      )}
+
+      <p style={{ fontSize: 13, color: '#666', marginTop: 20 }}>
+        New to Pawvy? <Link href="/signup">Sign up</Link>
+      </p>
+    </div>
+  );
+}

@@ -1,0 +1,14 @@
+/* Deliberately minimal — no real design decisions here yet, same as the
+   previous version of this site. Real visual design happens once KT
+   shares more reference material and we work through it together. */
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: #1a1a1a;
+  background: #fafafa;
+}
+
+a { color: inherit; }
