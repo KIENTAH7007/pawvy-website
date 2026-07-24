@@ -1,19 +1,27 @@
+import EnquiryForm from '../../components/EnquiryForm';
+
 export const metadata = {
   title: 'Contact & FAQ | Pawvy',
   description: 'Get in touch with Pawvy, or check our frequently asked questions.',
 };
 
-// Placeholder structure — real build needs: an enquiry form (submits to a
-// backend endpoint + Telegram notification, same pattern already proven
-// for order alerts), per-brand FAQ content, and possibly policy links.
+// Server Component wrapper (real HTML/SEO for the page shell) around the
+// client EnquiryForm island (the only part that actually needs JS).
 export default function ContactPage() {
   return (
-    <div style={{ maxWidth: 640, margin: '60px auto', padding: '0 20px' }}>
+    <div style={{ maxWidth: 480, margin: '60px auto', padding: '0 20px' }}>
       <h1>Contact Us</h1>
       <p style={{ color: '#666' }}>
-        An enquiry form and FAQ are coming soon. In the meantime, reach us via the WhatsApp
-        button in the corner, or email janicelee@pawvy.co.
+        Have a question? Send us a message below, or reach us directly via the WhatsApp button
+        in the corner.
       </p>
+      <EnquiryForm />
+
+      {/* FAQ section — placeholder until per-brand FAQ content is ready. */}
+      <div style={{ marginTop: 48 }}>
+        <h2 style={{ fontSize: 18 }}>FAQ</h2>
+        <p style={{ color: '#666', fontSize: 14 }}>Coming soon.</p>
+      </div>
     </div>
   );
 }
