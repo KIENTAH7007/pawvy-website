@@ -18,6 +18,10 @@ export default function AccountPage() {
   const [savingPet, setSavingPet] = useState(false);
   const [bonusMessage, setBonusMessage] = useState(null);
   const [referralLink, setReferralLink] = useState('');
+  const [passwordForm, setPasswordForm] = useState({ password: '', confirm: '' });
+  const [savingPassword, setSavingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState(null);
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
 
   useEffect(() => {
     if (!getSessionToken()) { router.push('/login'); return; }
@@ -74,6 +78,25 @@ export default function AccountPage() {
 
   function handleLogout() {
     customerApi.logout().finally(() => { setSessionToken(null); router.push('/'); });
+  }
+
+  async function savePassword(e) {
+    e.preventDefault();
+    setPasswordError(null);
+    setPasswordSuccess(false);
+    if (passwordForm.password !== passwordForm.confirm) { setPasswordError("Passwords don't match."); return; }
+    if (passwordForm.password.length < 8) { setPasswordError('Password must be at least 8 characters.'); return; }
+
+    setSavingPassword(true);
+    try {
+      await customerApi.setPassword(passwordForm.password);
+      setPasswordForm({ password: '', confirm: '' });
+      setPasswordSuccess(true);
+    } catch (err) {
+      setPasswordError(err.message);
+    } finally {
+      setSavingPassword(false);
+    }
   }
 
   if (loading) return <div style={{ maxWidth: 560, margin: '80px auto', padding: '0 20px' }}>Loading…</div>;
@@ -174,6 +197,22 @@ export default function AccountPage() {
         </label>
         <button type="submit" disabled={savingPet} style={{ padding: '8px 16px', marginTop: 12 }}>
           {savingPet ? 'Saving…' : 'Save Pet Info'}
+        </button>
+      </form>
+
+      <form onSubmit={savePassword} style={{ marginTop: 32 }}>
+        <h2 style={{ fontSize: 16 }}>{customer.has_password ? 'Change Password' : 'Set a Password'}</h2>
+        <p style={{ fontSize: 12.5, color: '#666', marginTop: -6 }}>
+          {customer.has_password
+            ? "Set a new password below — you'll use it next time instead of the email link."
+            : "You're currently logging in with an email link only. Set a password so you don't need one next time."}
+        </p>
+        <FormField label="New password" type="password" value={passwordForm.password} onChange={v => setPasswordForm(f => ({ ...f, password: v }))} />
+        <FormField label="Confirm password" type="password" value={passwordForm.confirm} onChange={v => setPasswordForm(f => ({ ...f, confirm: v }))} />
+        {passwordError && <p style={{ color: 'crimson', fontSize: 13 }}>{passwordError}</p>}
+        {passwordSuccess && <p style={{ color: 'green', fontSize: 13 }}>Password updated.</p>}
+        <button type="submit" disabled={savingPassword} style={{ padding: '8px 16px', marginTop: 12 }}>
+          {savingPassword ? 'Saving…' : (customer.has_password ? 'Change Password' : 'Set Password')}
         </button>
       </form>
     </div>
