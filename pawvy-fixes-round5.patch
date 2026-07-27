@@ -1,0 +1,34 @@
+diff --git a/app/globals.css b/app/globals.css
+index 5d7b691..2cf28fd 100644
+--- a/app/globals.css
++++ b/app/globals.css
+@@ -139,7 +139,7 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
+ 
+ /* ---------- Mobile menu (hamburger + slide-in drawer) ---------- */
+ .hamburger {
+-  flex-direction: column; justify-content: center; align-items: center; gap: 5px;
++  display: none; flex-direction: column; justify-content: center; align-items: center; gap: 5px;
+   width: 40px; height: 40px; background: none; border: none; cursor: pointer; padding: 0; flex-shrink: 0;
+ }
+ .hamburger span { width: 22px; height: 2px; background: var(--cream); border-radius: 2px; transition: transform .3s ease, opacity .3s ease; }
+@@ -179,7 +179,6 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
+ @media (min-width: 901px) { .mobile-overlay, .mobile-drawer { display: none; } }
+ @media (max-width: 1080px) { .foc-pill { display: none; } }
+ @media (max-width: 900px) { .nav-links, .nav-auth { display: none; } }
+-.hamburger { display: none; }
+ @media (max-width: 560px) { .nav-login { display: none; } .nav-greeting-name { display: none; } .nav-greeting { padding: 8px; } }
+ 
+ /* ---------- Buttons ---------- */
+@@ -233,6 +232,12 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
+ .hero .blob.b2 { width: 420px; height: 420px; background: var(--light-pitch); opacity: .14; bottom: -15%; left: -8%; animation-duration: 16s; }
+ .hero .blob.b3 { width: 280px; height: 280px; background: var(--mid-cream); opacity: .10; top: 15%; left: 5%; animation-duration: 19s; animation-delay: -4s; }
+ .hero .blob.b4 { width: 340px; height: 340px; background: var(--pale-orange); opacity: .12; bottom: 8%; right: 8%; animation-duration: 14s; animation-delay: -7s; }
++@media (min-width: 1024px) {
++  .hero .blob { width: clamp(1000px, 55vw, 1400px); height: clamp(1000px, 55vw, 1400px); }
++  .hero .blob.b2 { width: clamp(680px, 38vw, 950px); height: clamp(680px, 38vw, 950px); }
++  .hero .blob.b3 { width: clamp(460px, 26vw, 640px); height: clamp(460px, 26vw, 640px); }
++  .hero .blob.b4 { width: clamp(540px, 30vw, 760px); height: clamp(540px, 30vw, 760px); }
++}
+ .float-dot { position: absolute; border-radius: 50%; background: var(--orange); opacity: .35; animation: floaty 7s ease-in-out infinite; }
+ @keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-22px); } }
+ .fd1 { width: 10px; height: 10px; top: 22%; left: 12%; animation-duration: 6s; }
