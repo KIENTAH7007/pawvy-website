@@ -13,11 +13,13 @@ export default function ProductCard({ product: p, onAdd }) {
   return (
     <div className="product-card" style={{ opacity: outOfStock ? 0.6 : 1 }}>
       <Link href={`/shop/${p.id}`}>
-        <div className="thumb">
+        <div className="card-tags">
           <span className="brand-tag" style={{ color: p.brand_color || 'var(--navy)' }}>{p.brand_name}</span>
           {(p.stock_status === 'low_stock' || outOfStock) && (
             <span className={`stock-tag ${outOfStock ? 'out' : 'low'}`}>{outOfStock ? 'Out of stock' : 'Low stock'}</span>
           )}
+        </div>
+        <div className="thumb">
           {p.image_data ? (
             <img src={p.image_data} alt={p.item_series} />
           ) : (

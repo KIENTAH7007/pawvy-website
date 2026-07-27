@@ -64,6 +64,11 @@ export default function Nav() {
             <span>{focText}</span>
           </div>
 
+          <div className="nav-auth">
+            <Link href="/login" className="nav-login">Log in</Link>
+            <Link href="/signup" className="btn btn-orange nav-signup"><span>Sign up</span></Link>
+          </div>
+
           <Link href="/cart" className="cart-link">
             <svg className="cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 6h15l-1.5 9h-12z" /><circle cx="9" cy="20" r="1.4" /><circle cx="18" cy="20" r="1.4" /><path d="M6 6L4 3H2" /></svg>
             <span className={`cart-badge${itemCount > 0 ? ' show' : ''}`}>{itemCount}</span>

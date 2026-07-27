@@ -63,7 +63,7 @@ export default function LoginPage() {
 
   if (step === 'magic-sent') {
     return (
-      <div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>
+      <div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px', textAlign: 'center' }}>
         <h1>Check your email</h1>
         <p style={{ color: '#666' }}>We've sent a login link to <strong>{email}</strong>.</p>
       </div>
@@ -71,7 +71,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px' }}>
+    <div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px' }}>
       <h1>Log in to Pawvy</h1>
 
       {step === 'email' && (

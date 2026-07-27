@@ -99,10 +99,10 @@ export default function AccountPage() {
     }
   }
 
-  if (loading) return <div style={{ maxWidth: 560, margin: '80px auto', padding: '0 20px' }}>Loading…</div>;
+  if (loading) return <div style={{ maxWidth: 560, margin: '140px auto 40px', padding: '0 20px' }}>Loading…</div>;
 
   return (
-    <div style={{ maxWidth: 560, margin: '40px auto', padding: '0 20px' }}>
+    <div style={{ maxWidth: 560, margin: '140px auto 40px', padding: '0 20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1>My Pawvy Account</h1>
         <div style={{ display: 'flex', gap: 8 }}>

@@ -9,7 +9,7 @@ export const metadata = {
 // ranking signal), just not urgent to build out before there's content.
 export default function BlogPage() {
   return (
-    <div style={{ maxWidth: 640, margin: '60px auto', padding: '0 20px' }}>
+    <div style={{ maxWidth: 640, margin: '140px auto 40px', padding: '0 20px' }}>
       <h1>Pet Wellness Tips</h1>
       <p style={{ color: '#666' }}>Articles coming soon.</p>
     </div>

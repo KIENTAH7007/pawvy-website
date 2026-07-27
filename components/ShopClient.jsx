@@ -107,7 +107,7 @@ export default function ShopClient({ initialProducts, brands, showHero = true })
         </div>
       </section>
 
-      <div className="section-curve">
+      <div className="section-curve" style={{ background: 'var(--navy)' }}>
         <svg viewBox="0 0 1440 90" preserveAspectRatio="none"><path fill="var(--ivory)" d="M0,40 C300,90 600,0 900,35 C1150,63 1300,20 1440,45 L1440,90 L0,90 Z" /></svg>
       </div>
 

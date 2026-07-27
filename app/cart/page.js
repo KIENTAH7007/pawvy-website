@@ -92,7 +92,7 @@ export default function CartPage() {
     <div className="cart-page">
       <Link href="/shop" className="back">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
-        Back to shop
+        <span>Back to shop</span>
       </Link>
 
       <h1>Your Cart</h1>

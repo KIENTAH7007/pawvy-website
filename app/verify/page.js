@@ -6,7 +6,7 @@ import { customerApi, setSessionToken } from '../../lib/api';
 
 export default function VerifyPage() {
   return (
-    <Suspense fallback={<div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>Verifying your account…</div>}>
+    <Suspense fallback={<div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px', textAlign: 'center' }}>Verifying your account…</div>}>
       <VerifyLanding />
     </Suspense>
   );
@@ -36,7 +36,7 @@ function VerifyLanding() {
   }, [searchParams, router]);
 
   return (
-    <div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>
+    <div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px', textAlign: 'center' }}>
       {status === 'loading' && <p>Verifying your account…</p>}
       {status === 'success' && (
         <>
