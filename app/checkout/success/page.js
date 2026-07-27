@@ -8,7 +8,7 @@ import { useCart } from '../../../lib/CartContext';
 
 export default function CheckoutSuccessPage() {
   return (
-    <Suspense fallback={<div style={{ maxWidth: 480, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>Loading your order…</div>}>
+    <Suspense fallback={<div style={{ maxWidth: 480, margin: '140px auto 40px', padding: '0 20px', textAlign: 'center' }}>Loading your order…</div>}>
       <SuccessLanding />
     </Suspense>
   );
@@ -63,12 +63,12 @@ function SuccessLanding() {
   }, [searchParams]);
 
   if (status === 'loading') {
-    return <div style={{ maxWidth: 480, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>Confirming your order…</div>;
+    return <div style={{ maxWidth: 480, margin: '140px auto 40px', padding: '0 20px', textAlign: 'center' }}>Confirming your order…</div>;
   }
 
   if (status === 'error') {
     return (
-      <div style={{ maxWidth: 480, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>
+      <div style={{ maxWidth: 480, margin: '140px auto 40px', padding: '0 20px', textAlign: 'center' }}>
         <h1 style={{ fontSize: 20 }}>We couldn't find that order</h1>
         <p style={{ color: '#666', marginTop: 8 }}>{message}</p>
         <Link href="/shop"><button style={{ padding: '10px 16px', marginTop: 16 }}>Back to Shop</button></Link>
@@ -78,7 +78,7 @@ function SuccessLanding() {
 
   if (status === 'failed') {
     return (
-      <div style={{ maxWidth: 480, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>
+      <div style={{ maxWidth: 480, margin: '140px auto 40px', padding: '0 20px', textAlign: 'center' }}>
         <h1 style={{ fontSize: 20, color: 'crimson' }}>Payment didn't go through</h1>
         <p style={{ color: '#666', marginTop: 8 }}>Nothing was charged. You can try again from your cart.</p>
         <Link href="/cart"><button style={{ padding: '10px 16px', marginTop: 16 }}>Back to Cart</button></Link>

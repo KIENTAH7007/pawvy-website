@@ -1,5 +1,6 @@
 import { CartProvider } from '../lib/CartContext';
 import Nav from '../components/Nav';
+import Footer from '../components/Footer';
 import WhatsAppButton from '../components/WhatsAppButton';
 import './globals.css';
 
@@ -21,6 +22,7 @@ export default function RootLayout({ children }) {
         <CartProvider>
           <Nav />
           {children}
+          <Footer />
           <WhatsAppButton />
         </CartProvider>
       </body>

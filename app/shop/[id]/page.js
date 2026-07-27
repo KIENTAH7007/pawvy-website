@@ -33,43 +33,36 @@ export default async function ProductPage({ params }) {
   }
 
   return (
-    <div style={{ maxWidth: 640, margin: '40px auto', padding: '0 20px' }}>
-      <Link href="/shop" style={{ fontSize: 13, color: '#666' }}>&larr; Back to shop</Link>
+    <div className="product-detail-page">
+      <Link href="/shop" className="back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+        Back to shop
+      </Link>
 
-      <div style={{ display: 'flex', gap: 24, marginTop: 16, flexWrap: 'wrap' }}>
-        <div style={{ width: 240, height: 240, background: '#f5f5f5', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0, aspectRatio: '1 / 1' }}>
+      <div className="product-detail-grid">
+        <div className="product-detail-image">
           {product.image_data ? (
-            <img src={product.image_data} alt={product.item_series} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={product.image_data} alt={product.item_series} />
           ) : (
-            <span style={{ fontSize: 12, color: '#999' }}>No image</span>
+            <span>No image</span>
           )}
         </div>
 
-        <div style={{ flex: 1, minWidth: 240 }}>
-          <div style={{ fontSize: 12, color: product.brand_color || '#999', fontWeight: 600 }}>{product.brand_name}</div>
-          <h1 style={{ margin: '4px 0' }}>{product.item_series}{product.variation ? ` — ${product.variation}` : ''}</h1>
+        <div className="product-detail-info">
+          <div className="product-detail-brand" style={{ color: product.brand_color || 'var(--orange)' }}>{product.brand_name}</div>
+          <h1>{product.item_series}{product.variation ? ` — ${product.variation}` : ''}</h1>
 
-          <div style={{ margin: '12px 0', fontSize: 22 }}>
-            {product.is_discount_active ? (
-              <>
-                <span style={{ textDecoration: 'line-through', color: '#999', fontSize: 15, marginRight: 8 }}>${product.price_rrp_sg.toFixed(2)}</span>
-                <span style={{ fontWeight: 700 }}>${product.effective_price_rrp_sg.toFixed(2)}</span>
-              </>
-            ) : (
-              <span style={{ fontWeight: 700 }}>${product.price_rrp_sg.toFixed(2)}</span>
-            )}
+          <div className="product-detail-price">
+            {product.is_discount_active && <span className="was">${product.price_rrp_sg.toFixed(2)}</span>}
+            ${product.effective_price_rrp_sg.toFixed(2)}
           </div>
 
           <AddToCartSection product={product} />
 
           {product.description && (
-            <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #eee' }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#666', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
-                Description
-              </div>
-              <p style={{ fontSize: 14, lineHeight: 1.6, color: '#333', whiteSpace: 'pre-wrap' }}>
-                {product.description}
-              </p>
+            <div className="product-detail-desc">
+              <div className="label">Description</div>
+              <p>{product.description}</p>
             </div>
           )}
         </div>

@@ -11,7 +11,7 @@ const PDPA_CONSENT_TEXT = 'I agree to Pawvy creating an account for me on Pawvy.
 // page export below just provides that; SignupForm has the actual logic.
 export default function SignupPage() {
   return (
-    <Suspense fallback={<div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px' }}>Loading…</div>}>
+    <Suspense fallback={<div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px' }}>Loading…</div>}>
       <SignupForm />
     </Suspense>
   );
@@ -56,7 +56,7 @@ function SignupForm() {
 
   if (done) {
     return (
-      <div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>
+      <div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px', textAlign: 'center' }}>
         <h1>Check your email</h1>
         <p style={{ color: '#666' }}>
           We've sent a confirmation link to <strong>{form.email}</strong>. Click it to activate
@@ -67,7 +67,7 @@ function SignupForm() {
   }
 
   return (
-    <div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px' }}>
+    <div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px' }}>
       <h1>Create your Pawvy account</h1>
       {referralCode && (
         <p style={{ fontSize: 13, color: '#666' }}>Referred by code: <strong>{referralCode}</strong></p>

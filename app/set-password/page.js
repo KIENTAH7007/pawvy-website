@@ -29,7 +29,7 @@ export default function SetPasswordPage() {
   }
 
   return (
-    <div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px' }}>
+    <div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px' }}>
       <h1>You're verified! 🐾</h1>
       <p style={{ color: '#666' }}>
         Last step — set a password so you can log in directly next time, without needing an

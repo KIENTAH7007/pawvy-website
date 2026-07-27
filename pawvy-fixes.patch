@@ -1,0 +1,348 @@
+diff --git a/app/account/page.js b/app/account/page.js
+index a116a1b..db94986 100644
+--- a/app/account/page.js
++++ b/app/account/page.js
+@@ -99,10 +99,10 @@ export default function AccountPage() {
+     }
+   }
+ 
+-  if (loading) return <div style={{ maxWidth: 560, margin: '80px auto', padding: '0 20px' }}>Loading…</div>;
++  if (loading) return <div style={{ maxWidth: 560, margin: '140px auto 40px', padding: '0 20px' }}>Loading…</div>;
+ 
+   return (
+-    <div style={{ maxWidth: 560, margin: '40px auto', padding: '0 20px' }}>
++    <div style={{ maxWidth: 560, margin: '140px auto 40px', padding: '0 20px' }}>
+       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+         <h1>My Pawvy Account</h1>
+         <div style={{ display: 'flex', gap: 8 }}>
+diff --git a/app/blog/page.js b/app/blog/page.js
+index 54f1fff..d878ccf 100644
+--- a/app/blog/page.js
++++ b/app/blog/page.js
+@@ -9,7 +9,7 @@ export const metadata = {
+ // ranking signal), just not urgent to build out before there's content.
+ export default function BlogPage() {
+   return (
+-    <div style={{ maxWidth: 640, margin: '60px auto', padding: '0 20px' }}>
++    <div style={{ maxWidth: 640, margin: '140px auto 40px', padding: '0 20px' }}>
+       <h1>Pet Wellness Tips</h1>
+       <p style={{ color: '#666' }}>Articles coming soon.</p>
+     </div>
+diff --git a/app/brands/[slug]/page.js b/app/brands/[slug]/page.js
+index d088b47..abbdbc7 100644
+--- a/app/brands/[slug]/page.js
++++ b/app/brands/[slug]/page.js
+@@ -54,7 +54,7 @@ export default async function BrandPage({ params }) {
+         </div>
+       </section>
+ 
+-      <div className="section-curve">
++      <div className="section-curve" style={{ background: 'var(--navy)' }}>
+         <svg viewBox="0 0 1440 90" preserveAspectRatio="none"><path fill="var(--ivory)" d="M0,40 C300,90 600,0 900,35 C1150,63 1300,20 1440,45 L1440,90 L0,90 Z" /></svg>
+       </div>
+ 
+diff --git a/app/cart/page.js b/app/cart/page.js
+index 804982f..bcd09da 100644
+--- a/app/cart/page.js
++++ b/app/cart/page.js
+@@ -92,7 +92,7 @@ export default function CartPage() {
+     <div className="cart-page">
+       <Link href="/shop" className="back">
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+-        Back to shop
++        <span>Back to shop</span>
+       </Link>
+ 
+       <h1>Your Cart</h1>
+diff --git a/app/checkout/success/page.js b/app/checkout/success/page.js
+index 14b81a2..8b629c1 100644
+--- a/app/checkout/success/page.js
++++ b/app/checkout/success/page.js
+@@ -8,7 +8,7 @@ import { useCart } from '../../../lib/CartContext';
+ 
+ export default function CheckoutSuccessPage() {
+   return (
+-    <Suspense fallback={<div style={{ maxWidth: 480, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>Loading your order…</div>}>
++    <Suspense fallback={<div style={{ maxWidth: 480, margin: '140px auto 40px', padding: '0 20px', textAlign: 'center' }}>Loading your order…</div>}>
+       <SuccessLanding />
+     </Suspense>
+   );
+@@ -63,12 +63,12 @@ function SuccessLanding() {
+   }, [searchParams]);
+ 
+   if (status === 'loading') {
+-    return <div style={{ maxWidth: 480, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>Confirming your order…</div>;
++    return <div style={{ maxWidth: 480, margin: '140px auto 40px', padding: '0 20px', textAlign: 'center' }}>Confirming your order…</div>;
+   }
+ 
+   if (status === 'error') {
+     return (
+-      <div style={{ maxWidth: 480, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>
++      <div style={{ maxWidth: 480, margin: '140px auto 40px', padding: '0 20px', textAlign: 'center' }}>
+         <h1 style={{ fontSize: 20 }}>We couldn't find that order</h1>
+         <p style={{ color: '#666', marginTop: 8 }}>{message}</p>
+         <Link href="/shop"><button style={{ padding: '10px 16px', marginTop: 16 }}>Back to Shop</button></Link>
+@@ -78,7 +78,7 @@ function SuccessLanding() {
+ 
+   if (status === 'failed') {
+     return (
+-      <div style={{ maxWidth: 480, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>
++      <div style={{ maxWidth: 480, margin: '140px auto 40px', padding: '0 20px', textAlign: 'center' }}>
+         <h1 style={{ fontSize: 20, color: 'crimson' }}>Payment didn't go through</h1>
+         <p style={{ color: '#666', marginTop: 8 }}>Nothing was charged. You can try again from your cart.</p>
+         <Link href="/cart"><button style={{ padding: '10px 16px', marginTop: 16 }}>Back to Cart</button></Link>
+diff --git a/app/globals.css b/app/globals.css
+index ce39df6..f5259a9 100644
+--- a/app/globals.css
++++ b/app/globals.css
+@@ -64,8 +64,8 @@ h1, h2, h3, .stat-num { font-family: 'Fraunces', serif; }
+ }
+ 
+ /* ---------- Nav ---------- */
+-nav.site-nav { position: sticky; top: 0; z-index: 100; padding: 22px 0; background: transparent; transition: background .35s ease, padding .35s ease, box-shadow .35s ease; }
+-nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10px); padding: 14px 0; box-shadow: 0 10px 30px rgba(20,33,61,.15); }
++nav.site-nav { position: fixed; top: 0; left: 0; right: 0; width: 100%; z-index: 100; padding: 22px 0; background: var(--navy); transition: padding .35s ease, box-shadow .35s ease; }
++nav.site-nav.scrolled { padding: 14px 0; box-shadow: 0 10px 30px rgba(20,33,61,.25); }
+ .nav-inner { display: flex; align-items: center; justify-content: space-between; }
+ .brand-mark { display: inline-flex; }
+ .brand-mark img { height: 38px; width: auto; }
+@@ -103,8 +103,12 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
+ }
+ .foc-pill svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--orange); }
+ .foc-pill.unlocked { background: rgba(243,111,74,.18); border-color: var(--orange); color: var(--cream); }
++.nav-auth { display: flex; align-items: center; gap: 18px; }
++.nav-login { font-size: 14.5px; font-weight: 700; color: var(--cream); white-space: nowrap; }
++.nav-signup.btn { padding: 10px 22px; font-size: 14px; white-space: nowrap; }
+ @media (max-width: 1080px) { .foc-pill { display: none; } }
+ @media (max-width: 900px) { .nav-links { display: none; } }
++@media (max-width: 560px) { .nav-login { display: none; } }
+ 
+ /* ---------- Buttons ---------- */
+ .btn {
+@@ -279,7 +283,8 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top:
+ .subhero { padding: 170px 0 90px; background: var(--navy); position: relative; overflow: hidden; }
+ .subhero .blob { width: 480px; height: 480px; background: var(--orange); opacity: .14; top: -20%; right: -8%; }
+ .subhero-inner { position: relative; z-index: 1; max-width: 800px; }
+-.subhero .back { display: flex; width: fit-content; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: rgba(245,242,235,.6); margin-bottom: 28px; }
++.subhero .back { display: flex; width: fit-content; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: rgba(245,242,235,.6); margin-bottom: 28px; white-space: nowrap; }
++.subhero .back svg, .cart-page .back svg, .product-detail-page .back svg { flex-shrink: 0; }
+ .subhero .back:hover { color: var(--cream); }
+ .subhero .back svg { width: 16px; height: 16px; }
+ .subhero h1 { font-weight: 900; color: var(--cream); letter-spacing: -1.5px; font-size: clamp(45px,6vw,80px); line-height: 1.02; }
+@@ -331,7 +336,7 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top:
+ 
+ /* ---------- Cart page ---------- */
+ .cart-page { max-width: 760px; margin: 0 auto; padding: 160px 20px 100px; }
+-.cart-page .back { display: flex; width: fit-content; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--dark-gray); }
++.cart-page .back { display: flex; width: fit-content; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--dark-gray); white-space: nowrap; }
+ .cart-page .back:hover { color: var(--orange); }
+ .cart-page h1 { margin-top: 14px; font-weight: 900; font-size: 34px; color: var(--navy); }
+ .cart-empty { text-align: center; padding: 60px 0; }
+@@ -371,10 +376,11 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top:
+ .product-card { background: var(--cream); border: 2px solid rgba(20,33,61,.08); border-radius: 22px; overflow: hidden; transition: border-color .3s ease, transform .3s ease; display: flex; flex-direction: column; }
+ .product-card:hover { border-color: var(--orange); transform: translateY(-3px); }
+ .product-card .thumb { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; position: relative; background: var(--mid-cream); overflow: hidden; }
+-.product-card .thumb img { width: 100%; height: 100%; object-fit: cover; }
++.product-card .thumb img { width: 100%; height: 100%; object-fit: contain; padding: 10px; }
+ .product-card .no-img { font-size: 12px; color: var(--dark-gray); font-weight: 600; }
+-.product-card .brand-tag { position: absolute; top: 12px; left: 12px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px; background: var(--cream); color: var(--navy); padding: 5px 11px; border-radius: 100px; }
+-.product-card .stock-tag { position: absolute; top: 12px; right: 12px; font-size: 10.5px; font-weight: 800; padding: 5px 11px; border-radius: 100px; }
++.product-card .card-tags { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 12px 10px; }
++.product-card .brand-tag { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px; background: rgba(20,33,61,.06); border: 1px solid rgba(20,33,61,.08); color: var(--navy); padding: 5px 11px; border-radius: 100px; }
++.product-card .stock-tag { font-size: 10.5px; font-weight: 800; padding: 5px 11px; border-radius: 100px; }
+ .product-card .stock-tag.low { background: #fff3cd; color: #8a6300; }
+ .product-card .stock-tag.out { background: #fde2e2; color: #a12525; }
+ .product-card .info { padding: 18px 20px 20px; }
+@@ -392,7 +398,7 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top:
+ 
+ /* ---------- Product detail page ---------- */
+ .product-detail-page { max-width: 900px; margin: 0 auto; padding: 160px 20px 100px; }
+-.product-detail-page .back { display: flex; width: fit-content; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--dark-gray); margin-bottom: 24px; }
++.product-detail-page .back { display: flex; width: fit-content; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--dark-gray); margin-bottom: 24px; white-space: nowrap; }
+ .product-detail-page .back:hover { color: var(--orange); }
+ .product-detail-grid { display: flex; gap: 40px; flex-wrap: wrap; }
+ .product-detail-image { width: 320px; height: 320px; background: var(--mid-cream); border-radius: 24px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+diff --git a/app/login-verify/page.js b/app/login-verify/page.js
+index 9028678..f889ba8 100644
+--- a/app/login-verify/page.js
++++ b/app/login-verify/page.js
+@@ -6,7 +6,7 @@ import { customerApi, setSessionToken } from '../../lib/api';
+ 
+ export default function LoginVerifyPage() {
+   return (
+-    <Suspense fallback={<div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>Logging you in…</div>}>
++    <Suspense fallback={<div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px', textAlign: 'center' }}>Logging you in…</div>}>
+       <LoginLanding />
+     </Suspense>
+   );
+@@ -36,7 +36,7 @@ function LoginLanding() {
+   }, [searchParams, router]);
+ 
+   return (
+-    <div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>
++    <div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px', textAlign: 'center' }}>
+       {status === 'loading' && <p>Logging you in…</p>}
+       {status === 'success' && (
+         <>
+diff --git a/app/login/page.js b/app/login/page.js
+index 873e70f..599fa5d 100644
+--- a/app/login/page.js
++++ b/app/login/page.js
+@@ -63,7 +63,7 @@ export default function LoginPage() {
+ 
+   if (step === 'magic-sent') {
+     return (
+-      <div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>
++      <div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px', textAlign: 'center' }}>
+         <h1>Check your email</h1>
+         <p style={{ color: '#666' }}>We've sent a login link to <strong>{email}</strong>.</p>
+       </div>
+@@ -71,7 +71,7 @@ export default function LoginPage() {
+   }
+ 
+   return (
+-    <div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px' }}>
++    <div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px' }}>
+       <h1>Log in to Pawvy</h1>
+ 
+       {step === 'email' && (
+diff --git a/app/not-found.js b/app/not-found.js
+index cdbe6d8..65b79bf 100644
+--- a/app/not-found.js
++++ b/app/not-found.js
+@@ -2,7 +2,7 @@ import Link from 'next/link';
+ 
+ export default function NotFound() {
+   return (
+-    <div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>
++    <div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px', textAlign: 'center' }}>
+       <h1>Page not found</h1>
+       <p style={{ color: '#666' }}>The page you're looking for doesn't exist.</p>
+       <p style={{ marginTop: 16 }}><Link href="/">Go home</Link></p>
+diff --git a/app/page.js b/app/page.js
+index 3389cd5..197c7b4 100644
+--- a/app/page.js
++++ b/app/page.js
+@@ -76,7 +76,7 @@ export default function Home() {
+         </Reveal>
+       </section>
+ 
+-      <div className="section-curve">
++      <div className="section-curve" style={{ background: 'var(--cream)' }}>
+         <svg viewBox="0 0 1440 90" preserveAspectRatio="none"><path fill="var(--ivory)" d="M0,40 C300,90 600,0 900,35 C1150,63 1300,20 1440,45 L1440,90 L0,90 Z" /></svg>
+       </div>
+ 
+diff --git a/app/set-password/page.js b/app/set-password/page.js
+index b199565..e717844 100644
+--- a/app/set-password/page.js
++++ b/app/set-password/page.js
+@@ -29,7 +29,7 @@ export default function SetPasswordPage() {
+   }
+ 
+   return (
+-    <div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px' }}>
++    <div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px' }}>
+       <h1>You're verified! 🐾</h1>
+       <p style={{ color: '#666' }}>
+         Last step — set a password so you can log in directly next time, without needing an
+diff --git a/app/signup/page.js b/app/signup/page.js
+index b007b10..2697a78 100644
+--- a/app/signup/page.js
++++ b/app/signup/page.js
+@@ -11,7 +11,7 @@ const PDPA_CONSENT_TEXT = 'I agree to Pawvy creating an account for me on Pawvy.
+ // page export below just provides that; SignupForm has the actual logic.
+ export default function SignupPage() {
+   return (
+-    <Suspense fallback={<div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px' }}>Loading…</div>}>
++    <Suspense fallback={<div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px' }}>Loading…</div>}>
+       <SignupForm />
+     </Suspense>
+   );
+@@ -56,7 +56,7 @@ function SignupForm() {
+ 
+   if (done) {
+     return (
+-      <div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>
++      <div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px', textAlign: 'center' }}>
+         <h1>Check your email</h1>
+         <p style={{ color: '#666' }}>
+           We've sent a confirmation link to <strong>{form.email}</strong>. Click it to activate
+@@ -67,7 +67,7 @@ function SignupForm() {
+   }
+ 
+   return (
+-    <div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px' }}>
++    <div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px' }}>
+       <h1>Create your Pawvy account</h1>
+       {referralCode && (
+         <p style={{ fontSize: 13, color: '#666' }}>Referred by code: <strong>{referralCode}</strong></p>
+diff --git a/app/verify/page.js b/app/verify/page.js
+index c209c98..48f64cc 100644
+--- a/app/verify/page.js
++++ b/app/verify/page.js
+@@ -6,7 +6,7 @@ import { customerApi, setSessionToken } from '../../lib/api';
+ 
+ export default function VerifyPage() {
+   return (
+-    <Suspense fallback={<div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>Verifying your account…</div>}>
++    <Suspense fallback={<div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px', textAlign: 'center' }}>Verifying your account…</div>}>
+       <VerifyLanding />
+     </Suspense>
+   );
+@@ -36,7 +36,7 @@ function VerifyLanding() {
+   }, [searchParams, router]);
+ 
+   return (
+-    <div style={{ maxWidth: 440, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>
++    <div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px', textAlign: 'center' }}>
+       {status === 'loading' && <p>Verifying your account…</p>}
+       {status === 'success' && (
+         <>
+diff --git a/components/Nav.jsx b/components/Nav.jsx
+index bfd30df..74a4b78 100644
+--- a/components/Nav.jsx
++++ b/components/Nav.jsx
+@@ -64,6 +64,11 @@ export default function Nav() {
+             <span>{focText}</span>
+           </div>
+ 
++          <div className="nav-auth">
++            <Link href="/login" className="nav-login">Log in</Link>
++            <Link href="/signup" className="btn btn-orange nav-signup"><span>Sign up</span></Link>
++          </div>
++
+           <Link href="/cart" className="cart-link">
+             <svg className="cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 6h15l-1.5 9h-12z" /><circle cx="9" cy="20" r="1.4" /><circle cx="18" cy="20" r="1.4" /><path d="M6 6L4 3H2" /></svg>
+             <span className={`cart-badge${itemCount > 0 ? ' show' : ''}`}>{itemCount}</span>
+diff --git a/components/ProductCard.jsx b/components/ProductCard.jsx
+index b76622c..145515a 100644
+--- a/components/ProductCard.jsx
++++ b/components/ProductCard.jsx
+@@ -13,11 +13,13 @@ export default function ProductCard({ product: p, onAdd }) {
+   return (
+     <div className="product-card" style={{ opacity: outOfStock ? 0.6 : 1 }}>
+       <Link href={`/shop/${p.id}`}>
+-        <div className="thumb">
++        <div className="card-tags">
+           <span className="brand-tag" style={{ color: p.brand_color || 'var(--navy)' }}>{p.brand_name}</span>
+           {(p.stock_status === 'low_stock' || outOfStock) && (
+             <span className={`stock-tag ${outOfStock ? 'out' : 'low'}`}>{outOfStock ? 'Out of stock' : 'Low stock'}</span>
+           )}
++        </div>
++        <div className="thumb">
+           {p.image_data ? (
+             <img src={p.image_data} alt={p.item_series} />
+           ) : (
+diff --git a/components/ShopClient.jsx b/components/ShopClient.jsx
+index 422505b..9f19a09 100644
+--- a/components/ShopClient.jsx
++++ b/components/ShopClient.jsx
+@@ -107,7 +107,7 @@ export default function ShopClient({ initialProducts, brands, showHero = true })
+         </div>
+       </section>
+ 
+-      <div className="section-curve">
++      <div className="section-curve" style={{ background: 'var(--navy)' }}>
+         <svg viewBox="0 0 1440 90" preserveAspectRatio="none"><path fill="var(--ivory)" d="M0,40 C300,90 600,0 900,35 C1150,63 1300,20 1440,45 L1440,90 L0,90 Z" /></svg>
+       </div>
+ 
