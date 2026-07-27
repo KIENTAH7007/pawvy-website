@@ -6,11 +6,6 @@ export const metadata = {
   description: "Find where to buy Pawvy's pet wellness brands near you in Singapore — filterable by brand and region.",
 };
 
-// Server Component — fetches the initial stockist list server-side (real
-// HTML/SEO value), interactive filtering handled client-side after that
-// via StockistDirectory. No maps/geocoding API anywhere in this feature —
-// region-tag + brand filtering plus a free Google Maps search link per
-// result gives the same real-world utility at zero cost.
 export default async function StockistPage() {
   const [{ stockists }, { brands }] = await Promise.all([
     stockistApi.list({}),
@@ -18,13 +13,31 @@ export default async function StockistPage() {
   ]);
 
   return (
-    <div style={{ maxWidth: 960, margin: '40px auto', padding: '0 20px' }}>
-      <h1>Find a Stockist</h1>
-      <p style={{ color: '#666' }}>
-        Pawvy brands are available at pet stores, groomers, and vet clinics across Singapore.
-        Filter by brand or region to find one near you.
-      </p>
+    <>
+      <section className="subhero">
+        <div className="blob" />
+        <div className="wrap subhero-inner">
+          <div className="eyebrow">Nationwide network</div>
+          <h1>Find a stockist near you</h1>
+          <p className="desc">
+            Pawvy brands are available at pet stores, groomers, and vet clinics across Singapore.
+            Filter by brand or region to find one near you.
+          </p>
+        </div>
+      </section>
+
+      <div className="section-curve">
+        <svg viewBox="0 0 1440 90" preserveAspectRatio="none"><path fill="var(--ivory)" d="M0,40 C300,90 600,0 900,35 C1150,63 1300,20 1440,45 L1440,90 L0,90 Z" /></svg>
+      </div>
+
       <StockistDirectory initialStockists={stockists} brands={brands} />
-    </div>
+
+      <section className="cta-band">
+        <div className="wrap">
+          <h2>Want to carry our brands in your store?</h2>
+          <a href="/contact" className="btn btn-orange"><span>Become a stockist</span></a>
+        </div>
+      </section>
+    </>
   );
 }

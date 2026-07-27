@@ -42,40 +42,37 @@ export default function EnquiryForm() {
 
   if (done) {
     return (
-      <div style={{ background: '#e8f5e9', border: '1px solid #a5d6a7', borderRadius: 8, padding: 16, marginTop: 16 }}>
-        Thanks for reaching out! We've received your message and will get back to you soon —
-        check your email for confirmation.
+      <div className="enq-form" style={{ textAlign: 'center' }}>
+        <p style={{ margin: 0, color: 'var(--navy)', fontWeight: 700 }}>
+          Thanks for reaching out! We've received your message and will get back to you soon —
+          check your email for confirmation.
+        </p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 20 }}>
-      <label>
-        Name
-        <input value={form.name} onChange={e => update('name', e.target.value)} style={inputStyle} />
-      </label>
-      <label>
-        Email
-        <input required type="email" value={form.email} onChange={e => update('email', e.target.value)} style={inputStyle} />
-      </label>
-      <label>
-        Phone (optional)
-        <input value={form.phone} onChange={e => update('phone', e.target.value)} style={inputStyle} />
-      </label>
-      <label>
-        Message
-        <textarea
-          required rows={5} value={form.message} onChange={e => update('message', e.target.value)}
-          style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }}
-        />
-      </label>
-      {error && <p style={{ color: 'crimson', fontSize: 13 }}>{error}</p>}
-      <button type="submit" disabled={busy} style={{ padding: '10px 16px' }}>
-        {busy ? 'Sending…' : 'Send Message'}
+    <form onSubmit={handleSubmit} className="enq-form">
+      <div className="field">
+        <label>Name</label>
+        <input value={form.name} onChange={e => update('name', e.target.value)} placeholder="Your name" />
+      </div>
+      <div className="field">
+        <label>Email</label>
+        <input required type="email" value={form.email} onChange={e => update('email', e.target.value)} placeholder="you@example.com" />
+      </div>
+      <div className="field">
+        <label>Phone (optional)</label>
+        <input value={form.phone} onChange={e => update('phone', e.target.value)} placeholder="+65 ..." />
+      </div>
+      <div className="field">
+        <label>Message</label>
+        <textarea required rows={5} value={form.message} onChange={e => update('message', e.target.value)} placeholder="How can we help?" />
+      </div>
+      {error && <p style={{ color: 'crimson', fontSize: 13, marginBottom: 14 }}>{error}</p>}
+      <button type="submit" disabled={busy} className="btn btn-orange" style={{ width: '100%', justifyContent: 'center' }}>
+        <span>{busy ? 'Sending…' : 'Send Message'}</span>
       </button>
     </form>
   );
 }
-
-const inputStyle = { display: 'block', width: '100%', padding: 8, marginTop: 4 };

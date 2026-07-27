@@ -13,23 +13,27 @@ export default function AddToCartSection({ product }) {
   const outOfStock = product.stock_status === 'out_of_stock';
 
   if (outOfStock) {
-    return <p style={{ color: 'crimson' }}>Out of stock</p>;
+    return <p style={{ color: 'crimson', fontWeight: 700 }}>Out of stock</p>;
   }
 
   return (
     <>
-      {product.stock_status === 'low_stock' && <p style={{ color: '#e6a700', fontSize: 13 }}>Low stock — order soon</p>}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12 }}>
-        <input
-          type="number" min="1" value={qty}
-          onChange={e => setQty(Math.max(1, parseInt(e.target.value) || 1))}
-          style={{ width: 60, padding: 8 }}
-        />
+      {product.stock_status === 'low_stock' && <p style={{ color: '#8a6300', fontSize: 13, fontWeight: 700 }}>Low stock — order soon</p>}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16 }}>
+        <div className="qty-stepper">
+          <button type="button" onClick={() => setQty(q => Math.max(1, q - 1))}>−</button>
+          <input
+            type="number" min="1" value={qty}
+            onChange={e => setQty(Math.max(1, parseInt(e.target.value) || 1))}
+            style={{ width: 32, textAlign: 'center', fontWeight: 700, fontSize: 14, color: 'var(--navy)', border: 'none', background: 'transparent' }}
+          />
+          <button type="button" onClick={() => setQty(q => q + 1)}>+</button>
+        </div>
         <button
           onClick={() => { addItem(product, qty); router.push('/cart'); }}
-          style={{ padding: '10px 20px' }}
+          className="btn btn-orange"
         >
-          Add to Cart
+          <span>Add to Cart</span>
         </button>
       </div>
     </>
