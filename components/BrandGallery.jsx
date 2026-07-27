@@ -26,6 +26,13 @@ export default function BrandGallery() {
     if (!track) return;
     let isDown = false, startX = 0, scrollStart = 0, moved = false;
 
+    // Always start showing the first card in full. Set synchronously, and
+    // again after the next paint — scroll-snap can otherwise settle to a
+    // non-zero position once layout finishes (e.g. while the page's own
+    // fade-in transition is still resolving).
+    track.scrollLeft = 0;
+    requestAnimationFrame(() => { track.scrollLeft = 0; });
+
     function pointerDown(e) {
       isDown = true; moved = false;
       track.classList.add('dragging');
