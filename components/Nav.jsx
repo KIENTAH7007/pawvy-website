@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { BRAND_SLUGS } from '../lib/brandSlugs';
 import { useCart } from '../lib/CartContext';
+import { customerApi, getSessionToken, setSessionToken } from '../lib/api';
 
 // FREE_SHIPPING_THRESHOLD matches the $60 free-delivery rule already
 // established elsewhere on the site (ShopClient, checkout) — keep these
@@ -13,6 +14,8 @@ const FREE_SHIPPING_THRESHOLD = 60;
 export default function Nav() {
   const [shopOpen, setShopOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [customer, setCustomer] = useState(null);
+  const [balance, setBalance] = useState(0);
   const { itemCount, subtotal } = useCart();
 
   useEffect(() => {
@@ -22,10 +25,18 @@ export default function Nav() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    if (!getSessionToken()) return;
+    customerApi.me()
+      .then(({ customer, buttons_balance }) => { setCustomer(customer); setBalance(buttons_balance); })
+      .catch(() => setSessionToken(null));
+  }, []);
+
   const unlocked = subtotal >= FREE_SHIPPING_THRESHOLD;
   const focText = unlocked
     ? 'Free delivery unlocked!'
     : `Add $${(FREE_SHIPPING_THRESHOLD - subtotal).toFixed(2)} for free delivery`;
+  const firstName = customer?.name?.split(' ')[0] || 'there';
 
   return (
     <nav className={`site-nav${scrolled ? ' scrolled' : ''}`}>
@@ -55,7 +66,7 @@ export default function Nav() {
             </div>
 
             <Link href="/stockist">Stockist</Link>
-            <Link href="/contact">Contact</Link>
+            <Link href="/#enquiry">Contact</Link>
             <Link href="/blog">Blog</Link>
           </div>
 
@@ -65,8 +76,17 @@ export default function Nav() {
           </div>
 
           <div className="nav-auth">
-            <Link href="/login" className="nav-login">Log in</Link>
-            <Link href="/signup" className="btn btn-orange nav-signup"><span>Sign up</span></Link>
+            {customer ? (
+              <Link href="/account" className="nav-greeting">
+                <span className="nav-greeting-name">Hi, {firstName}</span>
+                <span className="nav-greeting-balance">{balance}B</span>
+              </Link>
+            ) : (
+              <>
+                <Link href="/login" className="nav-login">Log in</Link>
+                <Link href="/signup" className="btn btn-orange nav-signup"><span>Sign up</span></Link>
+              </>
+            )}
           </div>
 
           <Link href="/cart" className="cart-link">

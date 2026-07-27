@@ -61,7 +61,12 @@ h1, h2, h3, .stat-num { font-family: 'Fraunces', serif; }
 @media (prefers-reduced-motion: reduce) {
   .reveal, .reveal-stagger > *, .line-reveal span { opacity: 1 !important; transform: none !important; transition: none !important; animation: none !important; }
   .marquee-track, .blob, .float-dot, .typewriter-caret, .paw-badge svg { animation: none !important; }
+  .page-transition { animation: none !important; }
 }
+
+/* ---------- Page transition ---------- */
+.page-transition { animation: pageFadeIn .4s cubic-bezier(.16,.8,.3,1); }
+@keyframes pageFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 /* ---------- Nav ---------- */
 nav.site-nav { position: fixed; top: 0; left: 0; right: 0; width: 100%; z-index: 100; padding: 22px 0; background: var(--navy); transition: padding .35s ease, box-shadow .35s ease; }
@@ -106,9 +111,17 @@ nav.site-nav.scrolled { padding: 14px 0; box-shadow: 0 10px 30px rgba(20,33,61,.
 .nav-auth { display: flex; align-items: center; gap: 18px; }
 .nav-login { font-size: 14.5px; font-weight: 700; color: var(--cream); white-space: nowrap; }
 .nav-signup.btn { padding: 10px 22px; font-size: 14px; white-space: nowrap; }
+.nav-greeting {
+  display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 16px; border-radius: 100px;
+  background: rgba(245,242,235,.08); border: 1px solid rgba(245,242,235,.16); white-space: nowrap;
+  transition: background .25s ease, border-color .25s ease;
+}
+.nav-greeting:hover { background: rgba(245,242,235,.14); border-color: rgba(245,242,235,.3); }
+.nav-greeting-name { font-size: 14px; font-weight: 700; color: var(--cream); }
+.nav-greeting-balance { font-size: 12.5px; font-weight: 800; color: var(--navy); background: var(--orange); padding: 5px 11px; border-radius: 100px; }
 @media (max-width: 1080px) { .foc-pill { display: none; } }
 @media (max-width: 900px) { .nav-links { display: none; } }
-@media (max-width: 560px) { .nav-login { display: none; } }
+@media (max-width: 560px) { .nav-login { display: none; } .nav-greeting-name { display: none; } .nav-greeting { padding: 8px; } }
 
 /* ---------- Buttons ---------- */
 .btn {
@@ -141,7 +154,18 @@ nav.site-nav.scrolled { padding: 14px 0; box-shadow: 0 10px 30px rgba(20,33,61,.
    BELOW, PLUS transform:rotate(180deg) — without the rotation the colors
    land on the wrong edges (learned this the hard way across many rounds
    of a color-banding bug). Always include the rotation. */
-.section-curve { position: relative; height: 90px; margin-bottom: -1px; transform: rotate(180deg); }
+/* ---------- Organic wave divider ----------
+   Convention: wrapper background = section ABOVE, path fill = section
+   BELOW. The path itself (M0,40 C...900,35 C...1440,45 L1440,90 L0,90 Z)
+   already fills the bottom majority of the box with the "below" color,
+   leaving the unfilled curved area at top showing the wrapper's own
+   background ("above" color) — this is already the correct orientation
+   with NO rotation needed. A rotate(180deg) was previously applied here
+   based on a lesson learned with an earlier/different path shape, but for
+   THIS path it flips the colors onto the wrong edges (below-color ends up
+   touching the section above, above-color ends up touching the section
+   below) — do not re-add it for this specific path. */
+.section-curve { position: relative; height: 90px; margin-bottom: -1px; }
 .section-curve svg { width: 100%; height: 100%; display: block; }
 
 /* ---------- Hero ---------- */
@@ -315,6 +339,26 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .faq-item p { margin-top: 16px; font-size: 15.5px; color: var(--dark-gray); line-height: 1.75; max-width: 680px; }
 
 .cta-band { padding: 90px 0; background: var(--navy); text-align: center; }
+
+/* ---------- Account page ---------- */
+.account-body { padding: 90px 0 110px; background: var(--ivory); }
+.account-inner { max-width: 640px; margin: 0 auto; }
+.account-topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 30px; }
+.account-topbar .btn { padding: 11px 22px; font-size: 13.5px; }
+.account-card { background: var(--cream); border: 2px solid rgba(20,33,61,.08); border-radius: 20px; padding: 22px 24px; margin-bottom: 16px; }
+.account-card-label { font-size: 12.5px; font-weight: 800; color: var(--dark-gray); text-transform: uppercase; letter-spacing: .5px; }
+.account-balance { font-family: 'Fraunces', serif; font-weight: 900; font-size: 40px; color: var(--navy); margin-top: 4px; }
+.account-referral-input { width: 100%; margin-top: 10px; padding: 12px 14px; border-radius: 12px; border: 2px solid rgba(20,33,61,.12); background: var(--ivory); font-size: 13.5px; color: var(--navy); font-weight: 600; }
+.account-bonus-banner { background: rgba(243,111,74,.08); border: 2px solid rgba(243,111,74,.25); border-radius: 16px; padding: 18px 20px; margin-bottom: 16px; }
+.account-bonus-banner strong { color: var(--navy); font-size: 15px; }
+.account-bonus-banner p { font-size: 13.5px; color: var(--dark-gray); margin-top: 6px; line-height: 1.6; }
+.account-success-banner { background: rgba(34,139,34,.08); border: 2px solid rgba(34,139,34,.22); border-radius: 16px; padding: 14px 18px; margin-bottom: 16px; font-size: 14px; font-weight: 700; color: #1e6b1e; }
+.account-form { background: var(--cream); border: 2px solid rgba(20,33,61,.08); border-radius: 20px; padding: 26px 26px 28px; margin-top: 20px; }
+.account-form h2 { font-family: 'Fraunces', serif; font-weight: 800; font-size: 20px; color: var(--navy); margin-bottom: 4px; }
+.account-form .form-hint { font-size: 13px; color: var(--dark-gray); margin-top: -2px; margin-bottom: 16px; line-height: 1.6; }
+.account-form .field { margin-top: 14px; margin-bottom: 0; }
+.account-form .btn { margin-top: 18px; padding: 12px 26px; font-size: 14px; }
+.account-error { color: #c0392b; font-size: 13px; margin-top: 10px; font-weight: 600; }
 .cta-band h2 { font-weight: 900; font-size: clamp(28px,3.6vw,42px); color: var(--cream); letter-spacing: -.6px; margin-bottom: 26px; }
 
 .placeholder-flag { display: inline-block; font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 100px; margin-bottom: 20px; border: 1px solid var(--orange); }
@@ -323,6 +367,7 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .filter-bar { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 40px; }
 .filter-bar select { padding: 14px 20px; border-radius: 100px; border: 2px solid rgba(245,242,235,.2); background: rgba(245,242,235,.06); color: var(--cream); font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
 .filter-bar select option { color: var(--zade-black); }
+.stockist-list .filter-bar select { border-color: rgba(20,33,61,.15); background: var(--cream); color: var(--navy); }
 .stockist-list { padding: 90px 0 100px; background: var(--ivory); }
 .stockist-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 22px; }
 @media (max-width: 760px) { .stockist-grid { grid-template-columns: 1fr; } }
@@ -375,7 +420,7 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 @media (max-width: 560px) { .product-grid { grid-template-columns: 1fr; } }
 .product-card { background: var(--cream); border: 2px solid rgba(20,33,61,.08); border-radius: 22px; overflow: hidden; transition: border-color .3s ease, transform .3s ease; display: flex; flex-direction: column; }
 .product-card:hover { border-color: var(--orange); transform: translateY(-3px); }
-.product-card .thumb { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; position: relative; background: var(--mid-cream); overflow: hidden; }
+.product-card .thumb { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; position: relative; background: var(--ivory); overflow: hidden; }
 .product-card .thumb img { width: 100%; height: 100%; object-fit: contain; padding: 10px; }
 .product-card .no-img { font-size: 12px; color: var(--dark-gray); font-weight: 600; }
 .product-card .card-tags { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 12px 10px; }

@@ -43,7 +43,7 @@ export default function LoginPage() {
     try {
       const result = await customerApi.loginPassword(email, password);
       setSessionToken(result.session_token);
-      router.push('/account');
+      router.push(result.customer?.profile_bonus_claimed ? '/' : '/account');
     } catch (err) {
       setError(err.message);
     } finally {

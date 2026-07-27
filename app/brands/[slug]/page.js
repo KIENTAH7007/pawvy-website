@@ -102,7 +102,7 @@ export default async function BrandPage({ params }) {
       <section id="enquiry-cta" className="cta-band">
         <div className="wrap">
           <h2>Have a question we didn't cover?</h2>
-          <Link href="/contact" className="btn btn-orange"><span>Get in touch</span></Link>
+          <Link href="/#enquiry" className="btn btn-orange"><span>Get in touch</span></Link>
         </div>
       </section>
     </>

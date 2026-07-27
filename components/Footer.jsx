@@ -13,7 +13,7 @@ export default function Footer() {
             <div className="eyebrow" style={{ color: 'var(--light-pitch)' }}>Explore</div>
             <Link href="/shop">Shop Brands</Link>
             <Link href="/stockist">Stockist</Link>
-            <Link href="/contact">FAQ</Link>
+            <Link href="/#enquiry">Contact</Link>
             <Link href="/blog">Blog</Link>
           </div>
           <div className="foot-col">

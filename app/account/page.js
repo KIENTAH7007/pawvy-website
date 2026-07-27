@@ -102,128 +102,130 @@ export default function AccountPage() {
   if (loading) return <div style={{ maxWidth: 560, margin: '140px auto 40px', padding: '0 20px' }}>Loading…</div>;
 
   return (
-    <div style={{ maxWidth: 560, margin: '140px auto 40px', padding: '0 20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1>My Pawvy Account</h1>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <Link href="/shop"><button style={{ padding: '6px 12px' }}>Shop</button></Link>
-          <button onClick={handleLogout} style={{ padding: '6px 12px' }}>Log out</button>
+    <>
+      <section className="subhero">
+        <div className="blob" />
+        <div className="wrap subhero-inner">
+          <div className="eyebrow">Your account</div>
+          <h1>My Pawvy Account</h1>
         </div>
+      </section>
+
+      <div className="section-curve" style={{ background: 'var(--navy)' }}>
+        <svg viewBox="0 0 1440 90" preserveAspectRatio="none"><path fill="var(--ivory)" d="M0,40 C300,90 600,0 900,35 C1150,63 1300,20 1440,45 L1440,90 L0,90 Z" /></svg>
       </div>
 
-      <div style={{ background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: 16, marginTop: 16 }}>
-        <div style={{ fontSize: 13, color: '#666' }}>BUTTONS Balance</div>
-        <div style={{ fontSize: 28, fontWeight: 700 }}>{balance}B</div>
-      </div>
+      <section className="account-body">
+        <div className="wrap account-inner">
+          <div className="account-topbar">
+            <Link href="/shop" className="btn btn-outline-dark"><span>Shop</span></Link>
+            <button onClick={handleLogout} className="btn btn-outline-dark"><span>Log out</span></button>
+          </div>
 
-      <div style={{ background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: 16, marginTop: 12 }}>
-        <div style={{ fontSize: 13, color: '#666' }}>Your Referral Link — you and your friends get BUTTONS</div>
-        <input readOnly value={referralLink} style={{ width: '100%', padding: 8, marginTop: 6 }} onFocus={e => e.target.select()} />
-      </div>
+          <div className="account-card">
+            <div className="account-card-label">BUTTONS Balance</div>
+            <div className="account-balance">{balance}B</div>
+          </div>
 
-      {!customer.profile_bonus_claimed && (
-        <div style={{ background: '#fff8e1', border: '1px solid #ffe082', borderRadius: 8, padding: 16, marginTop: 12 }}>
-          <strong>Complete your profile for 50 BUTTONS</strong>
-          <p style={{ fontSize: 13, color: '#666', margin: '6px 0 0' }}>
-            Fill in your pet's details and your contact preference below — plus you'll get a
-            reminder (and a gift!) around your pet's birthday once this is done.
-          </p>
+          <div className="account-card">
+            <div className="account-card-label">Your Referral Link — you and your friends get BUTTONS</div>
+            <input readOnly value={referralLink} className="account-referral-input" onFocus={e => e.target.select()} />
+          </div>
+
+          {!customer.profile_bonus_claimed && (
+            <div className="account-bonus-banner">
+              <strong>Complete your profile for 50 BUTTONS</strong>
+              <p>
+                Fill in your pet's details and your contact preference below — plus you'll get a
+                reminder (and a gift!) around your pet's birthday once this is done.
+              </p>
+            </div>
+          )}
+
+          {bonusMessage && (
+            <div className="account-success-banner">{bonusMessage}</div>
+          )}
+
+          <form onSubmit={saveProfile} className="account-form">
+            <h2>Your Details</h2>
+            <FormField label="Name" value={profileForm.name} onChange={v => setProfileForm(f => ({ ...f, name: v }))} />
+            <FormField label="Phone" value={profileForm.phone} onChange={v => setProfileForm(f => ({ ...f, phone: v }))} />
+            <FormField label="Address" value={profileForm.address} onChange={v => setProfileForm(f => ({ ...f, address: v }))} />
+            <FormField label="Instagram handle" value={profileForm.instagram_handle} onChange={v => setProfileForm(f => ({ ...f, instagram_handle: v }))} />
+            <div className="field">
+              <label>Preferred contact channel</label>
+              <select
+                value={profileForm.preferred_contact_channel}
+                onChange={e => setProfileForm(f => ({ ...f, preferred_contact_channel: e.target.value }))}
+              >
+                <option value="">Select…</option>
+                <option value="email">Email</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="telegram">Telegram</option>
+              </select>
+            </div>
+            <button type="submit" disabled={savingProfile} className="btn btn-orange"><span>{savingProfile ? 'Saving…' : 'Save Details'}</span></button>
+          </form>
+
+          <form onSubmit={savePet} className="account-form">
+            <h2>Your Pet</h2>
+            <FormField label="Name" value={petForm.name} onChange={v => setPetForm(f => ({ ...f, name: v }))} />
+            <FormField label="Breed" value={petForm.breed} onChange={v => setPetForm(f => ({ ...f, breed: v }))} />
+            <FormField label="Weight (kg)" type="number" value={petForm.weight} onChange={v => setPetForm(f => ({ ...f, weight: v }))} />
+            <FormField label="Birthday" type="date" value={petForm.birthday} onChange={v => setPetForm(f => ({ ...f, birthday: v }))} />
+            <FormField label="Allergies / dietary notes" value={petForm.allergies} onChange={v => setPetForm(f => ({ ...f, allergies: v }))} />
+            <div className="field">
+              <label>Favorite item type</label>
+              <select
+                value={petForm.favorite_item}
+                onChange={e => setPetForm(f => ({ ...f, favorite_item: e.target.value }))}
+              >
+                <option value="">Select…</option>
+                <option value="Food">Food</option>
+                <option value="Toy">Toy</option>
+                <option value="Chewing">Chewing</option>
+                <option value="Sleeping">Sleeping</option>
+              </select>
+            </div>
+            <div className="field">
+              <label>Chew power</label>
+              <select
+                value={petForm.chew_power}
+                onChange={e => setPetForm(f => ({ ...f, chew_power: e.target.value }))}
+              >
+                <option value="">Select…</option>
+                <option value="Gentle">Gentle</option>
+                <option value="Enthusiast">Enthusiast</option>
+                <option value="Hardcore">Hardcore</option>
+              </select>
+            </div>
+            <button type="submit" disabled={savingPet} className="btn btn-orange"><span>{savingPet ? 'Saving…' : 'Save Pet Info'}</span></button>
+          </form>
+
+          <form onSubmit={savePassword} className="account-form">
+            <h2>{customer.has_password ? 'Change Password' : 'Set a Password'}</h2>
+            <p className="form-hint">
+              {customer.has_password
+                ? "Set a new password below — you'll use it next time instead of the email link."
+                : "You're currently logging in with an email link only. Set a password so you don't need one next time."}
+            </p>
+            <FormField label="New password" type="password" value={passwordForm.password} onChange={v => setPasswordForm(f => ({ ...f, password: v }))} />
+            <FormField label="Confirm password" type="password" value={passwordForm.confirm} onChange={v => setPasswordForm(f => ({ ...f, confirm: v }))} />
+            {passwordError && <p className="account-error">{passwordError}</p>}
+            {passwordSuccess && <p style={{ color: '#1e6b1e', fontSize: 13, marginTop: 10, fontWeight: 600 }}>Password updated.</p>}
+            <button type="submit" disabled={savingPassword} className="btn btn-orange"><span>{savingPassword ? 'Saving…' : (customer.has_password ? 'Change Password' : 'Set Password')}</span></button>
+          </form>
         </div>
-      )}
-
-      {bonusMessage && (
-        <div style={{ background: '#e8f5e9', border: '1px solid #a5d6a7', borderRadius: 8, padding: 12, marginTop: 12 }}>
-          {bonusMessage}
-        </div>
-      )}
-
-      <form onSubmit={saveProfile} style={{ marginTop: 24 }}>
-        <h2 style={{ fontSize: 16 }}>Your Details</h2>
-        <FormField label="Name" value={profileForm.name} onChange={v => setProfileForm(f => ({ ...f, name: v }))} />
-        <FormField label="Phone" value={profileForm.phone} onChange={v => setProfileForm(f => ({ ...f, phone: v }))} />
-        <FormField label="Address" value={profileForm.address} onChange={v => setProfileForm(f => ({ ...f, address: v }))} />
-        <FormField label="Instagram handle" value={profileForm.instagram_handle} onChange={v => setProfileForm(f => ({ ...f, instagram_handle: v }))} />
-        <label style={{ display: 'block', marginTop: 10 }}>
-          Preferred contact channel
-          <select
-            value={profileForm.preferred_contact_channel}
-            onChange={e => setProfileForm(f => ({ ...f, preferred_contact_channel: e.target.value }))}
-            style={{ display: 'block', width: '100%', padding: 8, marginTop: 4 }}
-          >
-            <option value="">Select…</option>
-            <option value="email">Email</option>
-            <option value="whatsapp">WhatsApp</option>
-            <option value="telegram">Telegram</option>
-          </select>
-        </label>
-        <button type="submit" disabled={savingProfile} style={{ padding: '8px 16px', marginTop: 12 }}>
-          {savingProfile ? 'Saving…' : 'Save Details'}
-        </button>
-      </form>
-
-      <form onSubmit={savePet} style={{ marginTop: 32 }}>
-        <h2 style={{ fontSize: 16 }}>Your Pet</h2>
-        <FormField label="Name" value={petForm.name} onChange={v => setPetForm(f => ({ ...f, name: v }))} />
-        <FormField label="Breed" value={petForm.breed} onChange={v => setPetForm(f => ({ ...f, breed: v }))} />
-        <FormField label="Weight (kg)" type="number" value={petForm.weight} onChange={v => setPetForm(f => ({ ...f, weight: v }))} />
-        <FormField label="Birthday" type="date" value={petForm.birthday} onChange={v => setPetForm(f => ({ ...f, birthday: v }))} />
-        <FormField label="Allergies / dietary notes" value={petForm.allergies} onChange={v => setPetForm(f => ({ ...f, allergies: v }))} />
-        <label style={{ display: 'block', marginTop: 10 }}>
-          Favorite item type
-          <select
-            value={petForm.favorite_item}
-            onChange={e => setPetForm(f => ({ ...f, favorite_item: e.target.value }))}
-            style={{ display: 'block', width: '100%', padding: 8, marginTop: 4 }}
-          >
-            <option value="">Select…</option>
-            <option value="Food">Food</option>
-            <option value="Toy">Toy</option>
-            <option value="Chewing">Chewing</option>
-            <option value="Sleeping">Sleeping</option>
-          </select>
-        </label>
-        <label style={{ display: 'block', marginTop: 10 }}>
-          Chew power
-          <select
-            value={petForm.chew_power}
-            onChange={e => setPetForm(f => ({ ...f, chew_power: e.target.value }))}
-            style={{ display: 'block', width: '100%', padding: 8, marginTop: 4 }}
-          >
-            <option value="">Select…</option>
-            <option value="Gentle">Gentle</option>
-            <option value="Enthusiast">Enthusiast</option>
-            <option value="Hardcore">Hardcore</option>
-          </select>
-        </label>
-        <button type="submit" disabled={savingPet} style={{ padding: '8px 16px', marginTop: 12 }}>
-          {savingPet ? 'Saving…' : 'Save Pet Info'}
-        </button>
-      </form>
-
-      <form onSubmit={savePassword} style={{ marginTop: 32 }}>
-        <h2 style={{ fontSize: 16 }}>{customer.has_password ? 'Change Password' : 'Set a Password'}</h2>
-        <p style={{ fontSize: 12.5, color: '#666', marginTop: -6 }}>
-          {customer.has_password
-            ? "Set a new password below — you'll use it next time instead of the email link."
-            : "You're currently logging in with an email link only. Set a password so you don't need one next time."}
-        </p>
-        <FormField label="New password" type="password" value={passwordForm.password} onChange={v => setPasswordForm(f => ({ ...f, password: v }))} />
-        <FormField label="Confirm password" type="password" value={passwordForm.confirm} onChange={v => setPasswordForm(f => ({ ...f, confirm: v }))} />
-        {passwordError && <p style={{ color: 'crimson', fontSize: 13 }}>{passwordError}</p>}
-        {passwordSuccess && <p style={{ color: 'green', fontSize: 13 }}>Password updated.</p>}
-        <button type="submit" disabled={savingPassword} style={{ padding: '8px 16px', marginTop: 12 }}>
-          {savingPassword ? 'Saving…' : (customer.has_password ? 'Change Password' : 'Set Password')}
-        </button>
-      </form>
-    </div>
+      </section>
+    </>
   );
 }
 
 function FormField({ label, value, onChange, type = 'text' }) {
   return (
-    <label style={{ display: 'block', marginTop: 10 }}>
-      {label}
-      <input type={type} value={value} onChange={e => onChange(e.target.value)} style={{ display: 'block', width: '100%', padding: 8, marginTop: 4 }} />
-    </label>
+    <div className="field">
+      <label>{label}</label>
+      <input type={type} value={value} onChange={e => onChange(e.target.value)} />
+    </div>
   );
 }

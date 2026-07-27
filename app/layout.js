@@ -2,6 +2,7 @@ import { CartProvider } from '../lib/CartContext';
 import Nav from '../components/Nav';
 import Footer from '../components/Footer';
 import WhatsAppButton from '../components/WhatsAppButton';
+import PageTransition from '../components/PageTransition';
 import './globals.css';
 
 // Default metadata for every page — individual pages (product, brand)
@@ -21,7 +22,7 @@ export default function RootLayout({ children }) {
       <body>
         <CartProvider>
           <Nav />
-          {children}
+          <PageTransition>{children}</PageTransition>
           <Footer />
           <WhatsAppButton />
         </CartProvider>

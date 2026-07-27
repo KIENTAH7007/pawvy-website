@@ -26,7 +26,9 @@ function LoginLanding() {
       .then(result => {
         setSessionToken(result.session_token);
         setStatus('success');
-        const nextPage = result.customer.has_password ? '/account' : '/set-password';
+        const nextPage = !result.customer.has_password
+          ? '/set-password'
+          : (result.customer.profile_bonus_claimed ? '/' : '/account');
         setTimeout(() => router.push(nextPage), 1200);
       })
       .catch(err => {

@@ -1,0 +1,606 @@
+diff --git a/app/account/page.js b/app/account/page.js
+index db94986..7a7c5aa 100644
+--- a/app/account/page.js
++++ b/app/account/page.js
+@@ -102,128 +102,130 @@ export default function AccountPage() {
+   if (loading) return <div style={{ maxWidth: 560, margin: '140px auto 40px', padding: '0 20px' }}>Loading…</div>;
+ 
+   return (
+-    <div style={{ maxWidth: 560, margin: '140px auto 40px', padding: '0 20px' }}>
+-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+-        <h1>My Pawvy Account</h1>
+-        <div style={{ display: 'flex', gap: 8 }}>
+-          <Link href="/shop"><button style={{ padding: '6px 12px' }}>Shop</button></Link>
+-          <button onClick={handleLogout} style={{ padding: '6px 12px' }}>Log out</button>
++    <>
++      <section className="subhero">
++        <div className="blob" />
++        <div className="wrap subhero-inner">
++          <div className="eyebrow">Your account</div>
++          <h1>My Pawvy Account</h1>
+         </div>
+-      </div>
+-
+-      <div style={{ background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: 16, marginTop: 16 }}>
+-        <div style={{ fontSize: 13, color: '#666' }}>BUTTONS Balance</div>
+-        <div style={{ fontSize: 28, fontWeight: 700 }}>{balance}B</div>
+-      </div>
++      </section>
+ 
+-      <div style={{ background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: 16, marginTop: 12 }}>
+-        <div style={{ fontSize: 13, color: '#666' }}>Your Referral Link — you and your friends get BUTTONS</div>
+-        <input readOnly value={referralLink} style={{ width: '100%', padding: 8, marginTop: 6 }} onFocus={e => e.target.select()} />
++      <div className="section-curve" style={{ background: 'var(--navy)' }}>
++        <svg viewBox="0 0 1440 90" preserveAspectRatio="none"><path fill="var(--ivory)" d="M0,40 C300,90 600,0 900,35 C1150,63 1300,20 1440,45 L1440,90 L0,90 Z" /></svg>
+       </div>
+ 
+-      {!customer.profile_bonus_claimed && (
+-        <div style={{ background: '#fff8e1', border: '1px solid #ffe082', borderRadius: 8, padding: 16, marginTop: 12 }}>
+-          <strong>Complete your profile for 50 BUTTONS</strong>
+-          <p style={{ fontSize: 13, color: '#666', margin: '6px 0 0' }}>
+-            Fill in your pet's details and your contact preference below — plus you'll get a
+-            reminder (and a gift!) around your pet's birthday once this is done.
+-          </p>
++      <section className="account-body">
++        <div className="wrap account-inner">
++          <div className="account-topbar">
++            <Link href="/shop" className="btn btn-outline-dark"><span>Shop</span></Link>
++            <button onClick={handleLogout} className="btn btn-outline-dark"><span>Log out</span></button>
++          </div>
++
++          <div className="account-card">
++            <div className="account-card-label">BUTTONS Balance</div>
++            <div className="account-balance">{balance}B</div>
++          </div>
++
++          <div className="account-card">
++            <div className="account-card-label">Your Referral Link — you and your friends get BUTTONS</div>
++            <input readOnly value={referralLink} className="account-referral-input" onFocus={e => e.target.select()} />
++          </div>
++
++          {!customer.profile_bonus_claimed && (
++            <div className="account-bonus-banner">
++              <strong>Complete your profile for 50 BUTTONS</strong>
++              <p>
++                Fill in your pet's details and your contact preference below — plus you'll get a
++                reminder (and a gift!) around your pet's birthday once this is done.
++              </p>
++            </div>
++          )}
++
++          {bonusMessage && (
++            <div className="account-success-banner">{bonusMessage}</div>
++          )}
++
++          <form onSubmit={saveProfile} className="account-form">
++            <h2>Your Details</h2>
++            <FormField label="Name" value={profileForm.name} onChange={v => setProfileForm(f => ({ ...f, name: v }))} />
++            <FormField label="Phone" value={profileForm.phone} onChange={v => setProfileForm(f => ({ ...f, phone: v }))} />
++            <FormField label="Address" value={profileForm.address} onChange={v => setProfileForm(f => ({ ...f, address: v }))} />
++            <FormField label="Instagram handle" value={profileForm.instagram_handle} onChange={v => setProfileForm(f => ({ ...f, instagram_handle: v }))} />
++            <div className="field">
++              <label>Preferred contact channel</label>
++              <select
++                value={profileForm.preferred_contact_channel}
++                onChange={e => setProfileForm(f => ({ ...f, preferred_contact_channel: e.target.value }))}
++              >
++                <option value="">Select…</option>
++                <option value="email">Email</option>
++                <option value="whatsapp">WhatsApp</option>
++                <option value="telegram">Telegram</option>
++              </select>
++            </div>
++            <button type="submit" disabled={savingProfile} className="btn btn-orange"><span>{savingProfile ? 'Saving…' : 'Save Details'}</span></button>
++          </form>
++
++          <form onSubmit={savePet} className="account-form">
++            <h2>Your Pet</h2>
++            <FormField label="Name" value={petForm.name} onChange={v => setPetForm(f => ({ ...f, name: v }))} />
++            <FormField label="Breed" value={petForm.breed} onChange={v => setPetForm(f => ({ ...f, breed: v }))} />
++            <FormField label="Weight (kg)" type="number" value={petForm.weight} onChange={v => setPetForm(f => ({ ...f, weight: v }))} />
++            <FormField label="Birthday" type="date" value={petForm.birthday} onChange={v => setPetForm(f => ({ ...f, birthday: v }))} />
++            <FormField label="Allergies / dietary notes" value={petForm.allergies} onChange={v => setPetForm(f => ({ ...f, allergies: v }))} />
++            <div className="field">
++              <label>Favorite item type</label>
++              <select
++                value={petForm.favorite_item}
++                onChange={e => setPetForm(f => ({ ...f, favorite_item: e.target.value }))}
++              >
++                <option value="">Select…</option>
++                <option value="Food">Food</option>
++                <option value="Toy">Toy</option>
++                <option value="Chewing">Chewing</option>
++                <option value="Sleeping">Sleeping</option>
++              </select>
++            </div>
++            <div className="field">
++              <label>Chew power</label>
++              <select
++                value={petForm.chew_power}
++                onChange={e => setPetForm(f => ({ ...f, chew_power: e.target.value }))}
++              >
++                <option value="">Select…</option>
++                <option value="Gentle">Gentle</option>
++                <option value="Enthusiast">Enthusiast</option>
++                <option value="Hardcore">Hardcore</option>
++              </select>
++            </div>
++            <button type="submit" disabled={savingPet} className="btn btn-orange"><span>{savingPet ? 'Saving…' : 'Save Pet Info'}</span></button>
++          </form>
++
++          <form onSubmit={savePassword} className="account-form">
++            <h2>{customer.has_password ? 'Change Password' : 'Set a Password'}</h2>
++            <p className="form-hint">
++              {customer.has_password
++                ? "Set a new password below — you'll use it next time instead of the email link."
++                : "You're currently logging in with an email link only. Set a password so you don't need one next time."}
++            </p>
++            <FormField label="New password" type="password" value={passwordForm.password} onChange={v => setPasswordForm(f => ({ ...f, password: v }))} />
++            <FormField label="Confirm password" type="password" value={passwordForm.confirm} onChange={v => setPasswordForm(f => ({ ...f, confirm: v }))} />
++            {passwordError && <p className="account-error">{passwordError}</p>}
++            {passwordSuccess && <p style={{ color: '#1e6b1e', fontSize: 13, marginTop: 10, fontWeight: 600 }}>Password updated.</p>}
++            <button type="submit" disabled={savingPassword} className="btn btn-orange"><span>{savingPassword ? 'Saving…' : (customer.has_password ? 'Change Password' : 'Set Password')}</span></button>
++          </form>
+         </div>
+-      )}
+-
+-      {bonusMessage && (
+-        <div style={{ background: '#e8f5e9', border: '1px solid #a5d6a7', borderRadius: 8, padding: 12, marginTop: 12 }}>
+-          {bonusMessage}
+-        </div>
+-      )}
+-
+-      <form onSubmit={saveProfile} style={{ marginTop: 24 }}>
+-        <h2 style={{ fontSize: 16 }}>Your Details</h2>
+-        <FormField label="Name" value={profileForm.name} onChange={v => setProfileForm(f => ({ ...f, name: v }))} />
+-        <FormField label="Phone" value={profileForm.phone} onChange={v => setProfileForm(f => ({ ...f, phone: v }))} />
+-        <FormField label="Address" value={profileForm.address} onChange={v => setProfileForm(f => ({ ...f, address: v }))} />
+-        <FormField label="Instagram handle" value={profileForm.instagram_handle} onChange={v => setProfileForm(f => ({ ...f, instagram_handle: v }))} />
+-        <label style={{ display: 'block', marginTop: 10 }}>
+-          Preferred contact channel
+-          <select
+-            value={profileForm.preferred_contact_channel}
+-            onChange={e => setProfileForm(f => ({ ...f, preferred_contact_channel: e.target.value }))}
+-            style={{ display: 'block', width: '100%', padding: 8, marginTop: 4 }}
+-          >
+-            <option value="">Select…</option>
+-            <option value="email">Email</option>
+-            <option value="whatsapp">WhatsApp</option>
+-            <option value="telegram">Telegram</option>
+-          </select>
+-        </label>
+-        <button type="submit" disabled={savingProfile} style={{ padding: '8px 16px', marginTop: 12 }}>
+-          {savingProfile ? 'Saving…' : 'Save Details'}
+-        </button>
+-      </form>
+-
+-      <form onSubmit={savePet} style={{ marginTop: 32 }}>
+-        <h2 style={{ fontSize: 16 }}>Your Pet</h2>
+-        <FormField label="Name" value={petForm.name} onChange={v => setPetForm(f => ({ ...f, name: v }))} />
+-        <FormField label="Breed" value={petForm.breed} onChange={v => setPetForm(f => ({ ...f, breed: v }))} />
+-        <FormField label="Weight (kg)" type="number" value={petForm.weight} onChange={v => setPetForm(f => ({ ...f, weight: v }))} />
+-        <FormField label="Birthday" type="date" value={petForm.birthday} onChange={v => setPetForm(f => ({ ...f, birthday: v }))} />
+-        <FormField label="Allergies / dietary notes" value={petForm.allergies} onChange={v => setPetForm(f => ({ ...f, allergies: v }))} />
+-        <label style={{ display: 'block', marginTop: 10 }}>
+-          Favorite item type
+-          <select
+-            value={petForm.favorite_item}
+-            onChange={e => setPetForm(f => ({ ...f, favorite_item: e.target.value }))}
+-            style={{ display: 'block', width: '100%', padding: 8, marginTop: 4 }}
+-          >
+-            <option value="">Select…</option>
+-            <option value="Food">Food</option>
+-            <option value="Toy">Toy</option>
+-            <option value="Chewing">Chewing</option>
+-            <option value="Sleeping">Sleeping</option>
+-          </select>
+-        </label>
+-        <label style={{ display: 'block', marginTop: 10 }}>
+-          Chew power
+-          <select
+-            value={petForm.chew_power}
+-            onChange={e => setPetForm(f => ({ ...f, chew_power: e.target.value }))}
+-            style={{ display: 'block', width: '100%', padding: 8, marginTop: 4 }}
+-          >
+-            <option value="">Select…</option>
+-            <option value="Gentle">Gentle</option>
+-            <option value="Enthusiast">Enthusiast</option>
+-            <option value="Hardcore">Hardcore</option>
+-          </select>
+-        </label>
+-        <button type="submit" disabled={savingPet} style={{ padding: '8px 16px', marginTop: 12 }}>
+-          {savingPet ? 'Saving…' : 'Save Pet Info'}
+-        </button>
+-      </form>
+-
+-      <form onSubmit={savePassword} style={{ marginTop: 32 }}>
+-        <h2 style={{ fontSize: 16 }}>{customer.has_password ? 'Change Password' : 'Set a Password'}</h2>
+-        <p style={{ fontSize: 12.5, color: '#666', marginTop: -6 }}>
+-          {customer.has_password
+-            ? "Set a new password below — you'll use it next time instead of the email link."
+-            : "You're currently logging in with an email link only. Set a password so you don't need one next time."}
+-        </p>
+-        <FormField label="New password" type="password" value={passwordForm.password} onChange={v => setPasswordForm(f => ({ ...f, password: v }))} />
+-        <FormField label="Confirm password" type="password" value={passwordForm.confirm} onChange={v => setPasswordForm(f => ({ ...f, confirm: v }))} />
+-        {passwordError && <p style={{ color: 'crimson', fontSize: 13 }}>{passwordError}</p>}
+-        {passwordSuccess && <p style={{ color: 'green', fontSize: 13 }}>Password updated.</p>}
+-        <button type="submit" disabled={savingPassword} style={{ padding: '8px 16px', marginTop: 12 }}>
+-          {savingPassword ? 'Saving…' : (customer.has_password ? 'Change Password' : 'Set Password')}
+-        </button>
+-      </form>
+-    </div>
++      </section>
++    </>
+   );
+ }
+ 
+ function FormField({ label, value, onChange, type = 'text' }) {
+   return (
+-    <label style={{ display: 'block', marginTop: 10 }}>
+-      {label}
+-      <input type={type} value={value} onChange={e => onChange(e.target.value)} style={{ display: 'block', width: '100%', padding: 8, marginTop: 4 }} />
+-    </label>
++    <div className="field">
++      <label>{label}</label>
++      <input type={type} value={value} onChange={e => onChange(e.target.value)} />
++    </div>
+   );
+ }
+diff --git a/app/brands/[slug]/page.js b/app/brands/[slug]/page.js
+index abbdbc7..d2e6e1a 100644
+--- a/app/brands/[slug]/page.js
++++ b/app/brands/[slug]/page.js
+@@ -102,7 +102,7 @@ export default async function BrandPage({ params }) {
+       <section id="enquiry-cta" className="cta-band">
+         <div className="wrap">
+           <h2>Have a question we didn't cover?</h2>
+-          <Link href="/contact" className="btn btn-orange"><span>Get in touch</span></Link>
++          <Link href="/#enquiry" className="btn btn-orange"><span>Get in touch</span></Link>
+         </div>
+       </section>
+     </>
+diff --git a/app/contact/page.js b/app/contact/page.js
+deleted file mode 100644
+index 6078a34..0000000
+--- a/app/contact/page.js
++++ /dev/null
+@@ -1,43 +0,0 @@
+-import EnquiryForm from '../../components/EnquiryForm';
+-
+-export const metadata = {
+-  title: 'Contact & FAQ | Pawvy',
+-  description: 'Get in touch with Pawvy, or check our frequently asked questions.',
+-};
+-
+-export default function ContactPage() {
+-  return (
+-    <>
+-      <section className="subhero">
+-        <div className="blob" />
+-        <div className="wrap subhero-inner">
+-          <div className="eyebrow">Get in touch</div>
+-          <h1>Contact us</h1>
+-          <p className="desc">
+-            Have a question? Send us a message below, or reach us directly via the WhatsApp button
+-            in the corner. For brand-specific FAQs, check that brand's own page.
+-          </p>
+-        </div>
+-      </section>
+-
+-      <div className="section-curve">
+-        <svg viewBox="0 0 1440 90" preserveAspectRatio="none"><path fill="var(--ivory)" d="M0,40 C300,90 600,0 900,35 C1150,63 1300,20 1440,45 L1440,90 L0,90 Z" /></svg>
+-      </div>
+-
+-      <section className="enquiry">
+-        <div className="wrap enq-grid">
+-          <div className="enq-copy">
+-            <h2>Send us a message</h2>
+-            <p>Whether you're a pawrent with a question or a retailer interested in carrying our brands, we'd love to hear from you.</p>
+-            <div className="enq-contact">
+-              <a href="mailto:hello@pawvy.info">hello@pawvy.info</a>
+-              <a href="tel:+6596894853">+65 9689 4853</a>
+-              <div>Singapore</div>
+-            </div>
+-          </div>
+-          <EnquiryForm />
+-        </div>
+-      </section>
+-    </>
+-  );
+-}
+diff --git a/app/globals.css b/app/globals.css
+index f5259a9..225a635 100644
+--- a/app/globals.css
++++ b/app/globals.css
+@@ -61,8 +61,13 @@ h1, h2, h3, .stat-num { font-family: 'Fraunces', serif; }
+ @media (prefers-reduced-motion: reduce) {
+   .reveal, .reveal-stagger > *, .line-reveal span { opacity: 1 !important; transform: none !important; transition: none !important; animation: none !important; }
+   .marquee-track, .blob, .float-dot, .typewriter-caret, .paw-badge svg { animation: none !important; }
++  .page-transition { animation: none !important; }
+ }
+ 
++/* ---------- Page transition ---------- */
++.page-transition { animation: pageFadeIn .4s cubic-bezier(.16,.8,.3,1); }
++@keyframes pageFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
++
+ /* ---------- Nav ---------- */
+ nav.site-nav { position: fixed; top: 0; left: 0; right: 0; width: 100%; z-index: 100; padding: 22px 0; background: var(--navy); transition: padding .35s ease, box-shadow .35s ease; }
+ nav.site-nav.scrolled { padding: 14px 0; box-shadow: 0 10px 30px rgba(20,33,61,.25); }
+@@ -106,9 +111,17 @@ nav.site-nav.scrolled { padding: 14px 0; box-shadow: 0 10px 30px rgba(20,33,61,.
+ .nav-auth { display: flex; align-items: center; gap: 18px; }
+ .nav-login { font-size: 14.5px; font-weight: 700; color: var(--cream); white-space: nowrap; }
+ .nav-signup.btn { padding: 10px 22px; font-size: 14px; white-space: nowrap; }
++.nav-greeting {
++  display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 16px; border-radius: 100px;
++  background: rgba(245,242,235,.08); border: 1px solid rgba(245,242,235,.16); white-space: nowrap;
++  transition: background .25s ease, border-color .25s ease;
++}
++.nav-greeting:hover { background: rgba(245,242,235,.14); border-color: rgba(245,242,235,.3); }
++.nav-greeting-name { font-size: 14px; font-weight: 700; color: var(--cream); }
++.nav-greeting-balance { font-size: 12.5px; font-weight: 800; color: var(--navy); background: var(--orange); padding: 5px 11px; border-radius: 100px; }
+ @media (max-width: 1080px) { .foc-pill { display: none; } }
+ @media (max-width: 900px) { .nav-links { display: none; } }
+-@media (max-width: 560px) { .nav-login { display: none; } }
++@media (max-width: 560px) { .nav-login { display: none; } .nav-greeting-name { display: none; } .nav-greeting { padding: 8px; } }
+ 
+ /* ---------- Buttons ---------- */
+ .btn {
+@@ -141,7 +154,18 @@ nav.site-nav.scrolled { padding: 14px 0; box-shadow: 0 10px 30px rgba(20,33,61,.
+    BELOW, PLUS transform:rotate(180deg) — without the rotation the colors
+    land on the wrong edges (learned this the hard way across many rounds
+    of a color-banding bug). Always include the rotation. */
+-.section-curve { position: relative; height: 90px; margin-bottom: -1px; transform: rotate(180deg); }
++/* ---------- Organic wave divider ----------
++   Convention: wrapper background = section ABOVE, path fill = section
++   BELOW. The path itself (M0,40 C...900,35 C...1440,45 L1440,90 L0,90 Z)
++   already fills the bottom majority of the box with the "below" color,
++   leaving the unfilled curved area at top showing the wrapper's own
++   background ("above" color) — this is already the correct orientation
++   with NO rotation needed. A rotate(180deg) was previously applied here
++   based on a lesson learned with an earlier/different path shape, but for
++   THIS path it flips the colors onto the wrong edges (below-color ends up
++   touching the section above, above-color ends up touching the section
++   below) — do not re-add it for this specific path. */
++.section-curve { position: relative; height: 90px; margin-bottom: -1px; }
+ .section-curve svg { width: 100%; height: 100%; display: block; }
+ 
+ /* ---------- Hero ---------- */
+@@ -315,6 +339,26 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top:
+ .faq-item p { margin-top: 16px; font-size: 15.5px; color: var(--dark-gray); line-height: 1.75; max-width: 680px; }
+ 
+ .cta-band { padding: 90px 0; background: var(--navy); text-align: center; }
++
++/* ---------- Account page ---------- */
++.account-body { padding: 90px 0 110px; background: var(--ivory); }
++.account-inner { max-width: 640px; margin: 0 auto; }
++.account-topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 30px; }
++.account-topbar .btn { padding: 11px 22px; font-size: 13.5px; }
++.account-card { background: var(--cream); border: 2px solid rgba(20,33,61,.08); border-radius: 20px; padding: 22px 24px; margin-bottom: 16px; }
++.account-card-label { font-size: 12.5px; font-weight: 800; color: var(--dark-gray); text-transform: uppercase; letter-spacing: .5px; }
++.account-balance { font-family: 'Fraunces', serif; font-weight: 900; font-size: 40px; color: var(--navy); margin-top: 4px; }
++.account-referral-input { width: 100%; margin-top: 10px; padding: 12px 14px; border-radius: 12px; border: 2px solid rgba(20,33,61,.12); background: var(--ivory); font-size: 13.5px; color: var(--navy); font-weight: 600; }
++.account-bonus-banner { background: rgba(243,111,74,.08); border: 2px solid rgba(243,111,74,.25); border-radius: 16px; padding: 18px 20px; margin-bottom: 16px; }
++.account-bonus-banner strong { color: var(--navy); font-size: 15px; }
++.account-bonus-banner p { font-size: 13.5px; color: var(--dark-gray); margin-top: 6px; line-height: 1.6; }
++.account-success-banner { background: rgba(34,139,34,.08); border: 2px solid rgba(34,139,34,.22); border-radius: 16px; padding: 14px 18px; margin-bottom: 16px; font-size: 14px; font-weight: 700; color: #1e6b1e; }
++.account-form { background: var(--cream); border: 2px solid rgba(20,33,61,.08); border-radius: 20px; padding: 26px 26px 28px; margin-top: 20px; }
++.account-form h2 { font-family: 'Fraunces', serif; font-weight: 800; font-size: 20px; color: var(--navy); margin-bottom: 4px; }
++.account-form .form-hint { font-size: 13px; color: var(--dark-gray); margin-top: -2px; margin-bottom: 16px; line-height: 1.6; }
++.account-form .field { margin-top: 14px; margin-bottom: 0; }
++.account-form .btn { margin-top: 18px; padding: 12px 26px; font-size: 14px; }
++.account-error { color: #c0392b; font-size: 13px; margin-top: 10px; font-weight: 600; }
+ .cta-band h2 { font-weight: 900; font-size: clamp(28px,3.6vw,42px); color: var(--cream); letter-spacing: -.6px; margin-bottom: 26px; }
+ 
+ .placeholder-flag { display: inline-block; font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 100px; margin-bottom: 20px; border: 1px solid var(--orange); }
+@@ -323,6 +367,7 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top:
+ .filter-bar { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 40px; }
+ .filter-bar select { padding: 14px 20px; border-radius: 100px; border: 2px solid rgba(245,242,235,.2); background: rgba(245,242,235,.06); color: var(--cream); font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+ .filter-bar select option { color: var(--zade-black); }
++.stockist-list .filter-bar select { border-color: rgba(20,33,61,.15); background: var(--cream); color: var(--navy); }
+ .stockist-list { padding: 90px 0 100px; background: var(--ivory); }
+ .stockist-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 22px; }
+ @media (max-width: 760px) { .stockist-grid { grid-template-columns: 1fr; } }
+@@ -375,7 +420,7 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top:
+ @media (max-width: 560px) { .product-grid { grid-template-columns: 1fr; } }
+ .product-card { background: var(--cream); border: 2px solid rgba(20,33,61,.08); border-radius: 22px; overflow: hidden; transition: border-color .3s ease, transform .3s ease; display: flex; flex-direction: column; }
+ .product-card:hover { border-color: var(--orange); transform: translateY(-3px); }
+-.product-card .thumb { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; position: relative; background: var(--mid-cream); overflow: hidden; }
++.product-card .thumb { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; position: relative; background: var(--ivory); overflow: hidden; }
+ .product-card .thumb img { width: 100%; height: 100%; object-fit: contain; padding: 10px; }
+ .product-card .no-img { font-size: 12px; color: var(--dark-gray); font-weight: 600; }
+ .product-card .card-tags { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 12px 10px; }
+diff --git a/app/layout.js b/app/layout.js
+index 93857e5..da50b06 100644
+--- a/app/layout.js
++++ b/app/layout.js
+@@ -2,6 +2,7 @@ import { CartProvider } from '../lib/CartContext';
+ import Nav from '../components/Nav';
+ import Footer from '../components/Footer';
+ import WhatsAppButton from '../components/WhatsAppButton';
++import PageTransition from '../components/PageTransition';
+ import './globals.css';
+ 
+ // Default metadata for every page — individual pages (product, brand)
+@@ -21,7 +22,7 @@ export default function RootLayout({ children }) {
+       <body>
+         <CartProvider>
+           <Nav />
+-          {children}
++          <PageTransition>{children}</PageTransition>
+           <Footer />
+           <WhatsAppButton />
+         </CartProvider>
+diff --git a/app/login-verify/page.js b/app/login-verify/page.js
+index f889ba8..61de0e9 100644
+--- a/app/login-verify/page.js
++++ b/app/login-verify/page.js
+@@ -26,7 +26,9 @@ function LoginLanding() {
+       .then(result => {
+         setSessionToken(result.session_token);
+         setStatus('success');
+-        const nextPage = result.customer.has_password ? '/account' : '/set-password';
++        const nextPage = !result.customer.has_password
++          ? '/set-password'
++          : (result.customer.profile_bonus_claimed ? '/' : '/account');
+         setTimeout(() => router.push(nextPage), 1200);
+       })
+       .catch(err => {
+diff --git a/app/login/page.js b/app/login/page.js
+index 599fa5d..094428e 100644
+--- a/app/login/page.js
++++ b/app/login/page.js
+@@ -43,7 +43,7 @@ export default function LoginPage() {
+     try {
+       const result = await customerApi.loginPassword(email, password);
+       setSessionToken(result.session_token);
+-      router.push('/account');
++      router.push(result.customer?.profile_bonus_claimed ? '/' : '/account');
+     } catch (err) {
+       setError(err.message);
+     } finally {
+diff --git a/app/sitemap.js b/app/sitemap.js
+index b0429bc..9507f40 100644
+--- a/app/sitemap.js
++++ b/app/sitemap.js
+@@ -10,7 +10,6 @@ export default async function sitemap() {
+     { url: `${base}/`, changeFrequency: 'weekly', priority: 1 },
+     { url: `${base}/shop`, changeFrequency: 'daily', priority: 0.9 },
+     { url: `${base}/stockist`, changeFrequency: 'monthly', priority: 0.5 },
+-    { url: `${base}/contact`, changeFrequency: 'monthly', priority: 0.5 },
+     { url: `${base}/blog`, changeFrequency: 'weekly', priority: 0.6 },
+   ];
+ 
+diff --git a/app/stockist/page.js b/app/stockist/page.js
+index 51312ff..8e471b6 100644
+--- a/app/stockist/page.js
++++ b/app/stockist/page.js
+@@ -26,7 +26,7 @@ export default async function StockistPage() {
+         </div>
+       </section>
+ 
+-      <div className="section-curve">
++      <div className="section-curve" style={{ background: 'var(--navy)' }}>
+         <svg viewBox="0 0 1440 90" preserveAspectRatio="none"><path fill="var(--ivory)" d="M0,40 C300,90 600,0 900,35 C1150,63 1300,20 1440,45 L1440,90 L0,90 Z" /></svg>
+       </div>
+ 
+@@ -35,7 +35,7 @@ export default async function StockistPage() {
+       <section className="cta-band">
+         <div className="wrap">
+           <h2>Want to carry our brands in your store?</h2>
+-          <a href="/contact" className="btn btn-orange"><span>Become a stockist</span></a>
++          <a href="/#enquiry" className="btn btn-orange"><span>Become a stockist</span></a>
+         </div>
+       </section>
+     </>
+diff --git a/components/Footer.jsx b/components/Footer.jsx
+index 5ceb198..b516f98 100644
+--- a/components/Footer.jsx
++++ b/components/Footer.jsx
+@@ -13,7 +13,7 @@ export default function Footer() {
+             <div className="eyebrow" style={{ color: 'var(--light-pitch)' }}>Explore</div>
+             <Link href="/shop">Shop Brands</Link>
+             <Link href="/stockist">Stockist</Link>
+-            <Link href="/contact">FAQ</Link>
++            <Link href="/#enquiry">Contact</Link>
+             <Link href="/blog">Blog</Link>
+           </div>
+           <div className="foot-col">
+diff --git a/components/Nav.jsx b/components/Nav.jsx
+index 74a4b78..e19634f 100644
+--- a/components/Nav.jsx
++++ b/components/Nav.jsx
+@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
+ import Link from 'next/link';
+ import { BRAND_SLUGS } from '../lib/brandSlugs';
+ import { useCart } from '../lib/CartContext';
++import { customerApi, getSessionToken, setSessionToken } from '../lib/api';
+ 
+ // FREE_SHIPPING_THRESHOLD matches the $60 free-delivery rule already
+ // established elsewhere on the site (ShopClient, checkout) — keep these
+@@ -13,6 +14,8 @@ const FREE_SHIPPING_THRESHOLD = 60;
+ export default function Nav() {
+   const [shopOpen, setShopOpen] = useState(false);
+   const [scrolled, setScrolled] = useState(false);
++  const [customer, setCustomer] = useState(null);
++  const [balance, setBalance] = useState(0);
+   const { itemCount, subtotal } = useCart();
+ 
+   useEffect(() => {
+@@ -22,10 +25,18 @@ export default function Nav() {
+     return () => window.removeEventListener('scroll', onScroll);
+   }, []);
+ 
++  useEffect(() => {
++    if (!getSessionToken()) return;
++    customerApi.me()
++      .then(({ customer, buttons_balance }) => { setCustomer(customer); setBalance(buttons_balance); })
++      .catch(() => setSessionToken(null));
++  }, []);
++
+   const unlocked = subtotal >= FREE_SHIPPING_THRESHOLD;
+   const focText = unlocked
+     ? 'Free delivery unlocked!'
+     : `Add $${(FREE_SHIPPING_THRESHOLD - subtotal).toFixed(2)} for free delivery`;
++  const firstName = customer?.name?.split(' ')[0] || 'there';
+ 
+   return (
+     <nav className={`site-nav${scrolled ? ' scrolled' : ''}`}>
+@@ -55,7 +66,7 @@ export default function Nav() {
+             </div>
+ 
+             <Link href="/stockist">Stockist</Link>
+-            <Link href="/contact">Contact</Link>
++            <Link href="/#enquiry">Contact</Link>
+             <Link href="/blog">Blog</Link>
+           </div>
+ 
+@@ -65,8 +76,17 @@ export default function Nav() {
+           </div>
+ 
+           <div className="nav-auth">
+-            <Link href="/login" className="nav-login">Log in</Link>
+-            <Link href="/signup" className="btn btn-orange nav-signup"><span>Sign up</span></Link>
++            {customer ? (
++              <Link href="/account" className="nav-greeting">
++                <span className="nav-greeting-name">Hi, {firstName}</span>
++                <span className="nav-greeting-balance">{balance}B</span>
++              </Link>
++            ) : (
++              <>
++                <Link href="/login" className="nav-login">Log in</Link>
++                <Link href="/signup" className="btn btn-orange nav-signup"><span>Sign up</span></Link>
++              </>
++            )}
+           </div>
+ 
+           <Link href="/cart" className="cart-link">
+diff --git a/components/PageTransition.jsx b/components/PageTransition.jsx
+new file mode 100644
+index 0000000..66f79db
+--- /dev/null
++++ b/components/PageTransition.jsx
+@@ -0,0 +1,24 @@
++'use client';
++
++import React from 'react';
++import { usePathname } from 'next/navigation';
++
++// Next's App Router swaps page content instantly with no transition of its
++// own — the "elegant" feel from the original static mockups came from
++// scroll-reveal animations, not page-to-page navigation, which didn't
++// exist yet at that stage. This re-creates a lightweight version of that:
++// keying the wrapper on the pathname forces React to remount it on every
++// navigation, which restarts the CSS fade-in animation below. Deliberately
++// simple (opacity + a few px of upward motion, ~350ms) rather than a full
++// exit/enter crossfade — that would need either the View Transitions API
++// (not yet reliable across browsers for App Router) or a client-side
++// animation library synchronizing unmount timing with route changes, which
++// is a much bigger change than this specific ask calls for.
++export default function PageTransition({ children }) {
++  const pathname = usePathname();
++  return (
++    <div key={pathname} className="page-transition">
++      {children}
++    </div>
++  );
++}
