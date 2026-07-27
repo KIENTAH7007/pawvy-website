@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { BRAND_SLUGS } from '../lib/brandSlugs';
 import { useCart } from '../lib/CartContext';
 import { customerApi, getSessionToken, setSessionToken } from '../lib/api';
@@ -11,7 +12,21 @@ import { customerApi, getSessionToken, setSessionToken } from '../lib/api';
 // in sync if that number ever changes.
 const FREE_SHIPPING_THRESHOLD = 60;
 
+// Pages whose content starts with a navy-background hero (home's morphing
+// blobs, or a .subhero/.shop-hero) — on these, the nav starts transparent
+// so it blends into that hero, matching the original mockup, then gains
+// its solid background once scrolled. Everywhere else (cart, login/signup,
+// blog, etc.) doesn't have navy right at the top, so the nav needs its
+// solid background from the start or nav text would be unreadable against
+// a light page background.
+function startsOnNavy(pathname) {
+  if (pathname === '/' || pathname === '/shop' || pathname === '/stockist' || pathname === '/account') return true;
+  if (pathname.startsWith('/brands/')) return true;
+  return false;
+}
+
 export default function Nav() {
+  const pathname = usePathname();
   const [shopOpen, setShopOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [customer, setCustomer] = useState(null);
@@ -23,23 +38,25 @@ export default function Nav() {
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
-    if (!getSessionToken()) return;
+    const token = getSessionToken();
+    if (!token) { setCustomer(null); setBalance(0); return; }
     customerApi.me()
       .then(({ customer, buttons_balance }) => { setCustomer(customer); setBalance(buttons_balance); })
-      .catch(() => setSessionToken(null));
-  }, []);
+      .catch(() => { setSessionToken(null); setCustomer(null); setBalance(0); });
+  }, [pathname]);
 
   const unlocked = subtotal >= FREE_SHIPPING_THRESHOLD;
   const focText = unlocked
     ? 'Free delivery unlocked!'
     : `Add $${(FREE_SHIPPING_THRESHOLD - subtotal).toFixed(2)} for free delivery`;
   const firstName = customer?.name?.split(' ')[0] || 'there';
+  const solid = scrolled || !startsOnNavy(pathname);
 
   return (
-    <nav className={`site-nav${scrolled ? ' scrolled' : ''}`}>
+    <nav className={`site-nav${solid ? ' scrolled' : ''}`}>
       <div className="wrap nav-inner">
         <Link href="/" className="brand-mark">
           <img src="/pawvy-logo-white.png" alt="Pawvy" />

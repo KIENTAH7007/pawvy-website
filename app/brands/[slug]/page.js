@@ -40,7 +40,7 @@ export default async function BrandPage({ params }) {
       <section className="subhero">
         <div className="blob" />
         <div className="wrap subhero-inner">
-          <Link href="/shop" className="back">
+          <Link href="/#gallery" className="back">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
             All brands
           </Link>

@@ -33,7 +33,7 @@ export default function Marquee({ children, pxPerSecond = 55, trackClassName = '
 
       const halfWidth = track.scrollWidth / 2;
       track.style.animationDuration = `${halfWidth / pxPerSecond}s`;
-      track.style.animationPlayState = 'running';
+      track.classList.add('ready');
     }
 
     // Measuring text width before the real web font has swapped in (still
@@ -47,7 +47,7 @@ export default function Marquee({ children, pxPerSecond = 55, trackClassName = '
   }, [children, pxPerSecond]);
 
   return (
-    <div ref={trackRef} className={trackClassName} style={{ animationPlayState: 'paused' }}>
+    <div ref={trackRef} className={trackClassName}>
       {children}
     </div>
   );

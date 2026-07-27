@@ -132,7 +132,7 @@ export default function Home() {
           <div className="eyebrow center">Customer reviews</div>
           <h2>Here's what pawrents are saying</h2>
         </Reveal>
-        <Marquee pxPerSecond={38}>
+        <Marquee pxPerSecond={38} trackClassName="test-track">
           {TESTIMONIALS.map((t, i) => (
             <div className="test-card" key={i}>
               <div className="stars">★★★★★</div>

@@ -1,0 +1,286 @@
+diff --git a/app/brands/[slug]/page.js b/app/brands/[slug]/page.js
+index d2e6e1a..114b022 100644
+--- a/app/brands/[slug]/page.js
++++ b/app/brands/[slug]/page.js
+@@ -40,7 +40,7 @@ export default async function BrandPage({ params }) {
+       <section className="subhero">
+         <div className="blob" />
+         <div className="wrap subhero-inner">
+-          <Link href="/shop" className="back">
++          <Link href="/#gallery" className="back">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+             All brands
+           </Link>
+diff --git a/app/globals.css b/app/globals.css
+index 225a635..dcdb0ec 100644
+--- a/app/globals.css
++++ b/app/globals.css
+@@ -45,6 +45,23 @@ h1, h2, h3, .stat-num { font-family: 'Fraunces', serif; }
+ @media (max-width: 760px) { .wrap { padding: 0 22px; } }
+ 
+ /* ---------- Reveal-on-scroll (driven by a 'reveal-in' class toggled via IntersectionObserver in React) ---------- */
++/* ---------- Custom cursor — desktop / fine pointer only ---------- */
++@media (pointer: fine) {
++  body.cursor-ready { cursor: none; }
++  body.cursor-ready a, body.cursor-ready button, body.cursor-ready .tilt-card { cursor: none; }
++}
++#cursor-dot, #cursor-ring {
++  position: fixed; top: 0; left: 0; pointer-events: none; z-index: 300;
++  border-radius: 50%; transform: translate(-50%,-50%);
++}
++#cursor-dot { width: 7px; height: 7px; background: var(--orange); }
++#cursor-ring {
++  width: 38px; height: 38px; border: 1.5px solid var(--orange); opacity: .7;
++  transition: width .25s ease, height .25s ease, opacity .25s ease, border-color .25s ease;
++}
++#cursor-ring.hover { width: 64px; height: 64px; opacity: 1; background: rgba(243,111,74,.1); }
++@media (pointer: coarse) { #cursor-dot, #cursor-ring { display: none; } }
++
+ .reveal { opacity: 0; transform: translateY(30px); transition: opacity .8s cubic-bezier(.16,.8,.3,1), transform .8s cubic-bezier(.16,.8,.3,1); }
+ .reveal.reveal-in { opacity: 1; transform: translateY(0); }
+ .reveal-stagger > * { opacity: 0; transform: translateY(24px); transition: opacity .7s cubic-bezier(.16,.8,.3,1), transform .7s cubic-bezier(.16,.8,.3,1); }
+@@ -69,8 +86,8 @@ h1, h2, h3, .stat-num { font-family: 'Fraunces', serif; }
+ @keyframes pageFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+ 
+ /* ---------- Nav ---------- */
+-nav.site-nav { position: fixed; top: 0; left: 0; right: 0; width: 100%; z-index: 100; padding: 22px 0; background: var(--navy); transition: padding .35s ease, box-shadow .35s ease; }
+-nav.site-nav.scrolled { padding: 14px 0; box-shadow: 0 10px 30px rgba(20,33,61,.25); }
++nav.site-nav { position: fixed; top: 0; left: 0; right: 0; width: 100%; z-index: 100; padding: 22px 0; background: transparent; transition: background .35s ease, padding .35s ease, box-shadow .35s ease; }
++nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10px); padding: 14px 0; box-shadow: 0 10px 30px rgba(20,33,61,.25); }
+ .nav-inner { display: flex; align-items: center; justify-content: space-between; }
+ .brand-mark { display: inline-flex; }
+ .brand-mark img { height: 38px; width: auto; }
+@@ -200,8 +217,9 @@ nav.site-nav.scrolled { padding: 14px 0; box-shadow: 0 10px 30px rgba(20,33,61,.
+ 
+ /* Marquee ticker */
+ .marquee { position: relative; z-index: 1; border-top: 1px solid rgba(245,242,235,.15); border-bottom: 1px solid rgba(245,242,235,.15); background: var(--orange); padding: 16px 0; margin-top: 64px; overflow: hidden; white-space: nowrap; }
+-.marquee-track { display: inline-flex; gap: 48px; animation: marquee 26s linear infinite; }
+-.marquee:hover .marquee-track { animation-play-state: paused; }
++.marquee-track { display: inline-flex; gap: 48px; animation: marquee 26s linear infinite; animation-play-state: paused; }
++.marquee-track.ready { animation-play-state: running; }
++.marquee:hover .marquee-track.ready { animation-play-state: paused; }
+ @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+ .marquee-item { font-size: 16px; font-weight: 900; letter-spacing: .5px; color: var(--navy); display: inline-flex; align-items: center; gap: 16px; text-transform: uppercase; }
+ .marquee-item .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--navy); display: inline-block; }
+@@ -257,8 +275,9 @@ nav.site-nav.scrolled { padding: 14px 0; box-shadow: 0 10px 30px rgba(20,33,61,.
+ .testimonials { padding: 100px 0; background: var(--navy); overflow: hidden; }
+ .test-head { max-width: 600px; margin: 0 auto 50px; text-align: center; color: var(--cream); }
+ .test-head h2 { font-weight: 900; font-size: clamp(30px,3.8vw,44px); letter-spacing: -.5px; }
+-.test-track { display: flex; gap: 22px; animation: testScroll 34s linear infinite; width: max-content; }
+-.testimonials:hover .test-track { animation-play-state: paused; }
++.test-track { display: flex; gap: 22px; animation: testScroll 34s linear infinite; width: max-content; animation-play-state: paused; }
++.test-track.ready { animation-play-state: running; }
++.testimonials:hover .test-track.ready { animation-play-state: paused; }
+ @keyframes testScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+ .test-card { width: 340px; flex-shrink: 0; background: rgba(245,242,235,.06); border: 1px solid rgba(245,242,235,.14); border-radius: 20px; padding: 28px; }
+ .test-card .stars { color: var(--orange); letter-spacing: 3px; margin-bottom: 14px; font-size: 14px; }
+diff --git a/app/layout.js b/app/layout.js
+index da50b06..a67fd29 100644
+--- a/app/layout.js
++++ b/app/layout.js
+@@ -3,6 +3,7 @@ import Nav from '../components/Nav';
+ import Footer from '../components/Footer';
+ import WhatsAppButton from '../components/WhatsAppButton';
+ import PageTransition from '../components/PageTransition';
++import CustomCursor from '../components/CustomCursor';
+ import './globals.css';
+ 
+ // Default metadata for every page — individual pages (product, brand)
+@@ -21,6 +22,7 @@ export default function RootLayout({ children }) {
+     <html lang="en">
+       <body>
+         <CartProvider>
++          <CustomCursor />
+           <Nav />
+           <PageTransition>{children}</PageTransition>
+           <Footer />
+diff --git a/app/page.js b/app/page.js
+index 197c7b4..5efd31f 100644
+--- a/app/page.js
++++ b/app/page.js
+@@ -132,7 +132,7 @@ export default function Home() {
+           <div className="eyebrow center">Customer reviews</div>
+           <h2>Here's what pawrents are saying</h2>
+         </Reveal>
+-        <Marquee pxPerSecond={38}>
++        <Marquee pxPerSecond={38} trackClassName="test-track">
+           {TESTIMONIALS.map((t, i) => (
+             <div className="test-card" key={i}>
+               <div className="stars">★★★★★</div>
+diff --git a/components/CustomCursor.jsx b/components/CustomCursor.jsx
+new file mode 100644
+index 0000000..2e04b84
+--- /dev/null
++++ b/components/CustomCursor.jsx
+@@ -0,0 +1,84 @@
++'use client';
++
++import React, { useEffect, useRef } from 'react';
++
++// Ported from the original static v3 mockup. Desktop/fine-pointer only
++// (touch devices get no custom cursor, and the real system cursor stays
++// visible for them) — checked via matchMedia, not just CSS, so the mouse
++// listeners themselves never attach on touch devices either.
++//
++// The ring is deliberately NOT re-queried on every render — it uses a
++// MutationObserver once on mount to catch hoverable elements added later
++// by client-side navigation (App Router swaps page content without a full
++// reload, so a one-time querySelectorAll at mount would miss anything
++// rendered after that, e.g. product cards that load once the shop page's
++// fetch resolves).
++export default function CustomCursor() {
++  const dotRef = useRef(null);
++  const ringRef = useRef(null);
++
++  useEffect(() => {
++    if (!window.matchMedia('(pointer: fine)').matches) return;
++
++    document.body.classList.add('cursor-ready');
++    const dot = dotRef.current;
++    const ring = ringRef.current;
++    let mx = window.innerWidth / 2, my = window.innerHeight / 2;
++    let rx = mx, ry = my;
++    let raf;
++
++    function onMove(e) {
++      mx = e.clientX; my = e.clientY;
++      dot.style.left = mx + 'px';
++      dot.style.top = my + 'px';
++    }
++    window.addEventListener('mousemove', onMove);
++
++    function loop() {
++      rx += (mx - rx) * 0.16;
++      ry += (my - ry) * 0.16;
++      ring.style.left = rx + 'px';
++      ring.style.top = ry + 'px';
++      raf = requestAnimationFrame(loop);
++    }
++    loop();
++
++    const HOVER_SELECTOR = 'a, button, .tilt-card, .product-card, .stockist-card';
++    function attach(el) {
++      el.addEventListener('mouseenter', enter);
++      el.addEventListener('mouseleave', leave);
++    }
++    function enter() { ring.classList.add('hover'); }
++    function leave() { ring.classList.remove('hover'); }
++
++    document.querySelectorAll(HOVER_SELECTOR).forEach(attach);
++
++    // Catch elements added after mount (client-fetched product grids,
++    // route changes that don't remount this component since it lives in
++    // the root layout above PageTransition).
++    const observer = new MutationObserver((mutations) => {
++      for (const m of mutations) {
++        m.addedNodes.forEach((node) => {
++          if (node.nodeType !== 1) return;
++          if (node.matches?.(HOVER_SELECTOR)) attach(node);
++          node.querySelectorAll?.(HOVER_SELECTOR).forEach(attach);
++        });
++      }
++    });
++    observer.observe(document.body, { childList: true, subtree: true });
++
++    return () => {
++      window.removeEventListener('mousemove', onMove);
++      cancelAnimationFrame(raf);
++      observer.disconnect();
++      document.body.classList.remove('cursor-ready');
++    };
++  }, []);
++
++  return (
++    <>
++      <div id="cursor-ring" ref={ringRef} />
++      <div id="cursor-dot" ref={dotRef} />
++    </>
++  );
++}
+diff --git a/components/Marquee.jsx b/components/Marquee.jsx
+index f7d3c2c..0438b4b 100644
+--- a/components/Marquee.jsx
++++ b/components/Marquee.jsx
+@@ -33,7 +33,7 @@ export default function Marquee({ children, pxPerSecond = 55, trackClassName = '
+ 
+       const halfWidth = track.scrollWidth / 2;
+       track.style.animationDuration = `${halfWidth / pxPerSecond}s`;
+-      track.style.animationPlayState = 'running';
++      track.classList.add('ready');
+     }
+ 
+     // Measuring text width before the real web font has swapped in (still
+@@ -47,7 +47,7 @@ export default function Marquee({ children, pxPerSecond = 55, trackClassName = '
+   }, [children, pxPerSecond]);
+ 
+   return (
+-    <div ref={trackRef} className={trackClassName} style={{ animationPlayState: 'paused' }}>
++    <div ref={trackRef} className={trackClassName}>
+       {children}
+     </div>
+   );
+diff --git a/components/Nav.jsx b/components/Nav.jsx
+index e19634f..71a8c32 100644
+--- a/components/Nav.jsx
++++ b/components/Nav.jsx
+@@ -2,6 +2,7 @@
+ 
+ import React, { useEffect, useState } from 'react';
+ import Link from 'next/link';
++import { usePathname } from 'next/navigation';
+ import { BRAND_SLUGS } from '../lib/brandSlugs';
+ import { useCart } from '../lib/CartContext';
+ import { customerApi, getSessionToken, setSessionToken } from '../lib/api';
+@@ -11,7 +12,21 @@ import { customerApi, getSessionToken, setSessionToken } from '../lib/api';
+ // in sync if that number ever changes.
+ const FREE_SHIPPING_THRESHOLD = 60;
+ 
++// Pages whose content starts with a navy-background hero (home's morphing
++// blobs, or a .subhero/.shop-hero) — on these, the nav starts transparent
++// so it blends into that hero, matching the original mockup, then gains
++// its solid background once scrolled. Everywhere else (cart, login/signup,
++// blog, etc.) doesn't have navy right at the top, so the nav needs its
++// solid background from the start or nav text would be unreadable against
++// a light page background.
++function startsOnNavy(pathname) {
++  if (pathname === '/' || pathname === '/shop' || pathname === '/stockist' || pathname === '/account') return true;
++  if (pathname.startsWith('/brands/')) return true;
++  return false;
++}
++
+ export default function Nav() {
++  const pathname = usePathname();
+   const [shopOpen, setShopOpen] = useState(false);
+   const [scrolled, setScrolled] = useState(false);
+   const [customer, setCustomer] = useState(null);
+@@ -23,23 +38,25 @@ export default function Nav() {
+     onScroll();
+     window.addEventListener('scroll', onScroll, { passive: true });
+     return () => window.removeEventListener('scroll', onScroll);
+-  }, []);
++  }, [pathname]);
+ 
+   useEffect(() => {
+-    if (!getSessionToken()) return;
++    const token = getSessionToken();
++    if (!token) { setCustomer(null); setBalance(0); return; }
+     customerApi.me()
+       .then(({ customer, buttons_balance }) => { setCustomer(customer); setBalance(buttons_balance); })
+-      .catch(() => setSessionToken(null));
+-  }, []);
++      .catch(() => { setSessionToken(null); setCustomer(null); setBalance(0); });
++  }, [pathname]);
+ 
+   const unlocked = subtotal >= FREE_SHIPPING_THRESHOLD;
+   const focText = unlocked
+     ? 'Free delivery unlocked!'
+     : `Add $${(FREE_SHIPPING_THRESHOLD - subtotal).toFixed(2)} for free delivery`;
+   const firstName = customer?.name?.split(' ')[0] || 'there';
++  const solid = scrolled || !startsOnNavy(pathname);
+ 
+   return (
+-    <nav className={`site-nav${scrolled ? ' scrolled' : ''}`}>
++    <nav className={`site-nav${solid ? ' scrolled' : ''}`}>
+       <div className="wrap nav-inner">
+         <Link href="/" className="brand-mark">
+           <img src="/pawvy-logo-white.png" alt="Pawvy" />
