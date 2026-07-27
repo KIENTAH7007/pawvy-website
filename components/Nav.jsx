@@ -139,7 +139,7 @@ export default function Nav() {
       <div className={`mobile-overlay${mobileOpen ? ' open' : ''}`} onClick={() => setMobileOpen(false)} />
 
       <div className={`mobile-drawer${mobileOpen ? ' open' : ''}`}>
-        <Link href="/" className="mobile-link">Home</Link>
+        <Link href="/" className="mobile-link" onClick={() => setMobileOpen(false)}>Home</Link>
 
         <div className={`mobile-shop${mobileShopOpen ? ' open' : ''}`}>
           <button type="button" className="mobile-link mobile-shop-toggle" onClick={() => setMobileShopOpen((o) => !o)}>
@@ -147,27 +147,27 @@ export default function Nav() {
             <svg className="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6"><path d="M6 9l6 6 6-6" /></svg>
           </button>
           <div className="mobile-shop-list">
-            <Link href="/shop" className="mobile-sublink">All products</Link>
+            <Link href="/shop" className="mobile-sublink" onClick={() => setMobileOpen(false)}>All products</Link>
             {Object.entries(BRAND_SLUGS).map(([name, slug]) => (
-              <Link key={slug} href={`/brands/${slug}`} className="mobile-sublink">{name}</Link>
+              <Link key={slug} href={`/brands/${slug}`} className="mobile-sublink" onClick={() => setMobileOpen(false)}>{name}</Link>
             ))}
           </div>
         </div>
 
-        <Link href="/stockist" className="mobile-link">Stockist</Link>
-        <Link href="/#enquiry" className="mobile-link">Contact</Link>
-        <Link href="/blog" className="mobile-link">Blog</Link>
+        <Link href="/stockist" className="mobile-link" onClick={() => setMobileOpen(false)}>Stockist</Link>
+        <Link href="/#enquiry" className="mobile-link" onClick={() => setMobileOpen(false)}>Contact</Link>
+        <Link href="/blog" className="mobile-link" onClick={() => setMobileOpen(false)}>Blog</Link>
 
         <div className="mobile-drawer-divider" />
 
         {customer ? (
-          <Link href="/account" className="mobile-link mobile-greeting">
+          <Link href="/account" className="mobile-link mobile-greeting" onClick={() => setMobileOpen(false)}>
             Hi, {firstName} <span className="nav-greeting-balance">{balance}B</span>
           </Link>
         ) : (
           <div className="mobile-auth-row">
-            <Link href="/login" className="mobile-link">Log in</Link>
-            <Link href="/signup" className="btn btn-orange"><span>Sign up</span></Link>
+            <Link href="/login" className="mobile-link" onClick={() => setMobileOpen(false)}>Log in</Link>
+            <Link href="/signup" className="btn btn-orange" onClick={() => setMobileOpen(false)}><span>Sign up</span></Link>
           </div>
         )}
       </div>
