@@ -31,6 +31,8 @@ export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [customer, setCustomer] = useState(null);
   const [balance, setBalance] = useState(0);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileShopOpen, setMobileShopOpen] = useState(false);
   const { itemCount, subtotal } = useCart();
 
   useEffect(() => {
@@ -47,6 +49,17 @@ export default function Nav() {
       .then(({ customer, buttons_balance }) => { setCustomer(customer); setBalance(buttons_balance); })
       .catch(() => { setSessionToken(null); setCustomer(null); setBalance(0); });
   }, [pathname]);
+
+  // Close the mobile menu whenever navigation actually happens, and don't
+  // carry the Shop submenu's open state across a fresh open.
+  useEffect(() => { setMobileOpen(false); setMobileShopOpen(false); }, [pathname]);
+
+  // Lock background scroll while the mobile drawer is open, same pattern
+  // any modal/drawer needs so the page underneath doesn't scroll with it.
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileOpen]);
 
   const unlocked = subtotal >= FREE_SHIPPING_THRESHOLD;
   const focText = unlocked
@@ -110,7 +123,53 @@ export default function Nav() {
             <svg className="cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 6h15l-1.5 9h-12z" /><circle cx="9" cy="20" r="1.4" /><circle cx="18" cy="20" r="1.4" /><path d="M6 6L4 3H2" /></svg>
             <span className={`cart-badge${itemCount > 0 ? ' show' : ''}`}>{itemCount}</span>
           </Link>
+
+          <button
+            type="button"
+            className={`hamburger${mobileOpen ? ' open' : ''}`}
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileOpen}
+            onClick={() => setMobileOpen((o) => !o)}
+          >
+            <span /><span /><span />
+          </button>
         </div>
+      </div>
+
+      <div className={`mobile-overlay${mobileOpen ? ' open' : ''}`} onClick={() => setMobileOpen(false)} />
+
+      <div className={`mobile-drawer${mobileOpen ? ' open' : ''}`}>
+        <Link href="/" className="mobile-link">Home</Link>
+
+        <div className={`mobile-shop${mobileShopOpen ? ' open' : ''}`}>
+          <button type="button" className="mobile-link mobile-shop-toggle" onClick={() => setMobileShopOpen((o) => !o)}>
+            Shop
+            <svg className="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6"><path d="M6 9l6 6 6-6" /></svg>
+          </button>
+          <div className="mobile-shop-list">
+            <Link href="/shop" className="mobile-sublink">All products</Link>
+            {Object.entries(BRAND_SLUGS).map(([name, slug]) => (
+              <Link key={slug} href={`/brands/${slug}`} className="mobile-sublink">{name}</Link>
+            ))}
+          </div>
+        </div>
+
+        <Link href="/stockist" className="mobile-link">Stockist</Link>
+        <Link href="/#enquiry" className="mobile-link">Contact</Link>
+        <Link href="/blog" className="mobile-link">Blog</Link>
+
+        <div className="mobile-drawer-divider" />
+
+        {customer ? (
+          <Link href="/account" className="mobile-link mobile-greeting">
+            Hi, {firstName} <span className="nav-greeting-balance">{balance}B</span>
+          </Link>
+        ) : (
+          <div className="mobile-auth-row">
+            <Link href="/login" className="mobile-link">Log in</Link>
+            <Link href="/signup" className="btn btn-orange"><span>Sign up</span></Link>
+          </div>
+        )}
       </div>
     </nav>
   );
