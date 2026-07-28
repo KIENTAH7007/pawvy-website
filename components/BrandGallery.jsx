@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import Link from 'next/link';
 import { BRAND_SLUGS, BRAND_LOGOS } from '../lib/brandSlugs';
 
@@ -18,6 +18,24 @@ const TAGLINES = {
 
 export default function BrandGallery() {
   const trackRef = useRef(null);
+
+  // Whether to center the track (desktop, cards fit without scrolling) or
+  // left-align it (mobile/narrow, cards overflow and need to scroll) is
+  // computed directly here rather than left to CSS's `justify-content:
+  // safe center` — that's the technically-correct CSS feature for this
+  // exact conflict, but support turned out inconsistent on some Android
+  // Chrome versions in practice, so decide it in JS instead for a result
+  // that's guaranteed correct everywhere.
+  useLayoutEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    function updateOverflow() {
+      track.classList.toggle('overflowing', track.scrollWidth > track.clientWidth + 1);
+    }
+    updateOverflow();
+    window.addEventListener('resize', updateOverflow);
+    return () => window.removeEventListener('resize', updateOverflow);
+  }, []);
 
   // Real pointer-driven drag-to-scroll — overflow-x:auto alone only
   // responds to trackpad/shift-scroll, not an actual mouse click-drag.

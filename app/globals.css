@@ -179,7 +179,7 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
 @media (min-width: 901px) { .mobile-overlay, .mobile-drawer { display: none; } }
 @media (max-width: 1080px) { .foc-pill { display: none; } }
 @media (max-width: 900px) { .nav-links { display: none; } .nav-right { gap: 14px; } }
-@media (max-width: 560px) { .nav-signup { display: none; } .nav-greeting { padding: 8px; } }
+@media (max-width: 560px) { .nav-auth .nav-signup { display: none; } .nav-greeting { padding: 8px; } }
 
 /* ---------- Buttons ---------- */
 .btn {
@@ -286,7 +286,8 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
 .gallery-hint { font-size: 13px; font-weight: 700; color: var(--dark-gray); display: flex; align-items: center; gap: 8px; }
 .gallery-hint svg { width: 18px; height: 18px; animation: nudge 1.6s ease-in-out infinite; }
 @keyframes nudge { 0%,100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
-.gallery-track { display: flex; gap: 30px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 40px 26px; margin: 0 -40px; scrollbar-width: none; justify-content: safe center; cursor: grab; user-select: none; }
+.gallery-track { display: flex; gap: 30px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 40px 26px; margin: 0 -40px; scrollbar-width: none; justify-content: center; cursor: grab; user-select: none; }
+.gallery-track.overflowing { justify-content: flex-start; }
 .gallery-track.dragging { cursor: grabbing; scroll-snap-type: none; }
 .gallery-track::-webkit-scrollbar { display: none; }
 .tilt-card {
