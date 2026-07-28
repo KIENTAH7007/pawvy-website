@@ -1,0 +1,68 @@
+diff --git a/app/globals.css b/app/globals.css
+index 1e095af..44f0a69 100644
+--- a/app/globals.css
++++ b/app/globals.css
+@@ -286,8 +286,7 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
+ .gallery-hint { font-size: 13px; font-weight: 700; color: var(--dark-gray); display: flex; align-items: center; gap: 8px; }
+ .gallery-hint svg { width: 18px; height: 18px; animation: nudge 1.6s ease-in-out infinite; }
+ @keyframes nudge { 0%,100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
+-.gallery-track { display: flex; gap: 30px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 40px 26px; margin: 0 -40px; scrollbar-width: none; justify-content: center; cursor: grab; user-select: none; }
+-.gallery-track.overflowing { justify-content: flex-start; }
++.gallery-track { display: flex; gap: 30px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 40px 26px; margin: 0 -40px; scrollbar-width: none; justify-content: flex-start; cursor: grab; user-select: none; }
+ .gallery-track.dragging { cursor: grabbing; scroll-snap-type: none; }
+ .gallery-track::-webkit-scrollbar { display: none; }
+ .tilt-card {
+diff --git a/components/BrandGallery.jsx b/components/BrandGallery.jsx
+index 3e1b963..a05aa20 100644
+--- a/components/BrandGallery.jsx
++++ b/components/BrandGallery.jsx
+@@ -1,6 +1,6 @@
+ 'use client';
+ 
+-import React, { useEffect, useLayoutEffect, useRef } from 'react';
++import React, { useEffect, useRef } from 'react';
+ import Link from 'next/link';
+ import { BRAND_SLUGS, BRAND_LOGOS } from '../lib/brandSlugs';
+ 
+@@ -21,20 +21,33 @@ export default function BrandGallery() {
+ 
+   // Whether to center the track (desktop, cards fit without scrolling) or
+   // left-align it (mobile/narrow, cards overflow and need to scroll) is
+-  // computed directly here rather than left to CSS's `justify-content:
+-  // safe center` — that's the technically-correct CSS feature for this
+-  // exact conflict, but support turned out inconsistent on some Android
+-  // Chrome versions in practice, so decide it in JS instead for a result
+-  // that's guaranteed correct everywhere.
+-  useLayoutEffect(() => {
++  // computed here and applied as an inline style directly, rather than
++  // toggling a CSS class. Two earlier approaches (CSS `safe center`, then
++  // a toggled `.overflowing` class) both turned out unreliable across
++  // real devices/browsers in practice — a class toggle is still just a
++  // stylesheet rule, subject to whatever cascade/ordering quirks a given
++  // browser has. An inline style set directly via JS always wins over any
++  // stylesheet rule, full stop, so there's no cascade question left to
++  // get wrong. Measuring inside requestAnimationFrame (rather than
++  // synchronously in useLayoutEffect) also ensures layout has actually
++  // settled before scrollWidth/clientWidth are read.
++  useEffect(() => {
+     const track = trackRef.current;
+     if (!track) return;
++    let raf;
+     function updateOverflow() {
+-      track.classList.toggle('overflowing', track.scrollWidth > track.clientWidth + 1);
++      raf = requestAnimationFrame(() => {
++        if (!track) return;
++        const overflowing = track.scrollWidth - track.clientWidth > 2;
++        track.style.justifyContent = overflowing ? 'flex-start' : 'center';
++      });
+     }
+     updateOverflow();
+     window.addEventListener('resize', updateOverflow);
+-    return () => window.removeEventListener('resize', updateOverflow);
++    return () => {
++      window.removeEventListener('resize', updateOverflow);
++      if (raf) cancelAnimationFrame(raf);
++    };
+   }, []);
+ 
+   // Real pointer-driven drag-to-scroll — overflow-x:auto alone only

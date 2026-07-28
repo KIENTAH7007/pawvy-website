@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { BRAND_SLUGS, BRAND_LOGOS } from '../lib/brandSlugs';
 
@@ -21,20 +21,33 @@ export default function BrandGallery() {
 
   // Whether to center the track (desktop, cards fit without scrolling) or
   // left-align it (mobile/narrow, cards overflow and need to scroll) is
-  // computed directly here rather than left to CSS's `justify-content:
-  // safe center` — that's the technically-correct CSS feature for this
-  // exact conflict, but support turned out inconsistent on some Android
-  // Chrome versions in practice, so decide it in JS instead for a result
-  // that's guaranteed correct everywhere.
-  useLayoutEffect(() => {
+  // computed here and applied as an inline style directly, rather than
+  // toggling a CSS class. Two earlier approaches (CSS `safe center`, then
+  // a toggled `.overflowing` class) both turned out unreliable across
+  // real devices/browsers in practice — a class toggle is still just a
+  // stylesheet rule, subject to whatever cascade/ordering quirks a given
+  // browser has. An inline style set directly via JS always wins over any
+  // stylesheet rule, full stop, so there's no cascade question left to
+  // get wrong. Measuring inside requestAnimationFrame (rather than
+  // synchronously in useLayoutEffect) also ensures layout has actually
+  // settled before scrollWidth/clientWidth are read.
+  useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
+    let raf;
     function updateOverflow() {
-      track.classList.toggle('overflowing', track.scrollWidth > track.clientWidth + 1);
+      raf = requestAnimationFrame(() => {
+        if (!track) return;
+        const overflowing = track.scrollWidth - track.clientWidth > 2;
+        track.style.justifyContent = overflowing ? 'flex-start' : 'center';
+      });
     }
     updateOverflow();
     window.addEventListener('resize', updateOverflow);
-    return () => window.removeEventListener('resize', updateOverflow);
+    return () => {
+      window.removeEventListener('resize', updateOverflow);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, []);
 
   // Real pointer-driven drag-to-scroll — overflow-x:auto alone only
