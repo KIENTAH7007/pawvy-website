@@ -87,13 +87,9 @@ export default function Home() {
               <div className="eyebrow">The collection</div>
               <h2>Six brands, one standard</h2>
             </div>
-            <div className="gallery-hint">
-              Drag to explore
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-            </div>
           </Reveal>
+          <BrandGallery />
         </div>
-        <BrandGallery />
         <Reveal as="div" className="wrap gallery-cta">
           <p>Know what you're after? Skip the browsing.</p>
           <Link href="/shop" className="btn btn-outline-dark"><span>Go straight to Shop</span></Link>

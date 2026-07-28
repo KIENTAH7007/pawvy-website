@@ -283,14 +283,12 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
 .gallery { padding: 110px 0 100px; background: var(--ivory); overflow: hidden; }
 .gallery-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 50px; flex-wrap: wrap; gap: 16px; }
 .gallery-head h2 { font-weight: 900; font-size: clamp(30px,4.2vw,48px); color: var(--navy); letter-spacing: -1px; }
-.gallery-hint { font-size: 13px; font-weight: 700; color: var(--dark-gray); display: flex; align-items: center; gap: 8px; }
-.gallery-hint svg { width: 18px; height: 18px; animation: nudge 1.6s ease-in-out infinite; }
-@keyframes nudge { 0%,100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
-.gallery-track { display: flex; gap: 30px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 40px 26px; margin: 0 -40px; scrollbar-width: none; justify-content: flex-start; cursor: grab; user-select: none; }
-.gallery-track.dragging { cursor: grabbing; scroll-snap-type: none; }
-.gallery-track::-webkit-scrollbar { display: none; }
+
+.gallery-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 30px; }
+@media (max-width: 900px) { .gallery-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 420px) { .gallery-grid { gap: 16px; } }
 .tilt-card {
-  scroll-snap-align: start; flex: 0 0 300px; background: var(--cream); border-radius: 26px; padding: 32px;
+  background: var(--cream); border-radius: 26px; padding: 32px;
   border: 2px solid rgba(20,33,61,.08); transition: border-color .3s ease, box-shadow .3s ease;
   transform-style: preserve-3d; will-change: transform; display: flex; flex-direction: column;
 }
