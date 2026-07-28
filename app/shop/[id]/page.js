@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { shopApi } from '../../../lib/api';
+import { displayBrandName } from '../../../lib/brandSlugs';
 import AddToCartSection from '../../../components/AddToCartSection';
 
 // generateMetadata runs server-side per request — this is what actually
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }) {
       title: `${name} | Pawvy`,
       description: product.description
         ? product.description.slice(0, 155)
-        : `${name} by ${product.brand_name} — available now on Pawvy.co.`,
+        : `${name} by ${displayBrandName(product.brand_name)} — available now on Pawvy.co.`,
     };
   } catch {
     return { title: 'Product | Pawvy' };
@@ -49,7 +50,7 @@ export default async function ProductPage({ params }) {
         </div>
 
         <div className="product-detail-info">
-          <div className="product-detail-brand" style={{ color: product.brand_color || 'var(--orange)' }}>{product.brand_name}</div>
+          <div className="product-detail-brand" style={{ color: product.brand_color || 'var(--orange)' }}>{displayBrandName(product.brand_name)}</div>
           <h1>{product.item_series}{product.variation ? ` — ${product.variation}` : ''}</h1>
 
           <div className="product-detail-price">

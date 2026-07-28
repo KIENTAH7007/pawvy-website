@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { shopApi } from '../../../lib/api';
-import { brandNameFromSlug, BRAND_SLUGS, BRAND_LOGOS } from '../../../lib/brandSlugs';
+import { brandNameFromSlug, BRAND_SLUGS, BRAND_LOGOS, displayBrandName } from '../../../lib/brandSlugs';
 import { BRAND_CONTENT } from '../../../lib/brandContent';
 import ShopClient from '../../../components/ShopClient';
 
@@ -15,8 +15,8 @@ export async function generateMetadata({ params }) {
   if (!brandName) return { title: 'Brand | Pawvy' };
   const content = BRAND_CONTENT[brandName];
   return {
-    title: `${brandName} | Pawvy`,
-    description: content?.description || `Shop ${brandName} products on Pawvy.co — Singapore's exclusive distributor.`,
+    title: `${displayBrandName(brandName)} | Pawvy`,
+    description: content?.description || `Shop ${displayBrandName(brandName)} products on Pawvy.co — Singapore's exclusive distributor.`,
   };
 }
 
@@ -31,7 +31,7 @@ export default async function BrandPage({ params }) {
 
   const { products } = await shopApi.products({ brand_id: brand.id });
   const content = BRAND_CONTENT[brandName] || {
-    tagline: '', description: `Shop ${brandName} on Pawvy.`, exclusive: true, faqs: [],
+    tagline: '', description: `Shop ${displayBrandName(brandName)} on Pawvy.`, exclusive: true, faqs: [],
   };
   const logo = BRAND_LOGOS[brandName];
 
@@ -44,11 +44,11 @@ export default async function BrandPage({ params }) {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
             All brands
           </Link>
-          <h1>{brandName}</h1>
+          <h1>{displayBrandName(brandName)}</h1>
           {content.tagline && <p className="tag">{content.tagline}</p>}
           <p className="desc">{content.description}</p>
           <div className="subhero-actions">
-            <a href="#enquiry-cta" className="btn btn-orange"><span>Ask about {brandName}</span></a>
+            <a href="#enquiry-cta" className="btn btn-orange"><span>Ask about {displayBrandName(brandName)}</span></a>
             <Link href="/stockist" className="btn btn-outline-light"><span>Find a stockist</span></Link>
           </div>
         </div>
@@ -61,9 +61,9 @@ export default async function BrandPage({ params }) {
       {logo && (
         <section className="brand-stage">
           <div className="wrap brand-stage-grid">
-            <div className="brand-stage-logo"><img src={logo} alt={brandName} /></div>
+            <div className="brand-stage-logo"><img src={logo} alt={displayBrandName(brandName)} /></div>
             <div className="brand-stage-copy">
-              <h2>Why Pawvy carries {brandName}</h2>
+              <h2>Why Pawvy carries {displayBrandName(brandName)}</h2>
               <p>{content.description}</p>
             </div>
           </div>
@@ -75,7 +75,7 @@ export default async function BrandPage({ params }) {
           <div className="wrap">
             <div className="faq-head">
               <div className="eyebrow center">Common questions</div>
-              <h2>{brandName} FAQ</h2>
+              <h2>{displayBrandName(brandName)} FAQ</h2>
             </div>
             <div className="faq-list">
               {content.faqs.map(([q, a]) => (
@@ -93,7 +93,7 @@ export default async function BrandPage({ params }) {
         <div className="gallery-head" style={{ marginBottom: 0 }}>
           <div>
             <div className="eyebrow">Shop this brand</div>
-            <h2>{brandName} products</h2>
+            <h2>{displayBrandName(brandName)} products</h2>
           </div>
         </div>
       </div>

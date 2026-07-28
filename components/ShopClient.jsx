@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { shopApi } from '../lib/api';
 import { useCart } from '../lib/CartContext';
-import { BRAND_SLUGS } from '../lib/brandSlugs';
+import { BRAND_SLUGS, displayBrandName } from '../lib/brandSlugs';
 import ProductCard from './ProductCard';
 
 const FREE_SHIPPING_THRESHOLD = 60;
@@ -59,7 +59,7 @@ export default function ShopClient({ initialProducts, brands, showHero = true })
         />
         <select value={brandFilter} onChange={e => setBrandFilter(e.target.value)}>
           <option value="">All brands</option>
-          {sortedBrands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+          {sortedBrands.map(b => <option key={b.id} value={b.id}>{displayBrandName(b.name)}</option>)}
         </select>
       </div>
       {itemCount > 0 && (

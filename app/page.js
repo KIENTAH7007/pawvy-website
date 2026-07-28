@@ -46,10 +46,10 @@ export default function Home() {
           </h1>
           <Reveal as="p" className="lead">
             Pawvy is the exclusive distributor of{' '}
-            <Link href="/brands/betterbone-nylon-free-dog-chew" className="brand-link">Better Bone</Link>,{' '}
+            <Link href="/brands/betterbone-nylon-free-dog-chew" className="brand-link">BetterBone</Link>,{' '}
             <Link href="/brands/lillidale-natural-pet-supplement" className="brand-link">Lillidale</Link>,{' '}
             <Link href="/brands/puzzle-feeder-slow-feeder-dog-bowl" className="brand-link">Puzzle Feeder</Link>,{' '}
-            <Link href="/brands/eastsea-brother" className="brand-link">East Sea Brother</Link> and{' '}
+            <Link href="/brands/eastsea-brother" className="brand-link">Eastsea Brother</Link> and{' '}
             <Link href="/brands/salmoil-fish-oil-for-dogs" className="brand-link">Salmoil</Link> — curated for pawrents who want the best for their furkids.
           </Reveal>
           <div className="hero-actions">

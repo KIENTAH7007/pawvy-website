@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BRAND_SLUGS } from '../lib/brandSlugs';
+import { BRAND_SLUGS, displayBrandName } from '../lib/brandSlugs';
 import { useCart } from '../lib/CartContext';
 import { customerApi, getSessionToken, setSessionToken } from '../lib/api';
 
@@ -90,7 +90,7 @@ export default function Nav() {
               </Link>
               <div className="dropdown">
                 {Object.entries(BRAND_SLUGS).map(([name, slug]) => (
-                  <Link key={slug} href={`/brands/${slug}`}>{name}</Link>
+                  <Link key={slug} href={`/brands/${slug}`}>{displayBrandName(name)}</Link>
                 ))}
               </div>
             </div>
@@ -149,7 +149,7 @@ export default function Nav() {
           <div className="mobile-shop-list">
             <Link href="/shop" className="mobile-sublink" onClick={() => setMobileOpen(false)}>All products</Link>
             {Object.entries(BRAND_SLUGS).map(([name, slug]) => (
-              <Link key={slug} href={`/brands/${slug}`} className="mobile-sublink" onClick={() => setMobileOpen(false)}>{name}</Link>
+              <Link key={slug} href={`/brands/${slug}`} className="mobile-sublink" onClick={() => setMobileOpen(false)}>{displayBrandName(name)}</Link>
             ))}
           </div>
         </div>

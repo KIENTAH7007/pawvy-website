@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { displayBrandName } from '../lib/brandSlugs';
 import Link from 'next/link';
 import QtyStepper from './QtyStepper';
 
@@ -14,7 +15,7 @@ export default function ProductCard({ product: p, onAdd }) {
     <div className="product-card" style={{ opacity: outOfStock ? 0.6 : 1 }}>
       <Link href={`/shop/${p.id}`}>
         <div className="card-tags">
-          <span className="brand-tag" style={{ color: p.brand_color || 'var(--navy)' }}>{p.brand_name}</span>
+          <span className="brand-tag" style={{ color: p.brand_color || 'var(--navy)' }}>{displayBrandName(p.brand_name)}</span>
           {(p.stock_status === 'low_stock' || outOfStock) && (
             <span className={`stock-tag ${outOfStock ? 'out' : 'low'}`}>{outOfStock ? 'Out of stock' : 'Low stock'}</span>
           )}

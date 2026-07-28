@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { BRAND_SLUGS, BRAND_LOGOS } from '../lib/brandSlugs';
+import { BRAND_SLUGS, BRAND_LOGOS, displayBrandName } from '../lib/brandSlugs';
 
 // Short, punchy taglines per brand for the gallery cards — same copy
 // confirmed in the reviewed mockup. Real per-brand descriptions live on
@@ -51,7 +51,7 @@ export default function BrandGallery() {
           <div className="logostage"><img src={BRAND_LOGOS[name]} alt={name} /></div>
           <p>{TAGLINES[name]}</p>
           <span className="go">
-            Shop {name}
+            Shop {displayBrandName(name)}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
           </span>
         </Link>

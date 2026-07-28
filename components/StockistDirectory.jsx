@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { stockistApi } from '../lib/api';
-import { BRAND_SLUGS } from '../lib/brandSlugs';
+import { BRAND_SLUGS, displayBrandName } from '../lib/brandSlugs';
 
 // The backend returns brands in whatever order they exist in the database
 // — not necessarily the confirmed display sequence used everywhere else on
@@ -42,7 +42,7 @@ export default function StockistDirectory({ initialStockists, brands }) {
         <div className="filter-bar" style={{ marginBottom: 40 }}>
           <select value={brandFilter} onChange={e => setBrandFilter(e.target.value)}>
             <option value="">All brands</option>
-            {sortedBrands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+            {sortedBrands.map(b => <option key={b.id} value={b.id}>{displayBrandName(b.name)}</option>)}
           </select>
           <select value={regionFilter} onChange={e => setRegionFilter(e.target.value)}>
             <option value="">All regions</option>

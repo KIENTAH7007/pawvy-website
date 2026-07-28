@@ -1,0 +1,349 @@
+diff --git a/app/brands/[slug]/page.js b/app/brands/[slug]/page.js
+index 114b022..57af683 100644
+--- a/app/brands/[slug]/page.js
++++ b/app/brands/[slug]/page.js
+@@ -1,7 +1,7 @@
+ import Link from 'next/link';
+ import { notFound } from 'next/navigation';
+ import { shopApi } from '../../../lib/api';
+-import { brandNameFromSlug, BRAND_SLUGS, BRAND_LOGOS } from '../../../lib/brandSlugs';
++import { brandNameFromSlug, BRAND_SLUGS, BRAND_LOGOS, displayBrandName } from '../../../lib/brandSlugs';
+ import { BRAND_CONTENT } from '../../../lib/brandContent';
+ import ShopClient from '../../../components/ShopClient';
+ 
+@@ -15,8 +15,8 @@ export async function generateMetadata({ params }) {
+   if (!brandName) return { title: 'Brand | Pawvy' };
+   const content = BRAND_CONTENT[brandName];
+   return {
+-    title: `${brandName} | Pawvy`,
+-    description: content?.description || `Shop ${brandName} products on Pawvy.co — Singapore's exclusive distributor.`,
++    title: `${displayBrandName(brandName)} | Pawvy`,
++    description: content?.description || `Shop ${displayBrandName(brandName)} products on Pawvy.co — Singapore's exclusive distributor.`,
+   };
+ }
+ 
+@@ -31,7 +31,7 @@ export default async function BrandPage({ params }) {
+ 
+   const { products } = await shopApi.products({ brand_id: brand.id });
+   const content = BRAND_CONTENT[brandName] || {
+-    tagline: '', description: `Shop ${brandName} on Pawvy.`, exclusive: true, faqs: [],
++    tagline: '', description: `Shop ${displayBrandName(brandName)} on Pawvy.`, exclusive: true, faqs: [],
+   };
+   const logo = BRAND_LOGOS[brandName];
+ 
+@@ -44,11 +44,11 @@ export default async function BrandPage({ params }) {
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+             All brands
+           </Link>
+-          <h1>{brandName}</h1>
++          <h1>{displayBrandName(brandName)}</h1>
+           {content.tagline && <p className="tag">{content.tagline}</p>}
+           <p className="desc">{content.description}</p>
+           <div className="subhero-actions">
+-            <a href="#enquiry-cta" className="btn btn-orange"><span>Ask about {brandName}</span></a>
++            <a href="#enquiry-cta" className="btn btn-orange"><span>Ask about {displayBrandName(brandName)}</span></a>
+             <Link href="/stockist" className="btn btn-outline-light"><span>Find a stockist</span></Link>
+           </div>
+         </div>
+@@ -61,9 +61,9 @@ export default async function BrandPage({ params }) {
+       {logo && (
+         <section className="brand-stage">
+           <div className="wrap brand-stage-grid">
+-            <div className="brand-stage-logo"><img src={logo} alt={brandName} /></div>
++            <div className="brand-stage-logo"><img src={logo} alt={displayBrandName(brandName)} /></div>
+             <div className="brand-stage-copy">
+-              <h2>Why Pawvy carries {brandName}</h2>
++              <h2>Why Pawvy carries {displayBrandName(brandName)}</h2>
+               <p>{content.description}</p>
+             </div>
+           </div>
+@@ -75,7 +75,7 @@ export default async function BrandPage({ params }) {
+           <div className="wrap">
+             <div className="faq-head">
+               <div className="eyebrow center">Common questions</div>
+-              <h2>{brandName} FAQ</h2>
++              <h2>{displayBrandName(brandName)} FAQ</h2>
+             </div>
+             <div className="faq-list">
+               {content.faqs.map(([q, a]) => (
+@@ -93,7 +93,7 @@ export default async function BrandPage({ params }) {
+         <div className="gallery-head" style={{ marginBottom: 0 }}>
+           <div>
+             <div className="eyebrow">Shop this brand</div>
+-            <h2>{brandName} products</h2>
++            <h2>{displayBrandName(brandName)} products</h2>
+           </div>
+         </div>
+       </div>
+diff --git a/app/cart/page.js b/app/cart/page.js
+index bcd09da..ebfc24e 100644
+--- a/app/cart/page.js
++++ b/app/cart/page.js
+@@ -5,6 +5,7 @@ import Link from 'next/link';
+ import { useCart } from '../../lib/CartContext';
+ import { shopApi, checkoutApi, customerApi, getSessionToken } from '../../lib/api';
+ import ProductCard from '../../components/ProductCard';
++import { displayBrandName } from '../../lib/brandSlugs';
+ 
+ const FREE_SHIPPING_THRESHOLD = 60; // must match server/routes/checkout.js — see note there
+ const SHIPPING_COST = 3;            // must match server/routes/checkout.js — see note there
+@@ -116,7 +117,7 @@ export default function CartPage() {
+                     )}
+                   </div>
+                   <div style={{ minWidth: 0 }}>
+-                    <div className="cart-item-brand">{item.brand_name}</div>
++                    <div className="cart-item-brand">{displayBrandName(item.brand_name)}</div>
+                     <div className="cart-item-name">{item.item_series}{item.variation ? ` — ${item.variation}` : ''}</div>
+                     <div className="cart-item-price">${item.price.toFixed(2)} each</div>
+                   </div>
+diff --git a/app/checkout/success/page.js b/app/checkout/success/page.js
+index 8b629c1..a6d96a6 100644
+--- a/app/checkout/success/page.js
++++ b/app/checkout/success/page.js
+@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
+ import Link from 'next/link';
+ import { checkoutApi } from '../../../lib/api';
+ import { useCart } from '../../../lib/CartContext';
++import { displayBrandName } from '../../../lib/brandSlugs';
+ 
+ export default function CheckoutSuccessPage() {
+   return (
+@@ -109,7 +110,7 @@ function SuccessLanding() {
+         <div style={{ background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: 16, marginTop: 20 }}>
+           {items.map((item, i) => (
+             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, padding: '6px 0' }}>
+-              <span>{item.qty}x {item.brand_name} — {item.item_series}{item.variation ? ` · ${item.variation}` : ''}</span>
++              <span>{item.qty}x {displayBrandName(item.brand_name)} — {item.item_series}{item.variation ? ` · ${item.variation}` : ''}</span>
+               <span>${(item.unit_price * item.qty).toFixed(2)}</span>
+             </div>
+           ))}
+diff --git a/app/page.js b/app/page.js
+index cc942dc..11cce63 100644
+--- a/app/page.js
++++ b/app/page.js
+@@ -46,10 +46,10 @@ export default function Home() {
+           </h1>
+           <Reveal as="p" className="lead">
+             Pawvy is the exclusive distributor of{' '}
+-            <Link href="/brands/betterbone-nylon-free-dog-chew" className="brand-link">Better Bone</Link>,{' '}
++            <Link href="/brands/betterbone-nylon-free-dog-chew" className="brand-link">BetterBone</Link>,{' '}
+             <Link href="/brands/lillidale-natural-pet-supplement" className="brand-link">Lillidale</Link>,{' '}
+             <Link href="/brands/puzzle-feeder-slow-feeder-dog-bowl" className="brand-link">Puzzle Feeder</Link>,{' '}
+-            <Link href="/brands/eastsea-brother" className="brand-link">East Sea Brother</Link> and{' '}
++            <Link href="/brands/eastsea-brother" className="brand-link">Eastsea Brother</Link> and{' '}
+             <Link href="/brands/salmoil-fish-oil-for-dogs" className="brand-link">Salmoil</Link> — curated for pawrents who want the best for their furkids.
+           </Reveal>
+           <div className="hero-actions">
+diff --git a/app/shop/[id]/page.js b/app/shop/[id]/page.js
+index 9ef3332..133ed42 100644
+--- a/app/shop/[id]/page.js
++++ b/app/shop/[id]/page.js
+@@ -1,6 +1,7 @@
+ import Link from 'next/link';
+ import { notFound } from 'next/navigation';
+ import { shopApi } from '../../../lib/api';
++import { displayBrandName } from '../../../lib/brandSlugs';
+ import AddToCartSection from '../../../components/AddToCartSection';
+ 
+ // generateMetadata runs server-side per request — this is what actually
+@@ -16,7 +17,7 @@ export async function generateMetadata({ params }) {
+       title: `${name} | Pawvy`,
+       description: product.description
+         ? product.description.slice(0, 155)
+-        : `${name} by ${product.brand_name} — available now on Pawvy.co.`,
++        : `${name} by ${displayBrandName(product.brand_name)} — available now on Pawvy.co.`,
+     };
+   } catch {
+     return { title: 'Product | Pawvy' };
+@@ -49,7 +50,7 @@ export default async function ProductPage({ params }) {
+         </div>
+ 
+         <div className="product-detail-info">
+-          <div className="product-detail-brand" style={{ color: product.brand_color || 'var(--orange)' }}>{product.brand_name}</div>
++          <div className="product-detail-brand" style={{ color: product.brand_color || 'var(--orange)' }}>{displayBrandName(product.brand_name)}</div>
+           <h1>{product.item_series}{product.variation ? ` — ${product.variation}` : ''}</h1>
+ 
+           <div className="product-detail-price">
+diff --git a/components/BrandGallery.jsx b/components/BrandGallery.jsx
+index 3eafa7c..fc741d1 100644
+--- a/components/BrandGallery.jsx
++++ b/components/BrandGallery.jsx
+@@ -2,7 +2,7 @@
+ 
+ import React, { useEffect, useRef } from 'react';
+ import Link from 'next/link';
+-import { BRAND_SLUGS, BRAND_LOGOS } from '../lib/brandSlugs';
++import { BRAND_SLUGS, BRAND_LOGOS, displayBrandName } from '../lib/brandSlugs';
+ 
+ // Short, punchy taglines per brand for the gallery cards — same copy
+ // confirmed in the reviewed mockup. Real per-brand descriptions live on
+@@ -51,7 +51,7 @@ export default function BrandGallery() {
+           <div className="logostage"><img src={BRAND_LOGOS[name]} alt={name} /></div>
+           <p>{TAGLINES[name]}</p>
+           <span className="go">
+-            Shop {name}
++            Shop {displayBrandName(name)}
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+           </span>
+         </Link>
+diff --git a/components/Nav.jsx b/components/Nav.jsx
+index 1f055ff..d96e954 100644
+--- a/components/Nav.jsx
++++ b/components/Nav.jsx
+@@ -3,7 +3,7 @@
+ import React, { useEffect, useState } from 'react';
+ import Link from 'next/link';
+ import { usePathname } from 'next/navigation';
+-import { BRAND_SLUGS } from '../lib/brandSlugs';
++import { BRAND_SLUGS, displayBrandName } from '../lib/brandSlugs';
+ import { useCart } from '../lib/CartContext';
+ import { customerApi, getSessionToken, setSessionToken } from '../lib/api';
+ 
+@@ -90,7 +90,7 @@ export default function Nav() {
+               </Link>
+               <div className="dropdown">
+                 {Object.entries(BRAND_SLUGS).map(([name, slug]) => (
+-                  <Link key={slug} href={`/brands/${slug}`}>{name}</Link>
++                  <Link key={slug} href={`/brands/${slug}`}>{displayBrandName(name)}</Link>
+                 ))}
+               </div>
+             </div>
+@@ -149,7 +149,7 @@ export default function Nav() {
+           <div className="mobile-shop-list">
+             <Link href="/shop" className="mobile-sublink" onClick={() => setMobileOpen(false)}>All products</Link>
+             {Object.entries(BRAND_SLUGS).map(([name, slug]) => (
+-              <Link key={slug} href={`/brands/${slug}`} className="mobile-sublink" onClick={() => setMobileOpen(false)}>{name}</Link>
++              <Link key={slug} href={`/brands/${slug}`} className="mobile-sublink" onClick={() => setMobileOpen(false)}>{displayBrandName(name)}</Link>
+             ))}
+           </div>
+         </div>
+diff --git a/components/ProductCard.jsx b/components/ProductCard.jsx
+index 145515a..c874b95 100644
+--- a/components/ProductCard.jsx
++++ b/components/ProductCard.jsx
+@@ -1,6 +1,7 @@
+ 'use client';
+ 
+ import React, { useState } from 'react';
++import { displayBrandName } from '../lib/brandSlugs';
+ import Link from 'next/link';
+ import QtyStepper from './QtyStepper';
+ 
+@@ -14,7 +15,7 @@ export default function ProductCard({ product: p, onAdd }) {
+     <div className="product-card" style={{ opacity: outOfStock ? 0.6 : 1 }}>
+       <Link href={`/shop/${p.id}`}>
+         <div className="card-tags">
+-          <span className="brand-tag" style={{ color: p.brand_color || 'var(--navy)' }}>{p.brand_name}</span>
++          <span className="brand-tag" style={{ color: p.brand_color || 'var(--navy)' }}>{displayBrandName(p.brand_name)}</span>
+           {(p.stock_status === 'low_stock' || outOfStock) && (
+             <span className={`stock-tag ${outOfStock ? 'out' : 'low'}`}>{outOfStock ? 'Out of stock' : 'Low stock'}</span>
+           )}
+diff --git a/components/ShopClient.jsx b/components/ShopClient.jsx
+index 9f19a09..84e3511 100644
+--- a/components/ShopClient.jsx
++++ b/components/ShopClient.jsx
+@@ -3,7 +3,7 @@
+ import React, { useEffect, useState } from 'react';
+ import { shopApi } from '../lib/api';
+ import { useCart } from '../lib/CartContext';
+-import { BRAND_SLUGS } from '../lib/brandSlugs';
++import { BRAND_SLUGS, displayBrandName } from '../lib/brandSlugs';
+ import ProductCard from './ProductCard';
+ 
+ const FREE_SHIPPING_THRESHOLD = 60;
+@@ -59,7 +59,7 @@ export default function ShopClient({ initialProducts, brands, showHero = true })
+         />
+         <select value={brandFilter} onChange={e => setBrandFilter(e.target.value)}>
+           <option value="">All brands</option>
+-          {sortedBrands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
++          {sortedBrands.map(b => <option key={b.id} value={b.id}>{displayBrandName(b.name)}</option>)}
+         </select>
+       </div>
+       {itemCount > 0 && (
+diff --git a/components/StockistDirectory.jsx b/components/StockistDirectory.jsx
+index d222e78..8e7c45d 100644
+--- a/components/StockistDirectory.jsx
++++ b/components/StockistDirectory.jsx
+@@ -2,7 +2,7 @@
+ 
+ import React, { useEffect, useState } from 'react';
+ import { stockistApi } from '../lib/api';
+-import { BRAND_SLUGS } from '../lib/brandSlugs';
++import { BRAND_SLUGS, displayBrandName } from '../lib/brandSlugs';
+ 
+ // The backend returns brands in whatever order they exist in the database
+ // — not necessarily the confirmed display sequence used everywhere else on
+@@ -42,7 +42,7 @@ export default function StockistDirectory({ initialStockists, brands }) {
+         <div className="filter-bar" style={{ marginBottom: 40 }}>
+           <select value={brandFilter} onChange={e => setBrandFilter(e.target.value)}>
+             <option value="">All brands</option>
+-            {sortedBrands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
++            {sortedBrands.map(b => <option key={b.id} value={b.id}>{displayBrandName(b.name)}</option>)}
+           </select>
+           <select value={regionFilter} onChange={e => setRegionFilter(e.target.value)}>
+             <option value="">All regions</option>
+diff --git a/lib/brandContent.js b/lib/brandContent.js
+index 566177f..e0fdf68 100644
+--- a/lib/brandContent.js
++++ b/lib/brandContent.js
+@@ -9,13 +9,13 @@
+ export const BRAND_CONTENT = {
+   'Better Bone': {
+     tagline: 'Better for your dog, better for the planet',
+-    description: "Plant-based, biodegradable chews built to satisfy a real chewer — without the guilt of another landfill-bound plastic toy. Made from natural, food-safe ingredients, Better Bone provides a durable chewing experience that helps support dental hygiene by reducing plaque and tartar buildup, while satisfying a dog's natural chewing instinct.",
++    description: "Plant-based, biodegradable chews built to satisfy a real chewer — without the guilt of another landfill-bound plastic toy. Made from natural, food-safe ingredients, BetterBone provides a durable chewing experience that helps support dental hygiene by reducing plaque and tartar buildup, while satisfying a dog's natural chewing instinct.",
+     exclusive: true,
+     faqs: [
+-      ['Is Better Bone safe for puppies?', 'Most Better Bone chews are sized and formulated for specific life stages — check the individual product listing for the recommended age range before giving it to a puppy.'],
+-      ['Is Pawvy the exclusive distributor of Better Bone in Singapore?', 'Yes — Pawvy is the exclusive Singapore distributor of Better Bone.'],
+-      ['Where can I buy Better Bone products?', 'Through any of our 107+ retail and grooming partners islandwide — check our Stockist page to find one near you.'],
+-      ['How should I store Better Bone chews?', 'Keep in a cool, dry place away from direct sunlight, as you would with any natural chew product.'],
++      ['Is BetterBone safe for puppies?', 'Most BetterBone chews are sized and formulated for specific life stages — check the individual product listing for the recommended age range before giving it to a puppy.'],
++      ['Is Pawvy the exclusive distributor of BetterBone in Singapore?', 'Yes — Pawvy is the exclusive Singapore distributor of BetterBone.'],
++      ['Where can I buy BetterBone products?', 'Through any of our 107+ retail and grooming partners islandwide — check our Stockist page to find one near you.'],
++      ['How should I store BetterBone chews?', 'Keep in a cool, dry place away from direct sunlight, as you would with any natural chew product.'],
+     ],
+   },
+   'Lillidale': {
+@@ -45,10 +45,10 @@ export const BRAND_CONTENT = {
+     description: "Simple, traceable ingredients — treats made the way you would want to feed your own dog. Made with single ingredients and minimal processing, these treats provide a natural source of protein and Omega-3 fatty acids to support your pet's wellness, free from unnecessary artificial additives.",
+     exclusive: true,
+     faqs: [
+-      ['What ingredients are in East Sea Brother treats?', 'Single-ingredient, minimally processed treats — check the individual product packaging for the exact ingredient list.'],
+-      ['Is Pawvy the exclusive distributor of East Sea Brother in Singapore?', 'Yes — Pawvy is the exclusive Singapore distributor of East Sea Brother.'],
++      ['What ingredients are in Eastsea Brother treats?', 'Single-ingredient, minimally processed treats — check the individual product packaging for the exact ingredient list.'],
++      ['Is Pawvy the exclusive distributor of Eastsea Brother in Singapore?', 'Yes — Pawvy is the exclusive Singapore distributor of Eastsea Brother.'],
+       ['Are these treats suitable for sensitive stomachs?', 'The single-ingredient, minimal-processing approach is often gentler on sensitive stomachs, but always introduce a new treat gradually and watch for reactions.'],
+-      ['Where can I buy East Sea Brother treats?', 'Through our retail partners islandwide — check our Stockist page.'],
++      ['Where can I buy Eastsea Brother treats?', 'Through our retail partners islandwide — check our Stockist page.'],
+     ],
+   },
+   'Salmoil': {
+diff --git a/lib/brandSlugs.js b/lib/brandSlugs.js
+index e9dfba1..0a4b6f0 100644
+--- a/lib/brandSlugs.js
++++ b/lib/brandSlugs.js
+@@ -21,6 +21,23 @@ export function brandNameFromSlug(slug) {
+   return entry ? entry[0] : null;
+ }
+ 
++// The backend/database and all the lookup keys above use "Better Bone"
++// and "East Sea Brother" (with spaces) — that has to stay exactly as-is,
++// since it's what product filtering, brand routing, and API matching all
++// key off of. The approved marketing spelling for anything actually shown
++// to a visitor is "BetterBone" and "Eastsea Brother" instead. This maps
++// the backend/lookup form to the marketing form for display only — never
++// use the output of this function as a lookup key, filter value, or in a
++// URL/slug.
++const BRAND_DISPLAY_NAMES = {
++  'Better Bone': 'BetterBone',
++  'East Sea Brother': 'Eastsea Brother',
++};
++
++export function displayBrandName(name) {
++  return BRAND_DISPLAY_NAMES[name] || name;
++}
++
+ // Static brand mark assets — logos are fixed brand assets, not something
+ // that needs to live in the product database. Keyed by the same display
+ // names used in BRAND_SLUGS above, so anywhere that already has a brand
