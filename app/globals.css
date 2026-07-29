@@ -88,7 +88,7 @@ h1, h2, h3, .stat-num { font-family: 'Fraunces', serif; }
 /* ---------- Nav ---------- */
 nav.site-nav { position: fixed; top: 0; left: 0; right: 0; width: 100%; z-index: 100; padding: 22px 0; background: transparent; transition: background .35s ease, padding .35s ease, box-shadow .35s ease; }
 nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10px); padding: 14px 0; box-shadow: 0 10px 30px rgba(20,33,61,.25); }
-.nav-inner { display: flex; align-items: center; justify-content: space-between; }
+.nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .brand-mark { display: inline-flex; flex-shrink: 0; }
 .brand-mark img { height: 38px; width: auto; }
 .nav-right { display: flex; align-items: center; gap: 32px; }
@@ -182,7 +182,7 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
 .mobile-auth-row { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
 .mobile-auth-row .btn { justify-content: center; }
 @media (min-width: 901px) { .mobile-overlay, .mobile-drawer { display: none; } }
-@media (max-width: 1080px) { .foc-pill { display: none; } }
+@media (max-width: 1400px) { .foc-pill { display: none; } .nav-links { gap: 22px; } .nav-right { gap: 18px; } }
 @media (max-width: 560px) { .promo-pill { padding: 8px 12px; font-size: 12px; } }
 @media (max-width: 900px) { .nav-links { display: none; } .nav-right { gap: 14px; } }
 @media (max-width: 560px) { .nav-auth .nav-signup { display: none; } .nav-greeting { padding: 8px; } }
