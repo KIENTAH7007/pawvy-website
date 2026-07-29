@@ -1,103 +1,43 @@
-# pawvy-website (Next.js)
+# Pawvy Website — patch: BetterBone brand page deep-dive (final, with real photos)
 
-Migrated from the previous plain Vite+React site to Next.js (App Router), specifically to fix
-the SEO problem — the old site rendered everything client-side, meaning Google saw an empty page
-until JavaScript ran. This is the same underlying issue that got the original Hostinger builder
-ruled out at the very start of this project, just from a different tool.
+## What changed
+Three new sections on the **BetterBone brand page**, between "Why Pawvy carries BetterBone"
+and the FAQ:
 
-## What actually changed vs. the Vite version
+1. **The Better Chew** — intro copy + hero photo (the husky)
+2. **Different Durability Levels** — Soft / Medium / Hard, combined into one set of cards
+   per your call: each card is the lifestyle dog photo with the matching packaging shot
+   inset as a small badge in the corner, plus a "bite meter" (3 dots) showing intensity
+   and the full product name below. Replaces the earlier two-separate-grids version.
+3. **Find The Bone** — navy CTA band, "Chew-sing Guide" button now links to `#faq` on
+   the same page. Once you add the actual Chew-sing Guide content to the FAQ section,
+   this can be pointed at that specific FAQ item if you want a tighter anchor — just say
+   the word.
 
-- **Shop, product, and brand pages are now genuinely server-rendered.** "View Source" on a
-  product page now shows the real product name, price, and description — confirmed directly,
-  not assumed — instead of an empty `<div id="root">`.
-- **Each product page gets its own real `<title>`/meta description**, generated per-product
-  server-side. The old site could only ever have one generic title for the whole site.
-- **Real `/sitemap.xml` and `/robots.txt`**, both dynamically generated — the sitemap includes
-  every real product and brand page, not just the static top-level ones.
-- **Account, cart, login, signup, etc. are unchanged in behavior** — still fully client-rendered
-  (correctly so — they're personalized pages with no SEO value), same logic, same API calls,
-  same tested flows (password login, profile-completion bonus, referral links, cart upsell).
-- No more custom Express server wrapper — Next.js has its own production server
-  (`next start`), so `server.js` from the old version is gone entirely; simpler deploy.
+All 7 images you sent are in, cropped and compressed:
+- `chew-hero.jpg` — the husky, for The Better Chew
+- `durability-soft.jpg` / `-medium.jpg` / `-hard.jpg` — the three dog lifestyle photos
+- `pack-soft.jpg` / `-medium.jpg` / `-hard.jpg` — the three packaging badge shots
 
-## Two real bugs caught and fixed during the migration itself
+Everything's under `public/brand-features/betterbone/` and referenced directly in
+`lib/brandContent.js` — no more placeholder boxes on this page.
 
-1. **Cart hydration mismatch**: the old cart read `localStorage` synchronously during the
-   initial render. That's fine for a pure client app, but in Next.js the server renders first
-   (with no access to `localStorage`) and the browser then has to reconcile with what the server
-   sent — reading storage synchronously would have caused a hydration error. Fixed by loading
-   the cart in `useEffect` after mount instead.
-2. **Async route params**: Next.js 15+ changed dynamic route `params` from a plain object to a
-   `Promise` that must be awaited. Missing this caused product and brand pages to silently hit
-   `notFound()` for products that genuinely existed — caught via live testing (confirmed the
-   backend returned valid data, then found the real cause), not left as a mystery.
+### Files touched
+- `lib/brandContent.js` — `deepDive` content block, now with real image paths
+- `components/BrandDeepDive.jsx` — combined durability+product card layout
+- `app/brands/[slug]/page.js` — added `id="faq"` for the Chew-sing Guide link
+- `app/globals.css` — updated styles for the combined card (image badge overlap)
+- `public/brand-features/betterbone/*.jpg` — 7 new image files
 
-## Dependency note
+`npm run build` passes clean (Next.js 16, Turbopack) — all 22 routes generated successfully.
 
-Pinned to Next.js 16.2.11 (current stable) rather than an older 14.x line — checked `npm audit`
-after installing and found the 14.x line has real, patched high-severity advisories with no
-further non-canary releases being cut for it. Two remaining `npm audit` findings on 16.2.11
-(`postcss`, `sharp`) are Next's own build-time tooling dependencies — `sharp` specifically is
-for server-side image optimization, which this project doesn't use (`images.unoptimized: true`
-in `next.config.js`, since product images are base64 data URLs, not files needing resizing).
-`npm audit fix --force`'s suggested "fix" is actually a downgrade to Next 9.3.3 (a 2020-era
-release) — not applied, since that would break nearly everything just built.
-
-## Local development
-
+## How to apply
 ```bash
-npm install
-cp .env.example .env.local
-# edit .env.local — set NEXT_PUBLIC_API_BASE_URL to your pawvy-app backend URL
-npm run dev
+git checkout main
+git pull origin main
+# unzip this file, "Copy and Replace" when prompted
+git add -A
+git commit -m "Add BetterBone brand page deep-dive sections with real photos"
+git push origin main
 ```
-
-## Building & running in production mode locally
-
-```bash
-npm run build
-npm start
-```
-
-## Deploying
-
-Push this to the existing `pawvy-website` GitHub repo (replacing its current contents — see the
-chat for exact steps), Railway auto-detects Next.js and handles build/start via
-`package.json`'s `build`/`start` scripts automatically. Set `NEXT_PUBLIC_API_BASE_URL` in
-Railway's environment variables, same as before.
-
-## Testing done before this was packaged
-
-- Full production build (`next build`) completed cleanly — 22 routes, all 6 brand pages
-  pre-rendering their real content.
-- Confirmed via raw `curl` (not just visual inspection) that the server-rendered HTML for home,
-  shop, product, and brand pages contains real content *before* any JavaScript runs — the actual
-  thing this migration exists to fix.
-- Confirmed dynamic per-product `<title>`/description actually varies correctly per product.
-- Confirmed `/sitemap.xml` includes a real product URL and `/robots.txt` correctly excludes
-  personalized pages.
-- Ran a complete live signup -> verify -> set-password -> returning-login round trip against the
-  real backend, through the same API calls the new pages make — confirmed nothing broke in the
-  migration.
-- Confirmed every page (including all the previously-untested-here auth/account pages) returns a
-  clean 200 with no server error.
-
-## Project structure
-
-```
-app/
-  layout.js          — root layout, SEO metadata defaults, wraps CartProvider/Nav/WhatsApp
-  page.js            — Home (Server Component)
-  shop/page.js       — Shop (Server Component fetches initial data, ShopClient handles interactivity)
-  shop/[id]/page.js  — Product detail (Server Component, dynamic per-product metadata)
-  brands/[slug]/page.js — Brand pages (all 6 pre-rendered, real filtered products)
-  cart/, login/, signup/, verify/, login-verify/, set-password/, account/  — client-rendered, ported directly
-  stockist/, contact/, blog/  — structural placeholders, real content to come
-  sitemap.js, robots.js — dynamic SEO files
-lib/
-  api.js             — API helper (works from both Server and Client Components)
-  CartContext.jsx     — cart state, hydration-safe
-  brandSlugs.js       — brand-to-URL-slug mapping, matches the current live site exactly
-components/
-  Nav.jsx, ProductCard.jsx, QtyStepper.jsx, WhatsAppButton.jsx, HomeCTAButtons.jsx, AddToCartSection.jsx
-```
+Railway auto-deploys from `main` on push.

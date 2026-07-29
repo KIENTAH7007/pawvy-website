@@ -4,6 +4,7 @@ import { shopApi } from '../../../lib/api';
 import { brandNameFromSlug, BRAND_SLUGS, BRAND_LOGOS, BRAND_HERO_PHOTOS, displayBrandName } from '../../../lib/brandSlugs';
 import { BRAND_CONTENT } from '../../../lib/brandContent';
 import ShopClient from '../../../components/ShopClient';
+import BrandDeepDive from '../../../components/BrandDeepDive';
 
 export async function generateStaticParams() {
   return Object.values(BRAND_SLUGS).map(slug => ({ slug }));
@@ -68,8 +69,10 @@ export default async function BrandPage({ params }) {
         </section>
       )}
 
+      <BrandDeepDive deepDive={content.deepDive} brandDisplayName={displayBrandName(brandName)} />
+
       {content.faqs.length > 0 && (
-        <section className="faq">
+        <section id="faq" className="faq">
           <div className="wrap">
             <div className="faq-head">
               <div className="eyebrow center">Common questions</div>
@@ -87,7 +90,7 @@ export default async function BrandPage({ params }) {
         </section>
       )}
 
-      <div className="wrap" style={{ paddingTop: 90 }}>
+      <div className="wrap" id="brand-products" style={{ paddingTop: 90 }}>
         <div className="gallery-head" style={{ marginBottom: 0 }}>
           <div>
             <div className="eyebrow">Shop this brand</div>

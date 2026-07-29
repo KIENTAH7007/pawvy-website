@@ -395,6 +395,59 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .brand-stage-copy h2 { font-weight: 900; font-size: clamp(28px,3.4vw,38px); color: var(--navy); letter-spacing: -.5px; margin-bottom: 18px; }
 .brand-stage-copy p { font-size: 17px; line-height: 1.85; color: var(--dark-gray); max-width: 520px; }
 
+/* ---------- Brand deep-dive (optional, data-driven per brand — see
+   lib/brandContent.js `deepDive` and components/BrandDeepDive.jsx).
+   Sits between brand-stage (ivory) and faq (cream); alternates
+   cream / ivory / navy so it doesn't read as one long block. ---------- */
+.img-placeholder {
+  background: var(--ivory); border: 2px dashed rgba(20,33,61,.18); border-radius: 22px;
+  display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px;
+}
+.img-placeholder span { font-size: 13px; font-weight: 700; color: var(--dark-gray); line-height: 1.6; max-width: 220px; }
+
+.chew-feature { padding: 100px 0; background: var(--cream); }
+.chew-feature-head { max-width: 640px; margin: 0 auto 60px; text-align: center; }
+.chew-feature-head h2 { font-weight: 900; font-size: clamp(32px,4vw,46px); color: var(--navy); letter-spacing: -.7px; margin-bottom: 18px; }
+.chew-feature-head p { font-size: 17px; line-height: 1.75; color: var(--dark-gray); }
+.chew-feature-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 60px; align-items: center; }
+@media (max-width: 860px) { .chew-feature-grid { grid-template-columns: 1fr; gap: 32px; } }
+.chew-feature-copy p { font-size: 16px; line-height: 1.85; color: var(--dark-gray); }
+.chew-feature-divider { border-top: 2px dashed rgba(20,33,61,.18); margin-top: 32px; }
+.chew-feature-image { aspect-ratio: 4/5; width: 100%; object-fit: cover; border-radius: 26px; }
+
+.durability { padding: 100px 0; background: var(--ivory); }
+.durability-head { max-width: 620px; margin: 0 auto 54px; text-align: center; }
+.durability-head h2 { font-weight: 900; font-size: clamp(30px,3.8vw,42px); color: var(--navy); letter-spacing: -.6px; margin-bottom: 14px; }
+.durability-head p { font-size: 16px; color: var(--dark-gray); line-height: 1.7; }
+.durability-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 26px; }
+@media (max-width: 760px) { .durability-grid { grid-template-columns: 1fr; } }
+.durability-card { background: var(--cream); border: 2px solid rgba(20,33,61,.08); border-radius: 24px; overflow: hidden; transition: border-color .3s ease, transform .3s ease; }
+.durability-card:hover { border-color: var(--orange); transform: translateY(-3px); }
+.durability-image-wrap { position: relative; }
+.durability-image { aspect-ratio: 4/5; width: 100%; object-fit: cover; display: block; }
+.durability-product-badge {
+  position: absolute; bottom: -1px; left: 20px; width: 84px; height: 84px; border-radius: 16px;
+  background: var(--cream); border: 4px solid var(--cream); box-shadow: 0 10px 26px rgba(20,33,61,.22); overflow: hidden;
+}
+.durability-product-badge-img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+.durability-product-badge .img-placeholder { width: 100%; height: 100%; border-radius: 12px; padding: 6px; border-width: 1.5px; }
+.durability-product-badge .img-placeholder span { font-size: 9px; max-width: none; }
+.durability-info { padding: 34px 22px 24px; }
+.durability-label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.durability-label { font-size: 15px; font-weight: 800; color: var(--orange); text-transform: uppercase; letter-spacing: .5px; }
+.bite-meter { display: flex; gap: 4px; }
+.bite-meter .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(20,33,61,.15); }
+.bite-meter .dot.filled { background: var(--orange); }
+.durability-caption { font-size: 14.5px; color: var(--dark-gray); }
+.product-divider { border-top: 1px solid rgba(20,33,61,.1); margin-top: 14px; padding-top: 14px; }
+.product-name { font-weight: 700; color: var(--navy); font-size: 14.5px; line-height: 1.5; }
+
+.find-guide { padding: 110px 0; background: var(--navy); text-align: center; position: relative; overflow: hidden; }
+.find-guide .blob { width: 460px; height: 460px; background: var(--orange); opacity: .14; top: -18%; left: -10%; }
+.find-guide-inner { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; }
+.find-guide h2 { font-weight: 900; font-size: clamp(30px,3.8vw,44px); color: var(--cream); letter-spacing: -.6px; margin-bottom: 18px; }
+.find-guide p { font-size: 16.5px; line-height: 1.8; color: rgba(245,242,235,.75); margin-bottom: 34px; }
+
 .faq { padding: 100px 0 110px; background: var(--cream); }
 .faq-head { max-width: 600px; margin: 0 auto 50px; text-align: center; }
 .faq-head h2 { font-weight: 900; font-size: clamp(28px,3.6vw,40px); color: var(--navy); letter-spacing: -.6px; }
