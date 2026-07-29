@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { shopApi } from '../lib/api';
 import { useCart } from '../lib/CartContext';
 import { BRAND_SLUGS, displayBrandName } from '../lib/brandSlugs';
@@ -21,15 +22,30 @@ function sortBrands(brands) {
 // HTML from the server. This component only re-fetches when the customer
 // actually interacts (search, brand filter), same behavior as before, just
 // no longer responsible for the very first render.
-export default function ShopClient({ initialProducts, brands, showHero = true }) {
+//
+// brandId (optional): when set (brand pages only), search/filter stays
+// scoped to this brand even after the customer types — otherwise a search
+// re-fetch drops the brand scope and pulls in matches from every brand.
+// Also reads a `?q=` URL param on mount so the durability cards further up
+// the brand page (see BrandDeepDive) can deep-link straight into a
+// pre-filtered search — e.g. clicking the "Soft" card lands here already
+// searched for "Soft".
+export default function ShopClient({ initialProducts, brands, showHero = true, brandId = null }) {
   const [products, setProducts] = useState(initialProducts);
-  const [brandFilter, setBrandFilter] = useState('');
+  const [brandFilter, setBrandFilter] = useState(brandId || '');
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const sortedBrands = sortBrands(brands);
   const [loading, setLoading] = useState(false);
   const [firstRun, setFirstRun] = useState(true);
   const { addItem, itemCount, subtotal } = useCart();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const q = searchParams.get('q');
+    if (q) { setSearchInput(q); setSearch(q); setFirstRun(false); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (firstRun) { setFirstRun(false); return; }

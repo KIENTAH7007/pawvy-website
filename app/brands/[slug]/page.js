@@ -69,7 +69,7 @@ export default async function BrandPage({ params }) {
         </section>
       )}
 
-      <BrandDeepDive deepDive={content.deepDive} brandDisplayName={displayBrandName(brandName)} />
+      <BrandDeepDive deepDive={content.deepDive} brandDisplayName={displayBrandName(brandName)} brandId={brand.id} />
 
       {content.faqs.length > 0 && (
         <section id="faq" className="faq">
@@ -90,15 +90,17 @@ export default async function BrandPage({ params }) {
         </section>
       )}
 
-      <div className="wrap" id="brand-products" style={{ paddingTop: 90 }}>
-        <div className="gallery-head" style={{ marginBottom: 0 }}>
-          <div>
-            <div className="eyebrow">Shop this brand</div>
-            <h2>{displayBrandName(brandName)} products</h2>
+      <section id="brand-products" className="brand-shop-section">
+        <div className="wrap">
+          <div className="gallery-head" style={{ marginBottom: 0 }}>
+            <div>
+              <div className="eyebrow">Shop this brand</div>
+              <h2>{displayBrandName(brandName)} products</h2>
+            </div>
           </div>
         </div>
-      </div>
-      <ShopClient initialProducts={products} brands={brands} showHero={false} />
+        <ShopClient initialProducts={products} brands={brands} showHero={false} brandId={brand.id} />
+      </section>
 
       <section id="enquiry-cta" className="cta-band">
         <div className="wrap">

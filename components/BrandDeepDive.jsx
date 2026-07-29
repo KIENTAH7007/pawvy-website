@@ -9,10 +9,17 @@
 // Option 1 from the two combined-layout mockups shown to KT, chosen over
 // a plain stacked/no-overlap version.
 //
+// Each card is a link straight into the shop grid below, pre-searched for
+// that hardness level (e.g. clicking "Soft" scrolls to #brand-products
+// already filtered to "Soft" — see ShopClient's `q` param handling) — the
+// existing hover state on the card doubles as the click affordance, per
+// KT's request to make that hover feel "selectable".
+//
 // Image slots: every section takes either a real `image` path or falls
 // back to a dashed placeholder box showing `imageHint`, so this still
 // degrades gracefully if a future brand's data is filled in without
 // photos yet.
+import Link from 'next/link';
 
 function ImageSlot({ image, alt, hint, className }) {
   if (image) return <img src={image} alt={alt} className={className} />;
@@ -67,7 +74,12 @@ export default function BrandDeepDive({ deepDive, brandDisplayName }) {
             </div>
             <div className="durability-grid">
               {durability.levels.map(lvl => (
-                <div className="durability-card" key={lvl.label}>
+                <Link
+                  href={`?q=${encodeURIComponent(lvl.label)}#brand-products`}
+                  className="durability-card"
+                  key={lvl.label}
+                  aria-label={`Shop BetterBone ${lvl.label} chews`}
+                >
                   <div className="durability-image-wrap">
                     <ImageSlot image={lvl.image} alt={lvl.label} hint={lvl.imageHint} className="durability-image" />
                     <div className="durability-product-badge">
@@ -86,7 +98,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName }) {
                       </div>
                     )}
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>

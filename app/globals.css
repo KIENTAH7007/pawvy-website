@@ -421,7 +421,7 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .durability-head p { font-size: 16px; color: var(--dark-gray); line-height: 1.7; }
 .durability-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 26px; }
 @media (max-width: 760px) { .durability-grid { grid-template-columns: 1fr; } }
-.durability-card { background: var(--cream); border: 2px solid rgba(20,33,61,.08); border-radius: 24px; overflow: hidden; transition: border-color .3s ease, transform .3s ease; }
+.durability-card { display: block; background: var(--cream); border: 2px solid rgba(20,33,61,.08); border-radius: 24px; overflow: hidden; transition: border-color .3s ease, transform .3s ease; text-decoration: none; color: inherit; cursor: pointer; }
 .durability-card:hover { border-color: var(--orange); transform: translateY(-3px); }
 .durability-image-wrap { position: relative; }
 .durability-image { aspect-ratio: 4/5; width: 100%; object-fit: cover; display: block; }
@@ -447,6 +447,8 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .find-guide-inner { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; }
 .find-guide h2 { font-weight: 900; font-size: clamp(30px,3.8vw,44px); color: var(--cream); letter-spacing: -.6px; margin-bottom: 18px; }
 .find-guide p { font-size: 16.5px; line-height: 1.8; color: rgba(245,242,235,.75); margin-bottom: 34px; }
+
+.brand-shop-section { padding: 90px 0 30px; background: var(--ivory); }
 
 .faq { padding: 100px 0 110px; background: var(--cream); }
 .faq-head { max-width: 600px; margin: 0 auto 50px; text-align: center; }
