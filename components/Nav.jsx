@@ -110,7 +110,7 @@ export default function Nav() {
 
           {birthdayBonus && (
             <div className="promo-pill" title="Your pet's birthday month bonus is active">
-              <span>🎂 {birthdayBonus}× BUTTONS</span>
+              <span>🎂 {birthdayBonus}×B</span>
             </div>
           )}
 

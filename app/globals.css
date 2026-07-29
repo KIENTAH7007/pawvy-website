@@ -182,7 +182,8 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
 .mobile-auth-row { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
 .mobile-auth-row .btn { justify-content: center; }
 @media (min-width: 901px) { .mobile-overlay, .mobile-drawer { display: none; } }
-@media (max-width: 1080px) { .foc-pill, .promo-pill { display: none; } }
+@media (max-width: 1080px) { .foc-pill { display: none; } }
+@media (max-width: 560px) { .promo-pill { padding: 8px 12px; font-size: 12px; } }
 @media (max-width: 900px) { .nav-links { display: none; } .nav-right { gap: 14px; } }
 @media (max-width: 560px) { .nav-auth .nav-signup { display: none; } .nav-greeting { padding: 8px; } }
 
@@ -422,10 +423,10 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .account-bonus-banner strong { color: var(--navy); font-size: 15px; }
 .account-bonus-banner p { font-size: 13.5px; color: var(--dark-gray); margin-top: 6px; line-height: 1.6; }
 .account-birthday-banner {
-  background: rgba(249,218,217,.5); border: 2px solid rgba(249,218,217,1); border-radius: 16px;
+  background: rgba(34,139,34,.08); border: 2px solid rgba(34,139,34,.22); border-radius: 16px;
   padding: 16px 20px; margin-bottom: 16px; font-size: 14px; color: var(--navy); line-height: 1.6;
 }
-.account-birthday-banner strong { color: var(--orange); }
+.account-birthday-banner strong { color: #1e6b1e; }
 .account-success-banner { background: rgba(34,139,34,.08); border: 2px solid rgba(34,139,34,.22); border-radius: 16px; padding: 14px 18px; margin-bottom: 16px; font-size: 14px; font-weight: 700; color: #1e6b1e; }
 .account-form { background: var(--cream); border: 2px solid rgba(20,33,61,.08); border-radius: 20px; padding: 26px 26px 28px; margin-top: 20px; }
 .account-form h2 { font-family: 'Fraunces', serif; font-weight: 800; font-size: 20px; color: var(--navy); margin-bottom: 4px; }

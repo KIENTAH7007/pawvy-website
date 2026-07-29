@@ -19,6 +19,7 @@ export default function AccountPage() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPet, setSavingPet] = useState(false);
   const [bonusMessage, setBonusMessage] = useState(null);
+  const [birthdayNotice, setBirthdayNotice] = useState(null);
   const [referralLink, setReferralLink] = useState('');
   const [passwordForm, setPasswordForm] = useState({ password: '', confirm: '' });
   const [savingPassword, setSavingPassword] = useState(false);
@@ -70,10 +71,21 @@ export default function AccountPage() {
   async function savePet(e) {
     e.preventDefault();
     setSavingPet(true);
+    setBirthdayNotice(null);
     try {
       const result = await customerApi.updatePet(petForm);
       setPet(result.pet);
       if (result.profile_bonus?.awarded) setBonusMessage('🎉 Profile complete — 50 BUTTONS credited!');
+      if (result.birthday_change_blocked) {
+        // The requested birthday change was rejected (rate-limited to once
+        // a year — see the backend comment for why). Reset the form field
+        // back to what's actually saved, so it doesn't keep showing the
+        // rejected date as if it had taken effect.
+        setPetForm(f => ({ ...f, birthday: result.pet.birthday || '' }));
+        setBirthdayNotice(
+          `Your pet's birthday can only be changed once a year — you'll be able to update it again from ${result.birthday_change_available_from}.`
+        );
+      }
       load();
     } finally {
       setSavingPet(false);
@@ -183,6 +195,7 @@ export default function AccountPage() {
             <FormField label="Breed" value={petForm.breed} onChange={v => setPetForm(f => ({ ...f, breed: v }))} />
             <FormField label="Weight (kg)" type="number" value={petForm.weight} onChange={v => setPetForm(f => ({ ...f, weight: v }))} />
             <FormField label="Birthday" type="date" value={petForm.birthday} onChange={v => setPetForm(f => ({ ...f, birthday: v }))} />
+            {birthdayNotice && <p className="account-error" style={{ color: 'var(--dark-gray)' }}>{birthdayNotice}</p>}
             <FormField label="Allergies / dietary notes" value={petForm.allergies} onChange={v => setPetForm(f => ({ ...f, allergies: v }))} />
             <div className="field">
               <label>Favorite item type</label>
