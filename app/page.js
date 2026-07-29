@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import Script from 'next/script';
 import Typewriter from '../components/Typewriter';
 import Marquee from '../components/Marquee';
 import BrandGallery from '../components/BrandGallery';
 import StatCounter from '../components/StatCounter';
 import EnquiryForm from '../components/EnquiryForm';
 import Reveal from '../components/Reveal';
+import InstagramGrid from '../components/InstagramGrid';
 import { contentApi } from '../lib/api';
 
 const FACTS_FALLBACK = ['Premium Pet Wellness', 'Exclusive Singapore Distributor', 'Six Brands, One Standard', '107+ Retail Partners'];
@@ -28,6 +28,8 @@ export default async function Home() {
   // the ticker is never just blank.
   const ticker = await contentApi.ticker().catch(() => null);
   const facts = ticker?.messages?.length ? ticker.messages : FACTS_FALLBACK;
+  const igPosts = await contentApi.instagramPosts().catch(() => null);
+  const igUrls = igPosts?.urls || [];
 
   return (
     <>
@@ -155,18 +157,15 @@ export default async function Home() {
           <Reveal as="div" className="eyebrow center">Social media</Reveal>
           <h2>Instagram</h2>
           <p className="sub">Follow us at <a href="https://instagram.com/pawvy_sg" target="_blank" rel="noopener noreferrer">@Pawvy_SG</a> to discover new products, exciting updates, and care tips for your pets.</p>
-          <Reveal as="div" className="ig-embed-wrap">
-            <iframe
-              src="https://snapwidget.com/embed/1127971"
-              className="snapwidget-widget"
-              allowTransparency="true"
-              frameBorder="0"
-              scrolling="no"
-              style={{ border: 'none', overflow: 'hidden', width: '100%', height: '400px', display: 'block' }}
-              title="Posts from Instagram"
-            />
-            <Script src="https://snapwidget.com/js/snapwidget.js" strategy="lazyOnload" />
-          </Reveal>
+          {igUrls.length > 0 ? (
+            <Reveal as="div" className="ig-embed-wrap">
+              <InstagramGrid urls={igUrls} />
+            </Reveal>
+          ) : (
+            <a href="https://instagram.com/pawvy_sg" target="_blank" rel="noopener noreferrer" className="btn btn-outline-dark" style={{ marginTop: 32 }}>
+              <span>Visit our Instagram</span>
+            </a>
+          )}
         </div>
       </section>
 

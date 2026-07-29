@@ -231,7 +231,7 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
    touching the section above, above-color ends up touching the section
    below) — do not re-add it for this specific path. */
 .section-curve { position: relative; height: 90px; margin-bottom: -1px; }
-.section-curve svg { width: 100%; height: 100%; display: block; }
+.section-curve svg { width: 100%; height: 100%; display: block; position: relative; }
 
 /* ---------- Hero ---------- */
 .hero { position: relative; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; padding: 140px 0; background: var(--navy); overflow: hidden; }
@@ -342,7 +342,11 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
 .instagram h2 { font-weight: 900; font-size: clamp(30px,4vw,46px); color: var(--navy); letter-spacing: -1px; margin: 10px 0 12px; }
 .instagram p.sub { color: var(--dark-gray); margin-bottom: 50px; }
 .instagram p.sub a { color: var(--orange); font-weight: 800; }
-.ig-embed-wrap { margin-top: 40px; border-radius: 20px; overflow: hidden; }
+.ig-embed-wrap { margin-top: 40px; }
+.ig-embed-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+@media (max-width: 900px) { .ig-embed-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 560px) { .ig-embed-grid { grid-template-columns: 1fr; } }
+.ig-embed-grid .instagram-media { border-radius: 20px !important; }
 
 /* ---------- Enquiry / Contact ---------- */
 .enquiry { padding: 110px 0; background: var(--ivory); }
@@ -371,7 +375,7 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 
 /* ---------- Subpage hero (brand pages, stockist) ---------- */
 .subhero { padding: 170px 0 90px; background: var(--navy); position: relative; overflow: hidden; }
-.subhero-bg-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .18; }
+.subhero-bg-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .25; }
 .subhero .blob { width: 480px; height: 480px; background: var(--orange); opacity: .14; top: -20%; right: -8%; }
 .subhero-inner { position: relative; z-index: 1; max-width: 800px; }
 .subhero .back { display: flex; width: fit-content; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: rgba(245,242,235,.6); margin-bottom: 28px; white-space: nowrap; }
