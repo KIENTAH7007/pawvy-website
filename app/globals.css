@@ -342,13 +342,7 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
 .instagram h2 { font-weight: 900; font-size: clamp(30px,4vw,46px); color: var(--navy); letter-spacing: -1px; margin: 10px 0 12px; }
 .instagram p.sub { color: var(--dark-gray); margin-bottom: 50px; }
 .instagram p.sub a { color: var(--orange); font-weight: 800; }
-.ig-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
-@media (max-width: 760px) { .ig-grid { grid-template-columns: repeat(2,1fr); } }
-.ig-tile { aspect-ratio: 1; border-radius: 20px; overflow: hidden; background: linear-gradient(135deg,var(--light-pitch),var(--orange)); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .35s ease; }
-.ig-tile:hover { transform: scale(1.03) rotate(-1deg); }
-.ig-tile:nth-child(2n) { background: linear-gradient(135deg,var(--mid-cream),var(--cream) 140%); }
-.ig-tile:nth-child(3n) { background: linear-gradient(135deg,var(--navy),var(--dark-gray)); }
-.ig-tile svg { width: 24px; height: 24px; opacity: .6; }
+.ig-embed-wrap { margin-top: 40px; border-radius: 20px; overflow: hidden; }
 
 /* ---------- Enquiry / Contact ---------- */
 .enquiry { padding: 110px 0; background: var(--ivory); }

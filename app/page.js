@@ -154,12 +154,16 @@ export default async function Home() {
           <Reveal as="div" className="eyebrow center">Social media</Reveal>
           <h2>Instagram</h2>
           <p className="sub">Follow us at <a href="https://instagram.com/pawvy_sg" target="_blank" rel="noopener noreferrer">@Pawvy_SG</a> to discover new products, exciting updates, and care tips for your pets.</p>
-          <Reveal as="div" className="ig-grid" stagger>
-            {[0, 1, 2, 3].map((i) => (
-              <div className="ig-tile" key={i}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.6"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" /></svg>
-              </div>
-            ))}
+          <Reveal as="div" className="ig-embed-wrap">
+            <iframe
+              src="https://snapwidget.com/embed/1127971"
+              className="snapwidget-widget"
+              allowTransparency="true"
+              frameBorder="0"
+              scrolling="no"
+              style={{ border: 'none', overflow: 'hidden', width: '100%', maxWidth: '1020px', height: '255px', display: 'block', margin: '0 auto' }}
+              title="Posts from Instagram"
+            />
           </Reveal>
         </div>
       </section>
