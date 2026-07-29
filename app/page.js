@@ -161,7 +161,7 @@ export default async function Home() {
               allowTransparency="true"
               frameBorder="0"
               scrolling="no"
-              style={{ border: 'none', overflow: 'hidden', width: '100%', height: '280px', display: 'block' }}
+              style={{ border: 'none', overflow: 'hidden', width: '100%', height: '400px', display: 'block' }}
               title="Posts from Instagram"
             />
           </Reveal>
