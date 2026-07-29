@@ -5,8 +5,9 @@ import BrandGallery from '../components/BrandGallery';
 import StatCounter from '../components/StatCounter';
 import EnquiryForm from '../components/EnquiryForm';
 import Reveal from '../components/Reveal';
+import { contentApi } from '../lib/api';
 
-const FACTS = ['Premium Pet Wellness', 'Exclusive Singapore Distributor', 'Six Brands, One Standard', '107+ Retail Partners'];
+const FACTS_FALLBACK = ['Premium Pet Wellness', 'Exclusive Singapore Distributor', 'Six Brands, One Standard', '107+ Retail Partners'];
 
 const TESTIMONIALS = [
   { quote: 'Thank you for the recommendation! Sparky has not stopped playing since we came home.', who: 'Sparky_yipeedee_dee' },
@@ -18,7 +19,15 @@ const TESTIMONIALS = [
 // Server Component — real HTML for SEO. Only the pieces that need
 // interactivity (typewriter, marquee, drag/tilt gallery, counters, the
 // form) are client components imported in as islands.
-export default function Home() {
+export default async function Home() {
+  // Ticker messages are managed from the Pawvy App's Ticker Messages admin
+  // page — this fetches whatever's currently active at request time, so
+  // updates show up live with no website deploy needed. Falls back to the
+  // static facts if the list is empty or the backend is unreachable, so
+  // the ticker is never just blank.
+  const ticker = await contentApi.ticker().catch(() => null);
+  const facts = ticker?.messages?.length ? ticker.messages : FACTS_FALLBACK;
+
   return (
     <>
       <section className="hero">
@@ -60,7 +69,7 @@ export default function Home() {
 
         <div className="marquee">
           <Marquee pxPerSecond={55}>
-            {FACTS.map((fact, i) => (
+            {facts.map((fact, i) => (
               <span className="marquee-item" key={i}>{fact}<span className="dot" /></span>
             ))}
           </Marquee>

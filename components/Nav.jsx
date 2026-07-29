@@ -33,6 +33,7 @@ export default function Nav() {
   const [balance, setBalance] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileShopOpen, setMobileShopOpen] = useState(false);
+  const [birthdayBonus, setBirthdayBonus] = useState(null);
   const { itemCount, subtotal } = useCart();
 
   useEffect(() => {
@@ -44,10 +45,17 @@ export default function Nav() {
 
   useEffect(() => {
     const token = getSessionToken();
-    if (!token) { setCustomer(null); setBalance(0); return; }
+    if (!token) { setCustomer(null); setBalance(0); setBirthdayBonus(null); return; }
     customerApi.me()
-      .then(({ customer, buttons_balance }) => { setCustomer(customer); setBalance(buttons_balance); })
-      .catch(() => { setSessionToken(null); setCustomer(null); setBalance(0); });
+      .then(({ customer, buttons_balance, active_multiplier, active_multiplier_source }) => {
+        setCustomer(customer);
+        setBalance(buttons_balance);
+        // Only the birthday-month bonus shows in the nav — an active
+        // campaign is already covered by the homepage ticker, so it isn't
+        // duplicated here.
+        setBirthdayBonus(active_multiplier_source === 'birthday' ? active_multiplier : null);
+      })
+      .catch(() => { setSessionToken(null); setCustomer(null); setBalance(0); setBirthdayBonus(null); });
   }, [pathname]);
 
   // Close the mobile menu whenever navigation actually happens, and don't
@@ -99,6 +107,12 @@ export default function Nav() {
             <Link href="/#enquiry">Contact</Link>
             <Link href="/blog">Blog</Link>
           </div>
+
+          {birthdayBonus && (
+            <div className="promo-pill" title="Your pet's birthday month bonus is active">
+              <span>🎂 {birthdayBonus}× BUTTONS</span>
+            </div>
+          )}
 
           <div className={`foc-pill${unlocked ? ' unlocked' : ''}`}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7h11v8H3zM14 10h4l3 3v2h-7zM7 19a2 2 0 100-4 2 2 0 000 4zM17.5 19a2 2 0 100-4 2 2 0 000 4z" /></svg>

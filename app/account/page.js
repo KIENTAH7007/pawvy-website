@@ -11,6 +11,8 @@ export default function AccountPage() {
   const [customer, setCustomer] = useState(null);
   const [pet, setPet] = useState(null);
   const [balance, setBalance] = useState(0);
+  const [activeMultiplier, setActiveMultiplier] = useState(1);
+  const [activeMultiplierSource, setActiveMultiplierSource] = useState(null);
 
   const [profileForm, setProfileForm] = useState({ name: '', phone: '', address: '', instagram_handle: '', preferred_contact_channel: '' });
   const [petForm, setPetForm] = useState({ name: '', breed: '', weight: '', birthday: '', allergies: '', favorite_item: '', chew_power: '' });
@@ -30,10 +32,12 @@ export default function AccountPage() {
 
   function load() {
     customerApi.me()
-      .then(({ customer, pet, buttons_balance }) => {
+      .then(({ customer, pet, buttons_balance, active_multiplier, active_multiplier_source }) => {
         setCustomer(customer);
         setPet(pet);
         setBalance(buttons_balance);
+        setActiveMultiplier(active_multiplier);
+        setActiveMultiplierSource(active_multiplier_source);
         setReferralLink(`${window.location.origin}/signup?ref=${customer.referral_code}`);
         setProfileForm({
           name: customer.name || '', phone: customer.phone || '', address: customer.address || '',
@@ -126,6 +130,12 @@ export default function AccountPage() {
             <div className="account-card-label">BUTTONS Balance</div>
             <div className="account-balance">{balance}B</div>
           </div>
+
+          {activeMultiplierSource === 'birthday' && (
+            <div className="account-birthday-banner">
+              🎂 It's your pet's birthday month — you're earning <strong>{activeMultiplier}× BUTTONS</strong> on every purchase this month!
+            </div>
+          )}
 
           <div className="account-card">
             <div className="account-card-label">Your Referral Link — you and your friends get BUTTONS</div>
