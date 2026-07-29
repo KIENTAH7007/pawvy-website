@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { shopApi } from '../../../lib/api';
-import { brandNameFromSlug, BRAND_SLUGS, BRAND_LOGOS, displayBrandName } from '../../../lib/brandSlugs';
+import { brandNameFromSlug, BRAND_SLUGS, BRAND_LOGOS, BRAND_HERO_PHOTOS, displayBrandName } from '../../../lib/brandSlugs';
 import { BRAND_CONTENT } from '../../../lib/brandContent';
 import ShopClient from '../../../components/ShopClient';
 
@@ -34,10 +34,12 @@ export default async function BrandPage({ params }) {
     tagline: '', description: `Shop ${displayBrandName(brandName)} on Pawvy.`, exclusive: true, faqs: [],
   };
   const logo = BRAND_LOGOS[brandName];
+  const heroPhoto = BRAND_HERO_PHOTOS[brandName];
 
   return (
     <>
       <section className="subhero">
+        {heroPhoto && <img src={heroPhoto} alt="" className="subhero-bg-photo" />}
         <div className="blob" />
         <div className="wrap subhero-inner">
           <Link href="/#gallery" className="back">

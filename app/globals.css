@@ -371,6 +371,7 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 
 /* ---------- Subpage hero (brand pages, stockist) ---------- */
 .subhero { padding: 170px 0 90px; background: var(--navy); position: relative; overflow: hidden; }
+.subhero-bg-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .18; }
 .subhero .blob { width: 480px; height: 480px; background: var(--orange); opacity: .14; top: -20%; right: -8%; }
 .subhero-inner { position: relative; z-index: 1; max-width: 800px; }
 .subhero .back { display: flex; width: fit-content; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: rgba(245,242,235,.6); margin-bottom: 28px; white-space: nowrap; }

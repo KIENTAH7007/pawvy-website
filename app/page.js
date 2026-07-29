@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Script from 'next/script';
 import Typewriter from '../components/Typewriter';
 import Marquee from '../components/Marquee';
 import BrandGallery from '../components/BrandGallery';
@@ -164,6 +165,7 @@ export default async function Home() {
               style={{ border: 'none', overflow: 'hidden', width: '100%', height: '400px', display: 'block' }}
               title="Posts from Instagram"
             />
+            <Script src="https://snapwidget.com/js/snapwidget.js" strategy="lazyOnload" />
           </Reveal>
         </div>
       </section>
