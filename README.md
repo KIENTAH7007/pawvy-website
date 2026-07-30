@@ -1,25 +1,32 @@
-# Pawvy Website — patch: homepage hero photo + Puzzle Feeder Lite photo swap
+# Pawvy Website — patch: remove hero photo, fix marquee color + position
 
 ## What changed
 
-### Homepage hero
-- **New photo** — `public/hero-bg.jpg` replaced with the wider PetExpo booth shot
-  (more headroom, both of you clearly visible, nothing cropped tight against the top)
-- **Blobs enlarged ~15%** from the previous (smaller) size — main blob 440px→506px,
-  and the other three scaled the same amount
-- **Marquee ticker background changed to cream** (`#F5F2EB`) instead of orange, so it
-  doesn't clash with the orange booth counter in the photo — this was from the earlier
-  round, included again since this is a full-file delivery
+1. **Hero background photo removed** — back to plain navy + morphing blobs, no
+   photo. Deleted the `<img>` element in `app/page.js` and the now-unused
+   `.hero-bg-photo` CSS. (`public/hero-bg.jpg` itself is left in place, just
+   unreferenced — harmless to leave, or delete it yourself if you want the repo
+   tidy.)
 
-### Puzzle Feeder
-- **"Puzzle Feeder Lite" card photo swapped** to the orange Lick Bowl Lite variant
-  (was green) — gives the 3 "Choose Your Fit" cards visual variety instead of all
-  reading green
+2. **Marquee ticker back to orange** (`#F36F4A`), reverted from the cream
+   experiment.
+
+3. **Marquee position fixed** — found the actual bug: the marquee ticker was
+   nested *inside* the hero `<section>` (not a separate section after it), and
+   since the hero has `min-height: 100vh`, the ticker was landing partway down
+   the hero rather than at its bottom edge — which is exactly why the photo
+   (when it was there) kept showing below the ticker.
+
+   Fixed with a standard flexbox technique: the headline block now has
+   `margin-top: auto; margin-bottom: auto`, which self-centers it in the space
+   *above* the ticker, while the ticker sits flush against the very bottom
+   edge of the hero section. No structural HTML changes needed for this part —
+   just the two CSS lines.
 
 ### Files touched
-- `public/hero-bg.jpg` — replaced
-- `public/brand-features/puzzlefeeder/fit-lite.jpg` — replaced
-- `app/globals.css` — blob sizes, marquee background
+- `app/page.js` — removed hero background photo `<img>`
+- `app/globals.css` — marquee color reverted, hero-inner auto-margin centering
+  fix, removed unused `.hero-bg-photo`
 
 `npm run build` passes clean (Next.js 16, Turbopack) — all 22 routes generated successfully.
 
@@ -29,7 +36,7 @@ git checkout main
 git pull origin main
 # unzip this file, "Copy and Replace" when prompted
 git add -A
-git commit -m "Update homepage hero photo, enlarge blobs, swap Puzzle Feeder Lite card photo"
+git commit -m "Remove hero background photo, revert marquee to orange, fix marquee position"
 git push origin main
 ```
 Railway auto-deploys from `main` on push.

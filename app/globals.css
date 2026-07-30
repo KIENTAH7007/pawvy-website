@@ -235,7 +235,6 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
 
 /* ---------- Hero ---------- */
 .hero { position: relative; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; padding: 140px 0; background: var(--navy); overflow: hidden; }
-.hero-bg-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .18; z-index: 0; }
 .hero .blob { width: 506px; height: 506px; background: var(--orange); opacity: .16; top: -10%; right: -12%; z-index: 0; }
 .hero .blob.b2 { width: 322px; height: 322px; background: var(--light-pitch); opacity: .14; bottom: -15%; left: -8%; animation-duration: 16s; }
 .hero .blob.b3 { width: 219px; height: 219px; background: var(--mid-cream); opacity: .10; top: 15%; left: 5%; animation-duration: 19s; animation-delay: -4s; }
@@ -255,6 +254,7 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
 @media (max-width: 900px) { .float-dot { display: none; } }
 
 .hero-inner { position: relative; z-index: 1; text-align: center; max-width: 1050px; margin: 0 auto; }
+.hero .hero-inner { margin-top: auto; margin-bottom: auto; }
 .hero h1 { font-weight: 900; color: var(--cream); letter-spacing: -2px; font-size: clamp(52px,9vw,128px); line-height: .92; }
 .hero .type-line { color: var(--orange); }
 .typewriter-caret { display: inline-block; width: .06em; background: var(--orange); animation: blink 1s steps(1) infinite; }
@@ -271,7 +271,7 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
 @media (max-width: 900px) { .paw-badge { display: none; } }
 
 /* Marquee ticker */
-.marquee { position: relative; z-index: 1; border-top: 1px solid rgba(20,33,61,.12); border-bottom: 1px solid rgba(20,33,61,.12); background: var(--cream); padding: 16px 0; margin-top: 64px; overflow: hidden; white-space: nowrap; }
+.marquee { position: relative; z-index: 1; border-top: 1px solid rgba(245,242,235,.15); border-bottom: 1px solid rgba(245,242,235,.15); background: var(--orange); padding: 16px 0; margin-top: 48px; overflow: hidden; white-space: nowrap; }
 .marquee-track { display: inline-flex; gap: 48px; animation: marquee 26s linear infinite; animation-play-state: paused; }
 .marquee-track.ready { animation-play-state: running; }
 .marquee:hover .marquee-track.ready { animation-play-state: paused; }

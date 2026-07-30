@@ -34,7 +34,6 @@ export default async function Home() {
   return (
     <>
       <section className="hero">
-        <img src="/hero-bg.jpg" alt="" className="hero-bg-photo" />
         <div className="blob" />
         <div className="blob b2" />
         <div className="blob b3" />
