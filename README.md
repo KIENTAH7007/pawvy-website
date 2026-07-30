@@ -11,22 +11,25 @@
 2. **Marquee ticker back to orange** (`#F36F4A`), reverted from the cream
    experiment.
 
-3. **Marquee position fixed** — found the actual bug: the marquee ticker was
-   nested *inside* the hero `<section>` (not a separate section after it), and
-   since the hero has `min-height: 100vh`, the ticker was landing partway down
-   the hero rather than at its bottom edge — which is exactly why the photo
-   (when it was there) kept showing below the ticker.
+3. **Marquee position fixed — two-part fix.** Found the actual bug: the marquee
+   ticker was nested *inside* the hero `<section>` (not a separate section
+   after it), and since the hero has `min-height: 100vh`, the ticker was
+   landing partway down the hero rather than at its bottom edge.
 
-   Fixed with a standard flexbox technique: the headline block now has
-   `margin-top: auto; margin-bottom: auto`, which self-centers it in the space
-   *above* the ticker, while the ticker sits flush against the very bottom
-   edge of the hero section. No structural HTML changes needed for this part —
-   just the two CSS lines.
+   - The headline block now has `margin-top: auto; margin-bottom: auto`,
+     which self-centers it in the space *above* the ticker, while the ticker
+     sits flush against the bottom of the hero's content box.
+   - **Second round fix:** the hero also had `140px` of bottom padding, so
+     even with the ticker flush against the content box, there was still a
+     140px navy gap after it before the section actually ended — exactly the
+     strip you flagged in the screenshot. Removed the bottom padding
+     (`padding: 140px 0 0` instead of `140px 0`) so the ticker is now flush
+     against the true bottom edge of the section.
 
 ### Files touched
 - `app/page.js` — removed hero background photo `<img>`
 - `app/globals.css` — marquee color reverted, hero-inner auto-margin centering
-  fix, removed unused `.hero-bg-photo`
+  fix, hero bottom padding removed, unused `.hero-bg-photo` cleaned up
 
 `npm run build` passes clean (Next.js 16, Turbopack) — all 22 routes generated successfully.
 
@@ -36,7 +39,7 @@ git checkout main
 git pull origin main
 # unzip this file, "Copy and Replace" when prompted
 git add -A
-git commit -m "Remove hero background photo, revert marquee to orange, fix marquee position"
+git commit -m "Remove hero background photo, revert marquee to orange, fix marquee position (padding)"
 git push origin main
 ```
 Railway auto-deploys from `main` on push.
