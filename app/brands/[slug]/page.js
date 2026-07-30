@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { shopApi } from '../../../lib/api';
-import { brandNameFromSlug, BRAND_SLUGS, BRAND_LOGOS, BRAND_HERO_PHOTOS, displayBrandName } from '../../../lib/brandSlugs';
+import { brandNameFromSlug, BRAND_SLUGS, BRAND_HERO_PHOTOS, displayBrandName } from '../../../lib/brandSlugs';
 import { BRAND_CONTENT } from '../../../lib/brandContent';
 import ShopClient from '../../../components/ShopClient';
 import BrandDeepDive from '../../../components/BrandDeepDive';
@@ -34,7 +34,6 @@ export default async function BrandPage({ params }) {
   const content = BRAND_CONTENT[brandName] || {
     tagline: '', description: `Shop ${displayBrandName(brandName)} on Pawvy.`, exclusive: true, faqs: [],
   };
-  const logo = BRAND_LOGOS[brandName];
   const heroPhoto = BRAND_HERO_PHOTOS[brandName];
 
   return (
@@ -57,22 +56,11 @@ export default async function BrandPage({ params }) {
         </div>
       </section>
 
-      {logo && (
-        <section className="brand-stage">
-          <div className="wrap brand-stage-grid">
-            <div className="brand-stage-logo"><img src={logo} alt={displayBrandName(brandName)} /></div>
-            <div className="brand-stage-copy">
-              <h2>Why Pawvy carries {displayBrandName(brandName)}</h2>
-              <p>{content.description}</p>
-            </div>
-          </div>
-        </section>
-      )}
-
       <BrandDeepDive deepDive={content.deepDive} brandDisplayName={displayBrandName(brandName)} brandId={brand.id} />
 
       {content.faqs.length > 0 && (
         <section id="faq" className="faq">
+          <div className="blob" />
           <div className="wrap">
             <div className="faq-head">
               <div className="eyebrow center">Common questions</div>
