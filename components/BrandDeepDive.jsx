@@ -124,7 +124,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName }) {
           <div className="wrap feature-intro-grid">
             <div className="feature-intro-copy">
               <div className="eyebrow">{intro.eyebrow}</div>
-              <h2>{intro.heading.split('\n').map((line, i) => <React.Fragment key={i}>{i > 0 && <br />}{line}</React.Fragment>)}</h2>
+              <h2>{intro.heading.split('\n').map((line, i) => <Fragment key={i}>{i > 0 && <br />}{line}</Fragment>)}</h2>
               <p>{intro.body}</p>
             </div>
             <ImageSlot image={intro.image} alt={intro.heading} hint={intro.imageHint} className="feature-intro-image" />
