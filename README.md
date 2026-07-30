@@ -1,25 +1,27 @@
-# Pawvy Website — HOTFIX: Puzzle Feeder page crash
+# Pawvy Website — patch: homepage hero photo + Puzzle Feeder Lite photo swap
 
-## The bug
-`components/BrandDeepDive.jsx` had `import { Fragment } from 'react'` but the JSX
-still referenced `React.Fragment` — `React` itself was never imported as a namespace,
-so this threw `ReferenceError: React is not defined` the moment the intro section
-actually rendered.
+## What changed
 
-**Why this passed `npm run build` locally but crashed live:** the `/brands/[slug]`
-route is server-rendered on demand (marked `ƒ` in the build output), not statically
-prerendered — so the buggy line never actually executed during `next build`'s static
-generation step. It only ran at real request time on Railway, which is why the crash
-only showed up once you loaded the live page.
+### Homepage hero
+- **New photo** — `public/hero-bg.jpg` replaced with the wider PetExpo booth shot
+  (more headroom, both of you clearly visible, nothing cropped tight against the top)
+- **Blobs enlarged ~15%** from the previous (smaller) size — main blob 440px→506px,
+  and the other three scaled the same amount
+- **Marquee ticker background changed to cream** (`#F5F2EB`) instead of orange, so it
+  doesn't clash with the orange booth counter in the photo — this was from the earlier
+  round, included again since this is a full-file delivery
 
-## The fix
-Changed `<React.Fragment key={i}>...</React.Fragment>` to `<Fragment key={i}>...</Fragment>`,
-using the import that was already there. One line changed, one file.
+### Puzzle Feeder
+- **"Puzzle Feeder Lite" card photo swapped** to the orange Lick Bowl Lite variant
+  (was green) — gives the 3 "Choose Your Fit" cards visual variety instead of all
+  reading green
 
-I also did a full manual sweep of the rest of `BrandDeepDive.jsx` (and the other
-touched files) for the same class of bug — no other stray unimported references found.
+### Files touched
+- `public/hero-bg.jpg` — replaced
+- `public/brand-features/puzzlefeeder/fit-lite.jpg` — replaced
+- `app/globals.css` — blob sizes, marquee background
 
-Rebuilt and verified clean with `npm run build`.
+`npm run build` passes clean (Next.js 16, Turbopack) — all 22 routes generated successfully.
 
 ## How to apply
 ```bash
@@ -27,7 +29,7 @@ git checkout main
 git pull origin main
 # unzip this file, "Copy and Replace" when prompted
 git add -A
-git commit -m "Hotfix: fix ReferenceError crashing the Puzzle Feeder page (React.Fragment -> Fragment)"
+git commit -m "Update homepage hero photo, enlarge blobs, swap Puzzle Feeder Lite card photo"
 git push origin main
 ```
 Railway auto-deploys from `main` on push.
