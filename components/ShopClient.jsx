@@ -26,10 +26,12 @@ function sortBrands(brands) {
 // brandId (optional): when set (brand pages only), search/filter stays
 // scoped to this brand even after the customer types — otherwise a search
 // re-fetch drops the brand scope and pulls in matches from every brand.
-// Also reads a `?q=` URL param on mount so the durability cards further up
-// the brand page (see BrandDeepDive) can deep-link straight into a
-// pre-filtered search — e.g. clicking the "Soft" card lands here already
-// searched for "Soft".
+//
+// Also reads a `?highlight=` URL param on mount so the durability/fit cards
+// further up the brand page (see BrandDeepDive) can deep-link straight to a
+// specific product — e.g. clicking "Puzzle Mat" scrolls this (still fully
+// unfiltered) grid to the Puzzle Mat card and gives it a brief highlight
+// pulse, rather than filtering everything else out.
 export default function ShopClient({ initialProducts, brands, showHero = true, brandId = null }) {
   const [products, setProducts] = useState(initialProducts);
   const [brandFilter, setBrandFilter] = useState(brandId || '');
@@ -42,8 +44,23 @@ export default function ShopClient({ initialProducts, brands, showHero = true, b
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const q = searchParams.get('q');
-    if (q) { setSearchInput(q); setSearch(q); setFirstRun(false); }
+    const highlight = searchParams.get('highlight');
+    if (!highlight) return;
+    // Products are already in the DOM (unfiltered) via initialProducts —
+    // just need a tick for the browser to finish painting before measuring
+    // scroll position.
+    const t = setTimeout(() => {
+      const cards = document.querySelectorAll('[data-product-title]');
+      const target = Array.from(cards).find(el =>
+        el.getAttribute('data-product-title')?.toLowerCase().includes(highlight.toLowerCase())
+      );
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        target.classList.add('product-card-highlight');
+        setTimeout(() => target.classList.remove('product-card-highlight'), 2200);
+      }
+    }, 150);
+    return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

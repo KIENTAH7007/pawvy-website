@@ -15,11 +15,12 @@
 //   more sense than a durability scale.
 //
 // Cards that lead into the shop (durability levels, fit cards) are links
-// straight into the shop grid below, pre-searched for that item — e.g.
-// clicking "Soft" or "Puzzle Feeder Lite" scrolls to #brand-products
-// already filtered (see ShopClient's `q` param handling). The existing
-// hover state on the card doubles as the click affordance, per KT's
-// request to make that hover feel "selectable".
+// straight into the shop grid below, scrolling to and briefly highlighting
+// that exact product — e.g. clicking "Soft" or "Puzzle Feeder Lite" jumps
+// to that product's card in the (still fully unfiltered) grid rather than
+// filtering everything else out (see ShopClient's `highlight` param
+// handling). The existing hover state on the card doubles as the click
+// affordance, per KT's request to make that hover feel "selectable".
 //
 // Image slots: every section takes either a real `image` path or falls
 // back to a dashed placeholder box showing `imageHint`, so this still
@@ -89,7 +90,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName }) {
             <div className="durability-grid">
               {durability.levels.map(lvl => (
                 <Link
-                  href={`?q=${encodeURIComponent(lvl.label)}#brand-products`}
+                  href={`?highlight=${encodeURIComponent(lvl.label)}#brand-products`}
                   className="durability-card"
                   key={lvl.label}
                   aria-label={`Shop BetterBone ${lvl.label} chews`}
@@ -190,7 +191,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName }) {
             <div className="pf-fit-grid">
               {fitCards.items.map(item => (
                 <Link
-                  href={`?q=${encodeURIComponent(item.name)}#brand-products`}
+                  href={`?highlight=${encodeURIComponent(item.name)}#brand-products`}
                   className="pf-fit-card"
                   key={item.name}
                   aria-label={`Shop ${item.name}`}

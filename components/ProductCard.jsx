@@ -12,7 +12,7 @@ export default function ProductCard({ product: p, onAdd }) {
   const outOfStock = p.stock_status === 'out_of_stock';
 
   return (
-    <div className="product-card" style={{ opacity: outOfStock ? 0.6 : 1 }}>
+    <div className="product-card" data-product-title={p.item_series} style={{ opacity: outOfStock ? 0.6 : 1 }}>
       <Link href={`/shop/${p.id}`}>
         <div className="card-tags">
           <span className="brand-tag" style={{ color: p.brand_color || 'var(--navy)' }}>{displayBrandName(p.brand_name)}</span>

@@ -1,37 +1,44 @@
-# Pawvy Website — patch: remove hero photo, fix marquee color + position
+# Pawvy Website — patch: 6 Puzzle Feeder product cards + scroll-to-highlight
 
 ## What changed
 
-1. **Hero background photo removed** — back to plain navy + morphing blobs, no
-   photo. Deleted the `<img>` element in `app/page.js` and the now-unused
-   `.hero-bg-photo` CSS. (`public/hero-bg.jpg` itself is left in place, just
-   unreferenced — harmless to leave, or delete it yourself if you want the repo
-   tidy.)
+### 1. Puzzle Feeder — 6 product cards (was 3 consolidated cards)
+Per Janice's direction, split into individual cards, 2 rows of 3:
+- Row 1: Puzzle Feeder (Green/Pink), Puzzle Feeder Swirl (Purple), Puzzle Feeder Lite (Green/Orange)
+- Row 2: Puzzle Lickpop (Green/Teal), Puzzle Tumbler (Orange-Green/Pink-Teal), Puzzle Mat (Green)
 
-2. **Marquee ticker back to orange** (`#F36F4A`), reverted from the cream
-   experiment.
+All real photos, swatch colors sampled directly from the product images. No CSS
+grid changes needed — it already wraps 6 items into 2 rows automatically.
 
-3. **Marquee position fixed — two-part fix.** Found the actual bug: the marquee
-   ticker was nested *inside* the hero `<section>` (not a separate section
-   after it), and since the hero has `min-height: 100vh`, the ticker was
-   landing partway down the hero rather than at its bottom edge.
+### 2. Card clicks now scroll-and-highlight instead of filter
+You asked: clicking "Puzzle Mat" should jump to that product in the shop grid
+below, not filter everything else out. Changed the mechanism:
 
-   - The headline block now has `margin-top: auto; margin-bottom: auto`,
-     which self-centers it in the space *above* the ticker, while the ticker
-     sits flush against the bottom of the hero's content box.
-   - **Second round fix:** the hero also had `140px` of bottom padding, so
-     even with the ticker flush against the content box, there was still a
-     140px navy gap after it before the section actually ended — exactly the
-     strip you flagged in the screenshot. Removed the bottom padding
-     (`padding: 140px 0 0` instead of `140px 0`) so the ticker is now flush
-     against the true bottom edge of the section.
+- Each product card in the shop grid now carries `data-product-title` (its
+  name)
+- Clicking a durability/fit card now links with `?highlight=<name>` instead
+  of `?q=<name>`
+- On load, if a `highlight` param is present, the (still fully unfiltered)
+  grid scrolls smoothly to the matching product and gives it a brief orange
+  pulse (two quick pulses, ~2.2s) so it's obvious which one you clicked
+- This replaces the old filter-based behavior everywhere it was used —
+  BetterBone's Soft/Medium/Hard cards now do the same scroll-and-highlight
+  instead of filtering, for consistency across both brand pages
 
 ### Files touched
-- `app/page.js` — removed hero background photo `<img>`
-- `app/globals.css` — marquee color reverted, hero-inner auto-margin centering
-  fix, hero bottom padding removed, unused `.hero-bg-photo` cleaned up
+- `lib/brandContent.js` — Puzzle Feeder `fitCards.items` expanded to 6 entries
+- `components/BrandDeepDive.jsx` — card links use `?highlight=` now
+- `components/ShopClient.jsx` — reads `highlight` param, scrolls + pulses
+  instead of filtering
+- `components/ProductCard.jsx` — added `data-product-title` attribute
+- `app/globals.css` — `.product-card-highlight` pulse animation
+- `public/brand-features/puzzlefeeder/fit-swirl.jpg`, `fit-tumbler.jpg`,
+  `fit-mat.jpg` — new photos for the 3 new cards
 
-`npm run build` passes clean (Next.js 16, Turbopack) — all 22 routes generated successfully.
+`npm run build` passes clean (Next.js 16, Turbopack) — all 22 routes generated
+successfully. Also did a manual sweep of every changed file for the
+unimported-reference class of bug that broke the last Puzzle Feeder deploy —
+nothing found this time.
 
 ## How to apply
 ```bash
@@ -39,7 +46,7 @@ git checkout main
 git pull origin main
 # unzip this file, "Copy and Replace" when prompted
 git add -A
-git commit -m "Remove hero background photo, revert marquee to orange, fix marquee position (padding)"
+git commit -m "Split Puzzle Feeder into 6 product cards, switch card clicks to scroll-and-highlight"
 git push origin main
 ```
 Railway auto-deploys from `main` on push.
