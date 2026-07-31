@@ -194,7 +194,6 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                       </div>
                     ))}
                   </div>
-                  <h4>{g.label}</h4>
                   <hr className="fish-group-line" />
                   <p>{g.benefit}</p>
                 </div>

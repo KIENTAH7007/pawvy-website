@@ -51,12 +51,13 @@ function swatchFor(text) {
 
 function findMatches(products, { seriesIncludes, seriesExcludes = [], variationIncludes }) {
   const seriesTerms = Array.isArray(seriesIncludes) ? seriesIncludes : [seriesIncludes];
+  const lower = s => (s || '').toLowerCase();
   return products.filter(p => {
-    const series = p.item_series || '';
-    const variation = p.variation || '';
-    if (!seriesTerms.some(t => series.includes(t))) return false;
-    if (seriesExcludes.some(x => series.includes(x))) return false;
-    if (variationIncludes && !variation.includes(variationIncludes)) return false;
+    const series = lower(p.item_series);
+    const variation = lower(p.variation);
+    if (!seriesTerms.some(t => series.includes(lower(t)))) return false;
+    if (seriesExcludes.some(x => series.includes(lower(x)))) return false;
+    if (variationIncludes && !variation.includes(lower(variationIncludes))) return false;
     return true;
   });
 }

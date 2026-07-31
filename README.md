@@ -1,51 +1,36 @@
-# Pawvy Website — Eastsea Brother brand page (full deep-dive)
+# Pawvy Website — patch: Which Fish design fixes + case-insensitive matching
 
-## What's in this patch
+## What changed
 
-Full deep-dive for the Eastsea Brother brand page, built and confirmed through
-preview iteration:
+1. **Removed "White Fish" / "Red Fish" / "Whole Fish" labels** from the
+   Which Fish section per your markup — the colored line now sits directly
+   under the fish icons, right above the benefit text.
 
-1. **Intro** — "Eastsea Brother" hero, real photo (hand releasing fish back
-   into the water)
-2. **Freeze-dried feature split** — real product jars photo, copy focused
-   entirely on freeze-dried (all half-dried mentions removed per your call)
-3. **"Which Fish For Your Furkid?"** — 3 category blocks (White/Red/Whole
-   Fish), each a single atomic unit (fish icons + name + colored line +
-   benefit text all grouped together) so it can't visually break apart on
-   narrow screens — this fixes the real bug you caught in the first version,
-   where the fish row and the category brackets were two separate elements
-   that only lined up by coincidence at desktop width
-4. **"Shop by Fish"** — 6 product cards (Pollack, Salmon, Flatfish, Capelin,
-   Sandlance, Green Lipped Mussels), each with a real Add to Cart button,
-   reusing the exact same system already live on BetterBone and Puzzle
-   Feeder — no new code needed for this part, just new data
+2. **Fish icons and names enlarged 25%** (icon height 80px→100px, name text
+   12.5px→15.6px) per your circled markup.
 
-### Pollack, Salmon, Flatfish each open a size picker
-Same modal system as BetterBone. One thing worth double-checking once this
-is live: **Salmon's larger size shows "120g" to the customer**, but the
-underlying lookup searches for "115" — you confirmed the database still says
-`EFDF-S115` even though the real product is now 120g, and you didn't want
-that touched. So the customer-facing label and the actual database search
-are deliberately different values here. If the database ever does get
-renamed to 120g, this one line (`variationIncludes: '115'` in
-`lib/brandContent.js`) would need updating to match.
+3. **Matching made case-insensitive** — defensive fix, regardless of what
+   turns out to be causing the "Out of stock" issue on Eastsea Brother. If
+   the database ever has different capitalization than expected (e.g.
+   "pollack" vs "Pollack"), this would previously fail silently; now it
+   won't.
 
-### Files touched
-- `lib/brandContent.js` — full `deepDive` block for `'East Sea Brother'`
-- `components/BrandDeepDive.jsx` — added a new `fishGroups` section renderer
-  (the "Which Fish" category blocks); `fitCards` (the shop cards) needed no
-  code changes at all, just data
-- `app/globals.css` — `.fish-groups*` styles
-- `public/brand-features/eastseabrother/*` — all real photos: intro hero,
-  product jars, 5 fish cartoon icons, and 10 product SKU photos
+## On the "Out of Stock" issue
+Not fixed in this patch, because the evidence points to it being a real
+data issue, not a code bug — every option across all 6 completely
+different fish types is being *found* successfully (if matching were
+broken, you'd see "Unavailable," not "Out of stock"), just flagged as zero
+stock. That's consistent with Eastsea Brother being newly onboarded and
+stock quantities not yet entered into Pawvy App's Inventory module, not a
+matching failure. Worth confirming directly in Inventory before assuming
+either way — if real stock shows there, it's on me to dig further.
 
-`npm run build` passes clean (Next.js 16, Turbopack) — all 22 routes
-generated successfully. Manually swept the new code for the
-unimported-reference class of bug that's bitten a couple of earlier
-deploys — nothing found this time, but as always with anything that
-depends on real catalog data, worth a proper click-through once it's live:
-check all 3 size-picker cards resolve correctly, and confirm the "Which
-Fish" section holds together at mobile widths.
+## Files touched
+- `components/ProductAddButton.jsx` — case-insensitive matching
+- `components/BrandDeepDive.jsx` — removed category label
+- `app/globals.css` — 25% larger fish icons/names
+
+`npm run build` passes clean.
 
 ## How to apply
 ```bash
@@ -53,7 +38,7 @@ git checkout main
 git pull origin main
 # unzip this file, "Copy and Replace" when prompted
 git add -A
-git commit -m "Add Eastsea Brother brand page deep-dive (intro, freeze-dried feature, Which Fish, shop by fish)"
+git commit -m "Which Fish design fixes, case-insensitive product matching"
 git push origin main
 ```
 Railway auto-deploys from `main` on push.
