@@ -1,36 +1,39 @@
-# Pawvy Website — patch: Which Fish design fixes + case-insensitive matching
+# Pawvy Website — hotfix: real root cause of the Eastsea Brother "Out of Stock" bug
 
-## What changed
+## The actual bug (confirmed via your screenshots)
+For Eastsea Brother, `item_series` is just the SKU code ("EFDF-P125") — the
+real fish name and size ("FD Pollack 125g") lives in the `variation` column
+instead. Puzzle Feeder and BetterBone happen to store it the other way
+(descriptive name in `item_series`), which is why the exact same matching
+code worked there and silently failed here — it was only ever checking
+`item_series`, so "Pollack" never matched "EFDF-P125" at all.
 
-1. **Removed "White Fish" / "Red Fish" / "Whole Fish" labels** from the
-   Which Fish section per your markup — the colored line now sits directly
-   under the fish icons, right above the benefit text.
+**Fixed:** matching now checks `item_series` and `variation` combined,
+so it works regardless of which field a given brand's data entry puts the
+descriptive name in — no more guessing per-brand conventions.
 
-2. **Fish icons and names enlarged 25%** (icon height 80px→100px, name text
-   12.5px→15.6px) per your circled markup.
+## A second bug found while fixing the first
+Separately: when a product genuinely couldn't be found at all (0 matches),
+the code was showing the exact same "Out of Stock" button as when a real
+product *was* found but had zero inventory — same visible symptom, two very
+different causes. Now genuinely-unmatched products show "Unavailable"
+instead, so this distinction is visible again if anything like this comes
+up on a future brand.
 
-3. **Matching made case-insensitive** — defensive fix, regardless of what
-   turns out to be causing the "Out of stock" issue on Eastsea Brother. If
-   the database ever has different capitalization than expected (e.g.
-   "pollack" vs "Pollack"), this would previously fail silently; now it
-   won't.
-
-## On the "Out of Stock" issue
-Not fixed in this patch, because the evidence points to it being a real
-data issue, not a code bug — every option across all 6 completely
-different fish types is being *found* successfully (if matching were
-broken, you'd see "Unavailable," not "Out of stock"), just flagged as zero
-stock. That's consistent with Eastsea Brother being newly onboarded and
-stock quantities not yet entered into Pawvy App's Inventory module, not a
-matching failure. Worth confirming directly in Inventory before assuming
-either way — if real stock shows there, it's on me to dig further.
+## Why this wasn't caught by `npm run build`
+Same reason as the earlier `React.Fragment` bug — this only executes at
+real request time with real catalog data, which a local build can't
+exercise. This is genuinely why the "does it build" check alone was never
+sufficient for anything touching live product matching, and why every
+catalog-dependent feature in this project has needed a live check anyway.
 
 ## Files touched
-- `components/ProductAddButton.jsx` — case-insensitive matching
-- `components/BrandDeepDive.jsx` — removed category label
-- `app/globals.css` — 25% larger fish icons/names
+- `components/ProductAddButton.jsx` — `findMatches()` checks both fields;
+  `noOptionsAtAll` now correctly reflects whether anything actually matched
 
-`npm run build` passes clean.
+`npm run build` passes clean. This change is purely additive for
+BetterBone/Puzzle Feeder (checking an extra field can only surface matches
+that were already being found there — no regression risk).
 
 ## How to apply
 ```bash
@@ -38,7 +41,7 @@ git checkout main
 git pull origin main
 # unzip this file, "Copy and Replace" when prompted
 git add -A
-git commit -m "Which Fish design fixes, case-insensitive product matching"
+git commit -m "Fix product matching to check both item_series and variation fields"
 git push origin main
 ```
 Railway auto-deploys from `main` on push.

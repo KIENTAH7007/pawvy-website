@@ -53,10 +53,16 @@ function findMatches(products, { seriesIncludes, seriesExcludes = [], variationI
   const seriesTerms = Array.isArray(seriesIncludes) ? seriesIncludes : [seriesIncludes];
   const lower = s => (s || '').toLowerCase();
   return products.filter(p => {
-    const series = lower(p.item_series);
+    // Which field holds the descriptive fish/product name isn't
+    // consistent across brands — Puzzle Feeder/BetterBone put it in
+    // item_series (e.g. "PF-G001 Puzzle Feeder"), Eastsea Brother puts
+    // just the SKU code there ("EFDF-P125") and the real name in
+    // variation ("FD Pollack 125g") instead. Checking both combined
+    // avoids needing to know which convention a given brand uses.
+    const combined = `${lower(p.item_series)} ${lower(p.variation)}`;
     const variation = lower(p.variation);
-    if (!seriesTerms.some(t => series.includes(lower(t)))) return false;
-    if (seriesExcludes.some(x => series.includes(lower(x)))) return false;
+    if (!seriesTerms.some(t => combined.includes(lower(t)))) return false;
+    if (seriesExcludes.some(x => combined.includes(lower(x)))) return false;
     if (variationIncludes && !variation.includes(lower(variationIncludes))) return false;
     return true;
   });
@@ -133,9 +139,9 @@ export default function ProductAddButton({ products, productLabel, variants, ser
   const explicitAvailable = options.filter(o => o.product && o.product.stock_status !== 'out_of_stock');
   const dynamicAvailable = parsed.filter(x => x.product.stock_status !== 'out_of_stock');
 
-  const noOptionsAtAll = isDynamic ? parsed.length === 0 : options.length === 0;
+  const noOptionsAtAll = isDynamic ? parsed.length === 0 : options.every(o => !o.product);
   if (noOptionsAtAll) {
-    return <button type="button" className="fit-add-btn" disabled>Unavailable</button>;
+    return <button type="button" className="fit-add-btn" disabled title="Couldn't find a matching product in the catalog">Unavailable</button>;
   }
 
   const single = isDynamic
