@@ -1,27 +1,42 @@
-# Pawvy Website — hotfix: BetterBone "Unavailable" + caption copy
+# Pawvy Website — patch: fix modal "jumping" bug, cleaner Size/Flavor picker
 
-## The bug
-Every BetterBone card showed "Unavailable" because the dynamic product
-matching searched for `"BetterBone"` (no space) against `item_series`, but
-per your own project convention, the backend/database key for this brand is
-**"Better Bone" — with a space**. "BetterBone" (no space) is only the
-marketing/display spelling, mapped via `displayBrandName()` on the frontend.
-Searching for the wrong spelling meant it could never match a real product,
-same failure mode as the earlier Puzzle Feeder bug, different root cause
-(brand naming convention this time, not the dash-separator issue).
+## Bug 1: modal jumping when mouse leaves the card
+**Root cause:** the modal overlay uses `position: fixed`, which normally
+positions relative to the browser viewport — but per CSS spec, if any
+*ancestor* element has a `transform` set, fixed-position descendants
+position relative to *that ancestor* instead. Both `.durability-card` and
+`.pf-fit-card` apply `transform: translateY(-3px)` on `:hover`. So while
+hovering the card, the modal was trapped inside the card's box (looked
+"stuck" near the card); the instant your mouse left the card, that hover
+transform disappeared, the containing block reverted to the real viewport,
+and the modal visibly snapped to its correct centered position — the
+"jumping" you saw.
 
-## The fix
-One-word change in `lib/brandContent.js`: `seriesIncludes: 'BetterBone'` →
-`seriesIncludes: 'Better Bone'` on all three durability levels.
+**Fix:** the modal now renders through a React portal directly into
+`document.body`, completely outside the card's DOM tree, so it's never
+affected by the card's hover state. This is the standard fix for this exact
+class of bug.
 
-## Also changed
-The caption text under each card (was "BetterBone Soft/Medium/Hard Chew —
-No Nylon, Hypoallergenic") is now:
-- Soft → "40% softer than nylon"
-- Medium → "15% softer than nylon"
-- Hard → "The real deal"
+## Bug 2/Feedback: cleaner Size + Flavor picker
+Replaced the flat "Soft Classic Mini / Soft Beef Mini / Soft Classic Small /
+..." pill list with two dropdowns — Size and Flavor — matching the pattern
+already on pawvy.co. Parses each real product's own `variation` text (e.g.
+"Soft Classic Mini") into flavor + size automatically, so it stays correct
+if sizes/flavors are added or removed from the catalog later — nothing
+hardcoded.
 
-Rebuilt and verified clean with `npm run build`.
+This only applies to BetterBone-style "dynamic" cards (where the real
+options aren't known ahead of time). Puzzle Feeder's cards — 2-3 known
+colors — still use the simple pill list, since a full dropdown UI would be
+overkill for "pick Green or Pink."
+
+## Files touched
+- `components/ProductAddButton.jsx` — portal + Size/Flavor picker
+- `app/globals.css` — new `.fit-modal-selects`/`.fit-modal-field` styles
+
+`npm run build` passes clean (Next.js 16, Turbopack). Manually swept for
+unimported-reference bugs — nothing found. `react-dom` (needed for the
+portal) is already a project dependency, no install step needed.
 
 ## How to apply
 ```bash
@@ -29,7 +44,7 @@ git checkout main
 git pull origin main
 # unzip this file, "Copy and Replace" when prompted
 git add -A
-git commit -m "Hotfix: fix BetterBone Unavailable bug (brand naming), update card captions"
+git commit -m "Fix modal jumping bug (portal to body), add Size/Flavor dropdown picker"
 git push origin main
 ```
 Railway auto-deploys from `main` on push.

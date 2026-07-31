@@ -6,22 +6,35 @@
 //
 // 1. Explicit `variants` — a curated list with known labels/hex/photos
 //    (Puzzle Feeder cards, where we want specific swatch colors and nice
-//    curated preview photos per option).
+//    curated preview photos per option). Modal shows a pill list — fine
+//    for 2-3 color options.
 // 2. `seriesIncludes` / `seriesExcludes` / `variationIncludes` — dynamic
 //    discovery: filters the already-fetched `products` array and turns
-//    every real match into an option, using that product's own live
-//    variation text as the label and its own image_data as the preview.
-//    Used for BetterBone, where the real size/flavor combinations aren't
-//    something we should guess at — whatever's actually in the catalog
-//    shows up automatically, and stays correct if the catalog changes.
+//    every real match into an option. Used for BetterBone, where the real
+//    size/flavor combinations aren't something we should guess at —
+//    whatever's actually in the catalog shows up automatically. Modal
+//    shows Size + Flavor dropdowns (parsed from each match's own
+//    `variation` text) instead of a flat pill list once there's enough
+//    combinations that pills get messy — matches the existing pawvy.co
+//    product-detail pattern KT pointed at, rather than a wall of buttons.
 //
 // Either way, `products` is the brand's full product list the page
 // already fetched server-side (same array ShopClient renders below) — no
-// separate live fetch here, which was the root cause of the earlier
+// separate live fetch here, which was the root cause of an earlier
 // "Unavailable" bug: matching a combined "Name — Color" string that never
 // exists as a literal value in either the item_series or variation
 // columns (the dash is only inserted for display, in ProductCard.jsx).
-import { useState, useMemo } from 'react';
+//
+// The modal is rendered via a portal into document.body rather than
+// inline where the button lives. Without this, `position: fixed` on the
+// overlay gets trapped inside the nearest ancestor with a `transform` —
+// and durability-card/pf-fit-card both set `transform` on :hover — so the
+// modal would render pinned to the card's box while hovering it, then
+// visibly jump to the true screen-centered position the instant the mouse
+// left the card (that transform-triggered containing block disappearing).
+// Portaling to body sidesteps this entirely.
+import { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useCart } from '../lib/CartContext';
 import QtyStepper from './QtyStepper';
 
@@ -48,44 +61,85 @@ function findMatches(products, { seriesIncludes, seriesExcludes = [], variationI
   });
 }
 
+// "Soft Classic Mini" + hardness prefix "Soft" -> { flavor: "Classic", size: "Mini" }.
+// Assumes "<known prefix> <flavor...> <size>" — last word is size, everything
+// else after stripping the known prefix is flavor. Matches every real
+// example seen so far (Classic/Beef x Mini/Small/Large).
+function parseSizeFlavor(variation, prefix) {
+  let rest = (variation || '').trim();
+  if (prefix) {
+    const esc = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    rest = rest.replace(new RegExp(`^${esc}\\s*`, 'i'), '').trim();
+  }
+  const parts = rest.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return { flavor: '', size: '' };
+  const size = parts[parts.length - 1];
+  const flavor = parts.slice(0, -1).join(' ');
+  return { flavor, size };
+}
+
+function Portal({ children }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+  return createPortal(children, document.body);
+}
+
 export default function ProductAddButton({ products, productLabel, variants, seriesIncludes, seriesExcludes, variationIncludes }) {
   const { addItem } = useCart();
+  const isDynamic = !variants;
 
-  // Resolve the option list once, synchronously — no fetch/loading state
-  // needed since `products` is already in hand.
+  // ---- Explicit mode (Puzzle Feeder: curated color variants) ----
   const options = useMemo(() => {
-    if (variants) {
-      // Explicit mode: pair each curated variant with its real product.
-      return variants.map(v => {
-        const match = findMatches(products, {
-          seriesIncludes: v.seriesIncludesAny || v.seriesIncludes,
-          seriesExcludes: v.seriesExcludes,
-          variationIncludes: v.variationIncludes,
-        })[0] || null;
-        return { label: v.label, hex: v.hex, image: v.image, product: match };
-      });
-    }
-    // Dynamic mode: every real match becomes its own option.
-    const matches = findMatches(products, { seriesIncludes, seriesExcludes, variationIncludes });
-    return matches.map(p => ({
-      label: p.variation || p.item_series,
-      hex: swatchFor(p.variation || p.item_series),
-      image: p.image_data,
-      product: p,
-    }));
-  }, [products, variants, seriesIncludes, seriesExcludes, variationIncludes]);
+    if (!variants) return [];
+    return variants.map(v => {
+      const match = findMatches(products, {
+        seriesIncludes: v.seriesIncludesAny || v.seriesIncludes,
+        seriesExcludes: v.seriesExcludes,
+        variationIncludes: v.variationIncludes,
+      })[0] || null;
+      return { label: v.label, hex: v.hex, image: v.image, product: match };
+    });
+  }, [products, variants]);
 
-  const available = options.filter(o => o.product && o.product.stock_status !== 'out_of_stock');
-  const single = available.length === 1 && options.length === 1;
+  // ---- Dynamic mode (BetterBone: real Size x Flavor discovery) ----
+  const dynamicMatches = useMemo(() => {
+    if (!isDynamic) return [];
+    return findMatches(products, { seriesIncludes, seriesExcludes, variationIncludes });
+  }, [isDynamic, products, seriesIncludes, seriesExcludes, variationIncludes]);
+
+  const parsed = useMemo(() => {
+    if (!isDynamic) return [];
+    return dynamicMatches.map(p => ({ ...parseSizeFlavor(p.variation, variationIncludes), product: p }));
+  }, [isDynamic, dynamicMatches, variationIncludes]);
+
+  const sizes = useMemo(() => [...new Set(parsed.map(x => x.size).filter(Boolean))], [parsed]);
+  const flavors = useMemo(() => [...new Set(parsed.map(x => x.flavor).filter(Boolean))], [parsed]);
+  const showSizePicker = sizes.length > 1;
+  const showFlavorPicker = flavors.length > 1;
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [selected, setSelected] = useState(0);
+  const [selected, setSelected] = useState(0); // explicit-mode index
+  const [selectedSize, setSelectedSize] = useState('');
+  const [selectedFlavor, setSelectedFlavor] = useState('');
   const [qty, setQty] = useState(1);
   const [status, setStatus] = useState(null); // 'added' | null
 
-  if (options.length === 0) {
+  const currentDynamic = isDynamic
+    ? parsed.find(x => x.size === selectedSize && x.flavor === selectedFlavor)
+    : null;
+
+  const explicitAvailable = options.filter(o => o.product && o.product.stock_status !== 'out_of_stock');
+  const dynamicAvailable = parsed.filter(x => x.product.stock_status !== 'out_of_stock');
+
+  const noOptionsAtAll = isDynamic ? parsed.length === 0 : options.length === 0;
+  if (noOptionsAtAll) {
     return <button type="button" className="fit-add-btn" disabled>Unavailable</button>;
   }
+
+  const single = isDynamic
+    ? parsed.length === 1 && dynamicAvailable.length === 1
+    : options.length === 1 && explicitAvailable.length === 1;
 
   function addNow(product) {
     addItem(product, qty);
@@ -95,20 +149,30 @@ export default function ProductAddButton({ products, productLabel, variants, ser
 
   function handleAddClick(e) {
     e.preventDefault();
-    if (single) { addNow(available[0].product); return; }
-    setModalOpen(true);
-    setSelected(options.findIndex(o => o.product && o.product.stock_status !== 'out_of_stock'));
+    if (single) {
+      addNow(isDynamic ? dynamicAvailable[0].product : explicitAvailable[0].product);
+      return;
+    }
     setQty(1);
+    if (isDynamic) {
+      const first = dynamicAvailable[0] || parsed[0];
+      setSelectedSize(first?.size || '');
+      setSelectedFlavor(first?.flavor || '');
+    } else {
+      setSelected(options.findIndex(o => o.product && o.product.stock_status !== 'out_of_stock'));
+    }
+    setModalOpen(true);
   }
 
   function handleConfirmAdd() {
-    const chosen = options[selected];
+    const chosen = isDynamic ? currentDynamic : options[selected];
     if (!chosen?.product || chosen.product.stock_status === 'out_of_stock') return;
     addNow(chosen.product);
     setModalOpen(false);
   }
 
-  const current = options[selected];
+  const noStockAtAll = isDynamic ? dynamicAvailable.length === 0 : explicitAvailable.length === 0;
+  const current = isDynamic ? currentDynamic : options[selected];
 
   return (
     <>
@@ -116,51 +180,82 @@ export default function ProductAddButton({ products, productLabel, variants, ser
         type="button"
         className={`fit-add-btn${status === 'added' ? ' added' : ''}`}
         onClick={handleAddClick}
-        disabled={available.length === 0}
+        disabled={noStockAtAll}
       >
-        {status === 'added' ? 'Added ✓' : available.length === 0 ? 'Out of stock' : 'Add to Cart'}
+        {status === 'added' ? 'Added ✓' : noStockAtAll ? 'Out of stock' : 'Add to Cart'}
       </button>
 
       {modalOpen && (
-        <div className="fit-modal-overlay" onClick={() => setModalOpen(false)}>
-          <div className="fit-modal" onClick={e => e.stopPropagation()}>
-            <button type="button" className="fit-modal-close" onClick={() => setModalOpen(false)} aria-label="Close">×</button>
-            <h3>{productLabel}</h3>
+        <Portal>
+          <div className="fit-modal-overlay" onClick={() => setModalOpen(false)}>
+            <div className="fit-modal" onClick={e => e.stopPropagation()}>
+              <button type="button" className="fit-modal-close" onClick={() => setModalOpen(false)} aria-label="Close">×</button>
+              <h3>{productLabel}</h3>
 
-            <div className="fit-modal-image-wrap">
-              {current?.image ? <img src={current.image} alt={current.label} /> : <div className="img-placeholder" style={{ width: '100%', height: '100%' }}><span>No photo</span></div>}
-            </div>
-            <div className="fit-modal-options">
-              {options.map((o, i) => {
-                const outOfStock = o.product && o.product.stock_status === 'out_of_stock';
-                const missing = !o.product;
-                return (
-                  <button
-                    key={o.label}
-                    type="button"
-                    className={`fit-modal-option${i === selected ? ' active' : ''}`}
-                    onClick={() => setSelected(i)}
-                    disabled={outOfStock || missing}
-                  >
-                    <span className="fit-modal-swatch" style={{ background: o.hex }} />
-                    {o.label}{outOfStock ? ' (out of stock)' : missing ? ' (unavailable)' : ''}
-                  </button>
-                );
-              })}
-            </div>
-            <div className="fit-modal-footer">
-              <QtyStepper value={qty} onChange={setQty} />
-              <button
-                type="button"
-                className="btn btn-orange"
-                disabled={!current?.product || current.product.stock_status === 'out_of_stock'}
-                onClick={handleConfirmAdd}
-              >
-                <span>Add to Cart{current?.product ? ` — $${current.product.effective_price_rrp_sg.toFixed(2)}` : ''}</span>
-              </button>
+              <div className="fit-modal-image-wrap">
+                {current?.product?.image_data || current?.image
+                  ? <img src={current.product?.image_data || current.image} alt={productLabel} />
+                  : <div className="img-placeholder" style={{ width: '100%', height: '100%' }}><span>No photo</span></div>}
+              </div>
+
+              {isDynamic ? (
+                <div className="fit-modal-selects">
+                  {showSizePicker && (
+                    <label className="fit-modal-field">
+                      <span>Size</span>
+                      <select value={selectedSize} onChange={e => setSelectedSize(e.target.value)}>
+                        {sizes.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                    </label>
+                  )}
+                  {showFlavorPicker && (
+                    <label className="fit-modal-field">
+                      <span>Flavor</span>
+                      <select value={selectedFlavor} onChange={e => setSelectedFlavor(e.target.value)}>
+                        {flavors.map(f => <option key={f} value={f}>{f}</option>)}
+                      </select>
+                    </label>
+                  )}
+                  {!current && <p className="fit-modal-loading">That combination isn't available.</p>}
+                  {current && current.product.stock_status === 'out_of_stock' && (
+                    <p className="fit-modal-loading">Out of stock.</p>
+                  )}
+                </div>
+              ) : (
+                <div className="fit-modal-options">
+                  {options.map((o, i) => {
+                    const outOfStock = o.product && o.product.stock_status === 'out_of_stock';
+                    const missing = !o.product;
+                    return (
+                      <button
+                        key={o.label}
+                        type="button"
+                        className={`fit-modal-option${i === selected ? ' active' : ''}`}
+                        onClick={() => setSelected(i)}
+                        disabled={outOfStock || missing}
+                      >
+                        <span className="fit-modal-swatch" style={{ background: o.hex }} />
+                        {o.label}{outOfStock ? ' (out of stock)' : missing ? ' (unavailable)' : ''}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              <div className="fit-modal-footer">
+                <QtyStepper value={qty} onChange={setQty} />
+                <button
+                  type="button"
+                  className="btn btn-orange"
+                  disabled={!current?.product || current.product.stock_status === 'out_of_stock'}
+                  onClick={handleConfirmAdd}
+                >
+                  <span>Add to Cart{current?.product ? ` — $${current.product.effective_price_rrp_sg.toFixed(2)}` : ''}</span>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
     </>
   );
