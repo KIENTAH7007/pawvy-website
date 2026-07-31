@@ -51,10 +51,61 @@ const VetIcon = () => (
 
 export default function BrandDeepDive({ deepDive, brandDisplayName, products }) {
   if (!deepDive) return null;
-  const { chew, durability, intro, featureSplit, stats, checklist, fishGroups, fitCards } = deepDive;
+  const { chew, durability, intro, featureSplit, stats, checklist, fishGroups, fitCards, pillars, beforeAfter, fitCardGroups } = deepDive;
 
   return (
     <>
+      {pillars && (
+        <section className="lil-pillars">
+          <div className="wrap">
+            <h2>{pillars.heading}</h2>
+            <p className="lil-pillars-sub">{pillars.sub}</p>
+            <div className="lil-pillars-grid">
+              {pillars.items.map(p => (
+                <a className="lil-pillar-card" href={`#${p.anchor}`} key={p.anchor}>
+                  <ImageSlot image={p.image} alt={p.heading} hint={p.imageHint} className="lil-pillar-image" />
+                  <div className="lil-pillar-body">
+                    <h3>{p.heading}</h3>
+                    <p>{p.body}</p>
+                    <ul className="lil-pillar-list">
+                      {p.items.map(i => <li key={i}>{i}</li>)}
+                    </ul>
+                    <span className="lil-pillar-link">Jump to {p.heading.toLowerCase()} ↓</span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {beforeAfter && (
+        <section className="lil-before-after">
+          <div className="wrap">
+            <div className="eyebrow center on-dark">{beforeAfter.eyebrow}</div>
+            <h2>{beforeAfter.heading}</h2>
+            <p className="lil-ba-sub">{beforeAfter.sub}</p>
+            <div className="lil-ba-grid">
+              {beforeAfter.items.map(item => (
+                <div className="lil-ba-card" key={item.product}>
+                  <div className="lil-ba-split">
+                    <ImageSlot image={item.beforeImage} alt={`${item.product} before`} hint="Before" className="lil-ba-half" />
+                    <ImageSlot image={item.afterImage} alt={`${item.product} after`} hint="After" className="lil-ba-half" />
+                  </div>
+                  <div className="lil-ba-body">
+                    <div className="lil-ba-product">{item.product}</div>
+                    <h3>{item.title}</h3>
+                    <div className="lil-ba-label">{item.beforeLabel}</div>
+                    <div className="lil-ba-label">{item.afterLabel}</div>
+                    {item.source && <p className="lil-ba-source">— {item.source}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {chew && (
         <section className="chew-feature">
           <div className="wrap">
@@ -229,6 +280,29 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
           </div>
         </section>
       )}
+      {fitCardGroups && fitCardGroups.map(group => (
+        <section className={`pf-fit lil-fit-group${group.alt ? ' alt' : ''}`} id={group.anchor} key={group.anchor}>
+          <div className="wrap">
+            <div className="pf-fit-head">
+              <div className="eyebrow center">{group.eyebrow}</div>
+              <h2>{group.heading}</h2>
+              <p>{group.sub}</p>
+            </div>
+            <div className="pf-fit-grid">
+              {group.items.map(item => (
+                <div className="pf-fit-card" key={item.name}>
+                  <ImageSlot image={item.variants[0].image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
+                  <div className="pf-fit-info">
+                    <h3>{item.name}</h3>
+                    <div className="fit-for">{item.fitFor}</div>
+                    <ProductAddButton products={products} productLabel={item.name} variants={item.variants} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      ))}
     </>
   );
 }
