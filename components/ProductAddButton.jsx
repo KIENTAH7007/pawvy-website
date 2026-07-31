@@ -49,8 +49,9 @@ function swatchFor(text) {
   return hit ? hit[1] : '#B8B2A6';
 }
 
-function findMatches(products, { seriesIncludes, seriesExcludes = [], variationIncludes }) {
+function findMatches(products, { seriesIncludes, seriesExcludes = [], variationIncludes, variationIncludesAny }) {
   const seriesTerms = Array.isArray(seriesIncludes) ? seriesIncludes : [seriesIncludes];
+  const variationTerms = variationIncludesAny || (variationIncludes ? [variationIncludes] : null);
   const lower = s => (s || '').toLowerCase();
   return products.filter(p => {
     // Which field holds the descriptive fish/product name isn't
@@ -63,7 +64,11 @@ function findMatches(products, { seriesIncludes, seriesExcludes = [], variationI
     const variation = lower(p.variation);
     if (!seriesTerms.some(t => combined.includes(lower(t)))) return false;
     if (seriesExcludes.some(x => combined.includes(lower(x)))) return false;
-    if (variationIncludes && !variation.includes(lower(variationIncludes))) return false;
+    // variationIncludesAny: match if ANY of the given terms appear — used
+    // to hedge against a size being written slightly differently than
+    // expected in the real data (e.g. "2kg" vs "2 kg" vs "2000g") without
+    // needing a confirmed screenshot for every possible format.
+    if (variationTerms && !variationTerms.some(t => variation.includes(lower(t)))) return false;
     return true;
   });
 }
@@ -104,6 +109,7 @@ export default function ProductAddButton({ products, productLabel, variants, ser
         seriesIncludes: v.seriesIncludesAny || v.seriesIncludes,
         seriesExcludes: v.seriesExcludes,
         variationIncludes: v.variationIncludes,
+        variationIncludesAny: v.variationIncludesAny,
       })[0] || null;
       return { label: v.label, hex: v.hex, image: v.image, product: match };
     });

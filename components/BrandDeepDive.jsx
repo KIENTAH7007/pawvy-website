@@ -67,9 +67,6 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                   <div className="lil-pillar-body">
                     <h3>{p.heading}</h3>
                     <p>{p.body}</p>
-                    <ul className="lil-pillar-list">
-                      {p.items.map(i => <li key={i}>{i}</li>)}
-                    </ul>
                     <span className="lil-pillar-link">Jump to {p.heading.toLowerCase()} ↓</span>
                   </div>
                 </a>
@@ -88,9 +85,15 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
             <div className="lil-ba-grid">
               {beforeAfter.items.map(item => (
                 <div className="lil-ba-card" key={item.product}>
-                  <div className="lil-ba-split">
-                    <ImageSlot image={item.beforeImage} alt={`${item.product} before`} hint="Before" className="lil-ba-half" />
-                    <ImageSlot image={item.afterImage} alt={`${item.product} after`} hint="After" className="lil-ba-half" />
+                  <div className={`lil-ba-split${item.orientation === 'vertical' ? ' vertical' : ''}`}>
+                    <div className="lil-ba-half-wrap">
+                      <ImageSlot image={item.beforeImage} alt={`${item.product} before`} hint="Before" className="lil-ba-half" />
+                      <span className="lil-ba-tag">{item.beforeTag || 'Before'}</span>
+                    </div>
+                    <div className="lil-ba-half-wrap">
+                      <ImageSlot image={item.afterImage} alt={`${item.product} after`} hint="After" className="lil-ba-half" />
+                      <span className="lil-ba-tag">{item.afterTag || 'After'}</span>
+                    </div>
                   </div>
                   <div className="lil-ba-body">
                     <div className="lil-ba-product">{item.product}</div>

@@ -1,65 +1,72 @@
-# Lillidale brand deep-dive — patch
+# Lillidale brand deep-dive — fix + before/after redesign patch
 
-## What this adds
+This replaces the previous Lillidale patch delivery. If you already applied
+that one, this is a straight overwrite — same files, updated content.
 
-The Lillidale brand page (`/brands/lillidale-natural-pet-supplement`) now has
-a full deep-dive section between the existing hero and the existing FAQ:
+## What changed since the last patch
 
-1. **Pillars nav** — Supplements / Antimicrobial healthcare / Wellness, each
-   with a photo, description, and jump-link.
-2. **Before & after showcase** — 3 real customer stories (ProHealth,
-   Plaque Guard + Dental Spray, Ear Cleanser), using the real photos you sent.
-3. **Three shop grids** (one per pillar) — 13 SKUs total, each with a real
-   product photo and an Add to Cart button. ProJoint and ProHealth show
-   their 500g photo by default; picking a different size in the modal swaps
-   the photo to match (built-in behavior of the existing explicit-variants
-   picker — no new logic needed for that part).
+**1. Fixed the "Unavailable" bugs you found live:**
+- ProJoint & ProHealth 2kg — was matching the exact text "2kg"; now also
+  accepts "2 kg" and "2000g" as valid matches (`ProductAddButton.jsx` gained
+  a new `variationIncludesAny` option for this — small, reusable addition,
+  doesn't affect any other brand's cards).
+- Sanitizing Spray — now matches both "Sanitising" (the spelling actually
+  on the product photo) and "Sanitizing".
+- Ear Cleanser / Dental Spray — loosened to shorter, safer keywords ("Ear",
+  "Dental") since the exact phrases weren't matching your real data.
+- Wound Care — corrected the displayed size from 100ml to 65ml.
 
-No hero, FAQ, or CTA changes — those already exist on the shared brand-page
-template and weren't touched.
+**2. Removed the pillar bullet-point lists** (Supplements/Antimicrobial/
+Wellness cards) per your markup — cards now just show the photo,
+description, and jump-link.
 
-## Files in this patch
+**3. Rebuilt the before/after section — Option C, with your two tweaks:**
+- Trimmed real blank white space out of the ProHealth and Plaque Guard
+  photos (Plaque Guard's originals were ~65% blank — cropped that out).
+- Taller frame (340px vs. the old 190px) so images actually read clearly.
+- **Plaque Guard card now stacks Before/After top-to-bottom** instead of
+  side-by-side, since those photos are landscape to begin with.
+- **Every card now has a "Before"/"After" (or "Day 1"/"Day 7") pill directly
+  on the image**, not just in the text underneath.
 
-- `components/BrandDeepDive.jsx` — **complete file.** Added three new
-  section shapes: `pillars`, `beforeAfter`, `fitCardGroups` (a repeatable
-  version of the existing `fitCards` shape, since Lillidale needed three
-  separate shop grids instead of one). Existing shapes (chew, durability,
-  intro, featureSplit, stats, checklist, fishGroups, fitCards) are
-  untouched — Better Bone, Puzzle Feeder, and Eastsea Brother pages are
-  unaffected.
-- `lib/brandContent.js` — **complete file.** Only the `Lillidale` entry
-  changed; every other brand's data is untouched.
-- `app/globals.css` — **complete file.** Added new CSS classes at the very
-  end (`.lil-pillars`, `.lil-before-after`, `.lil-fit-group`, `.eyebrow.on-
-  dark`). Nothing existing was edited or removed.
-- `public/brand-features/lillidale/*.jpg` — **27 new images**, all
-  resized/compressed for web (2.0MB total, down from 19.7MB as received).
-  No existing files touched.
+## Files in this patch (all complete files)
 
-No files are renamed or replaced, so there's nothing to manually delete
-this time — plain unzip-and-replace covers everything.
+- `components/BrandDeepDive.jsx` — before/after section updated (tag pills,
+  vertical-split support). Nothing else in this file changed since the
+  last patch.
+- `components/ProductAddButton.jsx` — added `variationIncludesAny` support
+  to `findMatches()`. This is a small, backwards-compatible addition — every
+  other brand's cards (BetterBone, Puzzle Feeder, Eastsea Brother) are
+  unaffected since they don't use this new option.
+- `lib/brandContent.js` — only the `Lillidale` entry changed.
+- `app/globals.css` — only the `.lil-*` rules at the end changed (taller
+  split frame, image tag pills, vertical variant, pillar-list rule
+  removed).
+- `public/brand-features/lillidale/*.jpg` — `prohealth-before/after.jpg`
+  and `plaqueguard-before/after.jpg` are replaced with trimmed versions
+  (blank space cropped out). Everything else is unchanged from the last
+  patch — just re-included here so this zip is a complete, self-contained
+  overwrite.
 
-## Before you deploy — one thing worth knowing
+Nothing is renamed, so plain unzip-and-replace covers it — no manual
+deletion needed.
 
-The Wellness range's `item_series`/`variation` naming was confirmed
-directly from your Pawvy App Products screenshot (SKU code + "Lillidale
-Grooming" in `item_series`, real name + size in `variation` — same pattern
-as Eastsea Brother). The **Supplements and Antimicrobial healthcare**
-`seriesIncludes` terms (ProJoint, ProHealth, Plaque Guard, Sanitizing
-Spray, Ear Cleanser, Dental Spray, Eye Cleanser, Wound Care) are my best
-guess from the product photos/packaging text — I don't have a confirmed
-screenshot of those two groups' real `item_series` values.
+## Still an open question, same as last time
 
-I ran a local smoke test (rendering the component against fabricated
-product rows shaped like your real data) and every one of the 13 cards
-resolved correctly with zero "Unavailable" states — but that's fabricated
-data, not your real catalog. Per the standing lesson from this session's
-earlier bugs: **please do one real click-through on each of the 13 Add to
-Cart buttons after this deploys** — especially the Supplements and
-Antimicrobial groups. If any card shows "Unavailable," it almost certainly
-means the real `item_series`/`variation` text doesn't contain the term I
-guessed, and I'll need the actual field values to fix it (same as the
-BetterBone/Eastsea Brother matching bugs earlier this session).
+The Sanitizing/Ear Cleanser/Dental Spray fix is a best-effort loosening,
+not a confirmed fix — I still don't have a screenshot of those three SKUs'
+real `item_series`/`variation` text. If any of them still show
+"Unavailable" after this deploys, that's the next thing to check directly
+in the Pawvy App's Products search.
+
+## What I verified locally
+
+- `npm run build` — clean.
+- SSR smoke test reproducing your exact reported failures (2kg written as
+  "2 kg", Sanitising spelling, etc.) — all 13 cards now resolve, zero
+  "Unavailable".
+- Confirmed the vertical split renders for Plaque Guard and the tag pills
+  render on all 6 before/after images.
 
 ## Deploying
 
@@ -68,31 +75,23 @@ git checkout main
 git pull origin main
 ```
 
-Unzip this patch on top of your local `pawvy-website` folder ("Copy and
-Replace" when prompted), then:
+Unzip on top of your local `pawvy-website` folder ("Copy and Replace"),
+then:
 
 ```bash
 git add -A
-git commit -m "Add Lillidale brand deep-dive: pillars, before/after, 13-SKU shop grids"
+git commit -m "Fix Lillidale matching bugs, redesign before/after (Option C)"
 git push origin main
 ```
 
-Railway will auto-deploy from `main` on push. If it doesn't pick it up
-automatically, use the manual Redeploy button on the Deployments tab
-before digging into anything else — that's resolved this before.
+Railway auto-deploys from `main`. If it doesn't pick it up, use the manual
+Redeploy button on the Deployments tab first.
 
-## What I verified locally
+## Please click-test again after this deploys
 
-- `npm run build` — clean, no errors.
-- SSR smoke test of `BrandDeepDive` against fabricated product data shaped
-  like your real records — all 13 cards render, zero crashes, zero
-  "Unavailable" states.
-- All 27 images compressed and confirmed to load correctly at their new
-  paths.
-
-## What I could not verify locally (no access to your live backend/DB)
-
-- Whether the real `item_series`/`variation` text for Supplements and
-  Antimicrobial healthcare actually contains the terms I guessed — see
-  the flag above.
-- Real stock levels / `stock_status` for any of the 13 SKUs.
+Same ask as last time, now narrower:
+- The 13 Add to Cart buttons, especially Sanitizing Spray / Ear Cleanser /
+  Dental Spray / 2kg sizes — since those are the loosened/hedged fixes.
+- The before/after section on both desktop and mobile widths, to make sure
+  the taller frame and the Plaque Guard stacked layout look right at your
+  actual screen sizes.

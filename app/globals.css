@@ -702,9 +702,6 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .lil-pillar-body { padding: 24px 22px 26px; }
 .lil-pillar-body h3 { font-weight: 800; font-size: 19px; color: var(--navy); margin-bottom: 8px; }
 .lil-pillar-body p { font-size: 14px; color: var(--dark-gray); line-height: 1.6; margin-bottom: 14px; }
-.lil-pillar-list { list-style: none; padding: 0; margin: 0 0 16px; font-size: 13px; color: var(--dark-gray); }
-.lil-pillar-list li { padding: 3px 0; }
-.lil-pillar-list li::before { content: '· '; color: var(--orange); font-weight: 800; }
 .lil-pillar-link { font-size: 12.5px; font-weight: 800; color: var(--orange); text-transform: uppercase; letter-spacing: .4px; }
 
 .lil-before-after { padding: 100px 0 110px; background: var(--navy); text-align: center; }
@@ -712,8 +709,11 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .lil-ba-sub { max-width: 560px; margin: 0 auto 50px; font-size: 15.5px; color: rgba(245,242,235,.7); line-height: 1.7; }
 .lil-ba-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; text-align: left; }
 .lil-ba-card { background: rgba(245,242,235,.04); border: 1px solid rgba(245,242,235,.14); border-radius: 20px; overflow: hidden; }
-.lil-ba-split { display: grid; grid-template-columns: 1fr 1fr; height: 190px; }
+.lil-ba-split { display: grid; grid-template-columns: 1fr 1fr; height: 340px; }
+.lil-ba-split.vertical { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+.lil-ba-half-wrap { position: relative; width: 100%; height: 100%; overflow: hidden; }
 .lil-ba-half { width: 100%; height: 100%; object-fit: cover; display: block; }
+.lil-ba-tag { position: absolute; bottom: 10px; left: 10px; background: rgba(20,33,61,.75); color: var(--cream); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 5px 12px; border-radius: 100px; }
 .lil-ba-body { padding: 22px 24px 26px; }
 .lil-ba-product { font-size: 12px; font-weight: 800; color: var(--orange); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
 .lil-ba-body h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 19px; color: var(--cream); margin-bottom: 10px; }
