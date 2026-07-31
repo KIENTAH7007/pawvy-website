@@ -1,63 +1,94 @@
-# Pawvy Website — patch: Add to Cart buttons on Puzzle Feeder cards
+# Pawvy Website — patch: fix Add to Cart, extend to BetterBone, remove bottom shop section
+
+## ⚠️ One manual step — delete an old file
+This patch **replaces** `components/FitCardActions.jsx` with `components/ProductAddButton.jsx`.
+Unzipping and "Copy and Replace" only adds/overwrites files — it won't delete
+the old one. Please manually delete `components/FitCardActions.jsx` after
+unzipping, or it'll sit there unused (harmless, but worth tidying up since
+nothing imports it anymore).
 
 ## What changed
 
-Per Janice's suggestion, replaced the "click card → scroll to shop" behavior on
-Puzzle Feeder's 6 product cards with a direct **Add to Cart** button.
+### 1. Fixed the "Unavailable" bug
+Root cause: the previous version searched for a combined string like
+`"Puzzle Feeder — Green"`, but that exact string never exists in the
+database — `item_series` and `variation` are separate columns, and the dash
+is only inserted for display (in `ProductCard.jsx`). So the search could
+never match anything.
 
-- **Single-SKU cards** (Puzzle Feeder Swirl, Puzzle Lickpop, Puzzle Mat) — button
-  adds straight to cart, no modal
-- **Multi-variant cards** (Puzzle Feeder, Puzzle Feeder Lite, Puzzle Tumbler) —
-  button opens a modal: pick a color/option, the product photo updates to match,
-  then confirm to add. Real price shown on the confirm button too.
+Fixed by matching `item_series` and `variation` as two separate fields, using
+the product list the page already fetches server-side (`ProductAddButton.jsx`)
+— no live fetch needed anymore, which also removes a source of flakiness.
+Also now respects `stock_status`: an out-of-stock option is disabled and
+labeled "(out of stock)" instead of being addable.
 
-### One data-accuracy note (flagged in chat, repeating here for the record)
-- **Puzzle Lickpop** turned out to be one product (its green/teal look is one
-  item's two-tone design, not two SKUs) — no picker needed, direct add
-- **Puzzle Feeder Lite's "Orange" option** is catalogued under a different
-  product name ("Puzzle Lick Bowl Lite") rather than being a color of the same
-  item — doesn't affect the picker UX, just means the modal option is correctly
-  labeled rather than implying a literal color-of-same-product relationship
+### 2. Confirmed: inventory/sales-ledger automation already exists
+No new backend work needed — checked `server/routes/checkout.js` directly.
+The Stripe webhook already:
+- Inserts a real row into the `sales` ledger
+- Deducts `inventory_levels` (the same table POS/wholesale/consignment sales
+  also deduct from — one shared source of truth)
+- Handles BUTTONS earn/redeem
+- Does all of this atomically, exactly once per order (idempotent against
+  Stripe's duplicate webhook retries)
 
-### How it resolves real products
-`brandContent.js` is static and doesn't know live product IDs (those come from
-the database and can change), so each variant carries a `match` string — a
-search term resolved against the live shop API at click time to get the real
-product (id, price, photo). This means:
-- Prices shown are always live, not hardcoded
-- If a product goes out of stock or gets renamed, the button will show
-  "Unavailable" rather than silently adding the wrong thing
-- No risk of stale/wrong SKUs being added to cart from static data going out
-  of sync with the catalog
+**One honest caveat, from the code's own comments:** stock isn't reserved
+while a customer is mid-checkout, so two people buying the last unit at the
+exact same moment could theoretically both succeed. That's a known,
+deliberate tradeoff already documented in the code (locking/holding stock
+during checkout is a meaningfully harder problem), not something introduced
+today.
+
+### 3. BetterBone now has Add to Cart too
+Instead of hardcoding guessed sizes/flavors, each Soft/Medium/Hard card
+dynamically discovers whatever real BetterBone products actually exist with
+that hardness in their variation text, and lists them as options with their
+own real photos and prices. Stays correct automatically if the catalog
+changes — no guessing involved.
+
+### 4. Removed the "Shop this brand" section from the bottom of brand pages
+Now that every card has its own Add to Cart, the separate shop grid at the
+bottom was redundant. Page now ends: deep-dive sections → FAQ → CTA → Footer.
+
+**Found and fixed a real problem while doing this:** removing that section
+would have left three navy sections stacked back-to-back with no visual
+break (FAQ → "Have a question?" CTA → Footer, all `var(--navy)`). Added a
+light (ivory) variant for the CTA band, scoped to brand pages only via a
+modifier class — the Stockist page uses the same CTA style and keeps its
+existing navy treatment untouched.
 
 ### Files touched
-- `lib/brandContent.js` — `fitCards.items[].colors` replaced with
-  `variants[]`, each with `label`, `hex`, `match` (search term), `image`
-- `components/BrandDeepDive.jsx` — fit cards are now plain cards (not links)
-  with `<FitCardActions>` rendering the button
-- `components/FitCardActions.jsx` — **new file**, button + modal + cart logic
-- `app/globals.css` — `.fit-add-btn`, `.fit-modal*` styles
-- `public/brand-features/puzzlefeeder/fit-feeder-green.jpg`,
-  `fit-feeder-pink.jpg`, `fit-lite-green.jpg`, `fit-lite-orange.jpg`,
-  `fit-tumbler-orange.jpg`, `fit-tumbler-pink.jpg` — new per-variant photos
-  for the modal
+- `components/ProductAddButton.jsx` — **new**, replaces `FitCardActions.jsx`
+- `components/BrandDeepDive.jsx` — durability cards + fit cards both use
+  the new button; accepts `products` prop
+- `components/ShopClient.jsx` — removed the now-dead scroll-highlight code
+- `components/ProductCard.jsx` — removed the now-unused `data-product-title`
+- `lib/brandContent.js` — fixed matching fields (separate series/variation
+  checks instead of one combined string), added dynamic matching for
+  BetterBone
+- `app/brands/[slug]/page.js` — removed shop section, added
+  `cta-band-light` class
+- `app/globals.css` — modal/button styles, `.cta-band-light`, removed dead
+  `.product-card-highlight` and `.brand-shop-section`
 
-`npm run build` passes clean (Next.js 16, Turbopack) — all 22 routes generated
-successfully. Manually swept every changed file for unimported-reference bugs
-(the class of bug that broke the last Puzzle Feeder deploy) — nothing found.
+`npm run build` passes clean (Next.js 16, Turbopack) — all 22 routes
+generated successfully. Manually swept every changed file for
+unimported-reference bugs (the class of bug that broke an earlier deploy) —
+nothing found.
 
-**Note:** BetterBone's Soft/Medium/Hard durability cards are untouched — this
-change only applies to Puzzle Feeder's 6 fit cards, since that's what was
-asked. Happy to bring Add to Cart to BetterBone too if you want the same
-treatment there.
+**Worth testing live once pushed:** the Add to Cart buttons, modal variant
+picker, and BetterBone's dynamic option discovery all depend on your real
+product data — worth clicking through a few cards on both BetterBone and
+Puzzle Feeder pages to confirm everything resolves correctly.
 
 ## How to apply
 ```bash
 git checkout main
 git pull origin main
 # unzip this file, "Copy and Replace" when prompted
+rm components/FitCardActions.jsx   # see note at the top of this README
 git add -A
-git commit -m "Add Add to Cart buttons + variant picker modal to Puzzle Feeder cards"
+git commit -m "Fix Add to Cart matching bug, extend to BetterBone, remove bottom shop section"
 git push origin main
 ```
 Railway auto-deploys from `main` on push.

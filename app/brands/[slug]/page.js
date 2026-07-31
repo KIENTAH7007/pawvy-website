@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation';
 import { shopApi } from '../../../lib/api';
 import { brandNameFromSlug, BRAND_SLUGS, BRAND_HERO_PHOTOS, displayBrandName } from '../../../lib/brandSlugs';
 import { BRAND_CONTENT } from '../../../lib/brandContent';
-import ShopClient from '../../../components/ShopClient';
 import BrandDeepDive from '../../../components/BrandDeepDive';
 
 export async function generateStaticParams() {
@@ -56,7 +55,7 @@ export default async function BrandPage({ params }) {
         </div>
       </section>
 
-      <BrandDeepDive deepDive={content.deepDive} brandDisplayName={displayBrandName(brandName)} brandId={brand.id} />
+      <BrandDeepDive deepDive={content.deepDive} brandDisplayName={displayBrandName(brandName)} brandId={brand.id} products={products} />
 
       {content.faqs.length > 0 && (
         <section id="faq" className="faq">
@@ -78,19 +77,7 @@ export default async function BrandPage({ params }) {
         </section>
       )}
 
-      <section id="brand-products" className="brand-shop-section">
-        <div className="wrap">
-          <div className="gallery-head" style={{ marginBottom: 0 }}>
-            <div>
-              <div className="eyebrow">Shop this brand</div>
-              <h2>{displayBrandName(brandName)} products</h2>
-            </div>
-          </div>
-        </div>
-        <ShopClient initialProducts={products} brands={brands} showHero={false} brandId={brand.id} />
-      </section>
-
-      <section id="enquiry-cta" className="cta-band">
+      <section id="enquiry-cta" className="cta-band cta-band-light">
         <div className="wrap">
           <h2>Have a question we didn't cover?</h2>
           <Link href="/#enquiry" className="btn btn-orange"><span>Get in touch</span></Link>

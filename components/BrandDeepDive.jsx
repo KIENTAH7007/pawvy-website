@@ -14,21 +14,14 @@
 //   separate set of shapes for brands where a size/type comparison makes
 //   more sense than a durability scale.
 //
-// Cards that lead into the shop (durability levels, fit cards) are links
-// straight into the shop grid below, scrolling to and briefly highlighting
-// that exact product — e.g. clicking "Soft" or "Puzzle Feeder Lite" jumps
-// to that product's card in the (still fully unfiltered) grid rather than
-// filtering everything else out (see ShopClient's `highlight` param
-// handling). The existing hover state on the card doubles as the click
-// affordance, per KT's request to make that hover feel "selectable".
-//
-// Image slots: every section takes either a real `image` path or falls
-// back to a dashed placeholder box showing `imageHint`, so this still
-// degrades gracefully if a future brand's data is filled in without
-// photos yet.
-import Link from 'next/link';
+// Both durability cards and fit cards render <ProductAddButton> — Add to
+// Cart, with a variant-picker modal when there's more than one real
+// option. `products` (the brand's already-fetched product list, same data
+// ShopClient renders below) is threaded through from page.js so the
+// button never needs its own fetch — see ProductAddButton.jsx for the
+// matching logic.
 import { Fragment } from 'react';
-import FitCardActions from './FitCardActions';
+import ProductAddButton from './ProductAddButton';
 
 function ImageSlot({ image, alt, hint, className }) {
   if (image) return <img src={image} alt={alt} className={className} />;
@@ -56,7 +49,7 @@ const VetIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 21s-6.5-4.35-9-8.5C1 8.5 3 5 6.5 5c2 0 3.5 1.5 5.5 4 2-2.5 3.5-4 5.5-4C21 5 23 8.5 21 12.5c-2.5 4.15-9 8.5-9 8.5z" /></svg>
 );
 
-export default function BrandDeepDive({ deepDive, brandDisplayName, brandId }) {
+export default function BrandDeepDive({ deepDive, brandDisplayName, products }) {
   if (!deepDive) return null;
   const { chew, durability, intro, featureSplit, stats, checklist, fitCards } = deepDive;
 
@@ -90,12 +83,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, brandId }) {
             </div>
             <div className="durability-grid">
               {durability.levels.map(lvl => (
-                <Link
-                  href={`?highlight=${encodeURIComponent(lvl.label)}#brand-products`}
-                  className="durability-card"
-                  key={lvl.label}
-                  aria-label={`Shop BetterBone ${lvl.label} chews`}
-                >
+                <div className="durability-card" key={lvl.label}>
                   <div className="durability-image-wrap">
                     <ImageSlot image={lvl.image} alt={lvl.label} hint={lvl.imageHint} className="durability-image" />
                     <div className="durability-product-badge">
@@ -113,8 +101,14 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, brandId }) {
                         <p className="product-name">{lvl.productName}</p>
                       </div>
                     )}
+                    <ProductAddButton
+                      products={products}
+                      productLabel={`BetterBone ${lvl.label}`}
+                      seriesIncludes={lvl.seriesIncludes}
+                      variationIncludes={lvl.variationIncludes}
+                    />
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           </div>
@@ -199,7 +193,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, brandId }) {
                     <div className="pf-swatches">
                       {item.variants.map(v => <span key={v.label} className="pf-swatch" style={{ background: v.hex }} title={v.label} />)}
                     </div>
-                    <FitCardActions productName={item.name} brandId={brandId} variants={item.variants} />
+                    <ProductAddButton products={products} productLabel={item.name} variants={item.variants} />
                   </div>
                 </div>
               ))}
