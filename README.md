@@ -1,44 +1,55 @@
-# Pawvy Website — patch: 6 Puzzle Feeder product cards + scroll-to-highlight
+# Pawvy Website — patch: Add to Cart buttons on Puzzle Feeder cards
 
 ## What changed
 
-### 1. Puzzle Feeder — 6 product cards (was 3 consolidated cards)
-Per Janice's direction, split into individual cards, 2 rows of 3:
-- Row 1: Puzzle Feeder (Green/Pink), Puzzle Feeder Swirl (Purple), Puzzle Feeder Lite (Green/Orange)
-- Row 2: Puzzle Lickpop (Green/Teal), Puzzle Tumbler (Orange-Green/Pink-Teal), Puzzle Mat (Green)
+Per Janice's suggestion, replaced the "click card → scroll to shop" behavior on
+Puzzle Feeder's 6 product cards with a direct **Add to Cart** button.
 
-All real photos, swatch colors sampled directly from the product images. No CSS
-grid changes needed — it already wraps 6 items into 2 rows automatically.
+- **Single-SKU cards** (Puzzle Feeder Swirl, Puzzle Lickpop, Puzzle Mat) — button
+  adds straight to cart, no modal
+- **Multi-variant cards** (Puzzle Feeder, Puzzle Feeder Lite, Puzzle Tumbler) —
+  button opens a modal: pick a color/option, the product photo updates to match,
+  then confirm to add. Real price shown on the confirm button too.
 
-### 2. Card clicks now scroll-and-highlight instead of filter
-You asked: clicking "Puzzle Mat" should jump to that product in the shop grid
-below, not filter everything else out. Changed the mechanism:
+### One data-accuracy note (flagged in chat, repeating here for the record)
+- **Puzzle Lickpop** turned out to be one product (its green/teal look is one
+  item's two-tone design, not two SKUs) — no picker needed, direct add
+- **Puzzle Feeder Lite's "Orange" option** is catalogued under a different
+  product name ("Puzzle Lick Bowl Lite") rather than being a color of the same
+  item — doesn't affect the picker UX, just means the modal option is correctly
+  labeled rather than implying a literal color-of-same-product relationship
 
-- Each product card in the shop grid now carries `data-product-title` (its
-  name)
-- Clicking a durability/fit card now links with `?highlight=<name>` instead
-  of `?q=<name>`
-- On load, if a `highlight` param is present, the (still fully unfiltered)
-  grid scrolls smoothly to the matching product and gives it a brief orange
-  pulse (two quick pulses, ~2.2s) so it's obvious which one you clicked
-- This replaces the old filter-based behavior everywhere it was used —
-  BetterBone's Soft/Medium/Hard cards now do the same scroll-and-highlight
-  instead of filtering, for consistency across both brand pages
+### How it resolves real products
+`brandContent.js` is static and doesn't know live product IDs (those come from
+the database and can change), so each variant carries a `match` string — a
+search term resolved against the live shop API at click time to get the real
+product (id, price, photo). This means:
+- Prices shown are always live, not hardcoded
+- If a product goes out of stock or gets renamed, the button will show
+  "Unavailable" rather than silently adding the wrong thing
+- No risk of stale/wrong SKUs being added to cart from static data going out
+  of sync with the catalog
 
 ### Files touched
-- `lib/brandContent.js` — Puzzle Feeder `fitCards.items` expanded to 6 entries
-- `components/BrandDeepDive.jsx` — card links use `?highlight=` now
-- `components/ShopClient.jsx` — reads `highlight` param, scrolls + pulses
-  instead of filtering
-- `components/ProductCard.jsx` — added `data-product-title` attribute
-- `app/globals.css` — `.product-card-highlight` pulse animation
-- `public/brand-features/puzzlefeeder/fit-swirl.jpg`, `fit-tumbler.jpg`,
-  `fit-mat.jpg` — new photos for the 3 new cards
+- `lib/brandContent.js` — `fitCards.items[].colors` replaced with
+  `variants[]`, each with `label`, `hex`, `match` (search term), `image`
+- `components/BrandDeepDive.jsx` — fit cards are now plain cards (not links)
+  with `<FitCardActions>` rendering the button
+- `components/FitCardActions.jsx` — **new file**, button + modal + cart logic
+- `app/globals.css` — `.fit-add-btn`, `.fit-modal*` styles
+- `public/brand-features/puzzlefeeder/fit-feeder-green.jpg`,
+  `fit-feeder-pink.jpg`, `fit-lite-green.jpg`, `fit-lite-orange.jpg`,
+  `fit-tumbler-orange.jpg`, `fit-tumbler-pink.jpg` — new per-variant photos
+  for the modal
 
 `npm run build` passes clean (Next.js 16, Turbopack) — all 22 routes generated
-successfully. Also did a manual sweep of every changed file for the
-unimported-reference class of bug that broke the last Puzzle Feeder deploy —
-nothing found this time.
+successfully. Manually swept every changed file for unimported-reference bugs
+(the class of bug that broke the last Puzzle Feeder deploy) — nothing found.
+
+**Note:** BetterBone's Soft/Medium/Hard durability cards are untouched — this
+change only applies to Puzzle Feeder's 6 fit cards, since that's what was
+asked. Happy to bring Add to Cart to BetterBone too if you want the same
+treatment there.
 
 ## How to apply
 ```bash
@@ -46,7 +57,7 @@ git checkout main
 git pull origin main
 # unzip this file, "Copy and Replace" when prompted
 git add -A
-git commit -m "Split Puzzle Feeder into 6 product cards, switch card clicks to scroll-and-highlight"
+git commit -m "Add Add to Cart buttons + variant picker modal to Puzzle Feeder cards"
 git push origin main
 ```
 Railway auto-deploys from `main` on push.

@@ -28,6 +28,7 @@
 // photos yet.
 import Link from 'next/link';
 import { Fragment } from 'react';
+import FitCardActions from './FitCardActions';
 
 function ImageSlot({ image, alt, hint, className }) {
   if (image) return <img src={image} alt={alt} className={className} />;
@@ -55,7 +56,7 @@ const VetIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 21s-6.5-4.35-9-8.5C1 8.5 3 5 6.5 5c2 0 3.5 1.5 5.5 4 2-2.5 3.5-4 5.5-4C21 5 23 8.5 21 12.5c-2.5 4.15-9 8.5-9 8.5z" /></svg>
 );
 
-export default function BrandDeepDive({ deepDive, brandDisplayName }) {
+export default function BrandDeepDive({ deepDive, brandDisplayName, brandId }) {
   if (!deepDive) return null;
   const { chew, durability, intro, featureSplit, stats, checklist, fitCards } = deepDive;
 
@@ -190,28 +191,17 @@ export default function BrandDeepDive({ deepDive, brandDisplayName }) {
             </div>
             <div className="pf-fit-grid">
               {fitCards.items.map(item => (
-                <Link
-                  href={`?highlight=${encodeURIComponent(item.name)}#brand-products`}
-                  className="pf-fit-card"
-                  key={item.name}
-                  aria-label={`Shop ${item.name}`}
-                >
-                  <ImageSlot image={item.image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
+                <div className="pf-fit-card" key={item.name}>
+                  <ImageSlot image={item.variants[0].image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
                   <div className="pf-fit-info">
                     <h3>{item.name}</h3>
                     <div className="fit-for">{item.fitFor}</div>
-                    {item.colors && (
-                      <div className="pf-swatches">
-                        {item.colors.map(c => <span key={c} className="pf-swatch" style={{ background: c }} />)}
-                      </div>
-                    )}
-                    {item.tags && (
-                      <div className="pf-tags">
-                        {item.tags.map(t => <span key={t} className="pf-tag">{t}</span>)}
-                      </div>
-                    )}
+                    <div className="pf-swatches">
+                      {item.variants.map(v => <span key={v.label} className="pf-swatch" style={{ background: v.hex }} title={v.label} />)}
+                    </div>
+                    <FitCardActions productName={item.name} brandId={brandId} variants={item.variants} />
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           </div>
