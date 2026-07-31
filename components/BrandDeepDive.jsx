@@ -51,7 +51,7 @@ const VetIcon = () => (
 
 export default function BrandDeepDive({ deepDive, brandDisplayName, products }) {
   if (!deepDive) return null;
-  const { chew, durability, intro, featureSplit, stats, checklist, fitCards } = deepDive;
+  const { chew, durability, intro, featureSplit, stats, checklist, fishGroups, fitCards } = deepDive;
 
   return (
     <>
@@ -170,6 +170,35 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
               <div className="pf-vet-icon"><VetIcon /></div>
               <h3>{checklist.badgeHeading}</h3>
               <p>{checklist.badgeBody}</p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {fishGroups && (
+        <section className="fish-groups">
+          <div className="wrap">
+            <div className="fish-groups-head">
+              <div className="eyebrow center">{fishGroups.eyebrow}</div>
+              <h2>{fishGroups.heading}</h2>
+              <p>{fishGroups.sub}</p>
+            </div>
+            <div className="fish-groups-row">
+              {fishGroups.groups.map(g => (
+                <div className={`fish-group ${g.key}`} key={g.key} style={{ '--fish-group-color': g.color }}>
+                  <div className="fish-group-fishrow">
+                    {g.fish.map(f => (
+                      <div className="fish-group-fish" key={f.name}>
+                        <ImageSlot image={f.icon} alt={f.name} hint={f.name} className="fish-group-fish-img" />
+                        <div className="fish-group-fish-name">{f.name}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <h4>{g.label}</h4>
+                  <hr className="fish-group-line" />
+                  <p>{g.benefit}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
