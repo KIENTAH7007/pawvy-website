@@ -111,7 +111,7 @@ export default function ProductAddButton({ products, productLabel, variants, ser
         variationIncludes: v.variationIncludes,
         variationIncludesAny: v.variationIncludesAny,
       })[0] || null;
-      return { label: v.label, hex: v.hex, image: v.image, default: v.default, product: match };
+      return { label: v.label, hex: v.hex, image: v.image, default: v.default, forceImage: v.forceImage, product: match };
     });
   }, [products, variants]);
 
@@ -210,8 +210,8 @@ export default function ProductAddButton({ products, productLabel, variants, ser
               <h3>{productLabel}</h3>
 
               <div className="fit-modal-image-wrap">
-                {current?.product?.image_data || current?.image
-                  ? <img src={current.product?.image_data || current.image} alt={productLabel} />
+                {(current?.forceImage ? current?.image : (current?.product?.image_data || current?.image))
+                  ? <img src={current.forceImage ? current.image : (current.product?.image_data || current.image)} alt={productLabel} />
                   : <div className="img-placeholder" style={{ width: '100%', height: '100%' }}><span>No photo</span></div>}
               </div>
 

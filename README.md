@@ -1,82 +1,80 @@
-# Salmoil brand deep-dive — patch
+# Salmoil fixes — cream bars, Odor Control matching, modal image + width
 
-## What this adds
+## 1. Fixed — cream bars on the selector image
 
-The Salmoil brand page (`/brands/salmoil-...`) now has a full deep-dive
-section between the existing hero and the existing FAQ:
+The container's height was fixed independent of the poster images' actual
+shape, so `object-fit: contain` left visible background on the sides. Set
+the container's `aspect-ratio` to exactly match your poster photos
+(900×1273) instead — now it fills edge-to-edge with nothing visible
+around it.
 
-1. **Intro** — brand story + 3 value cards (Aluminum Bottle, ASC Certified,
-   Functional Blend), using your real collage photo, shown uncropped.
-2. **Interactive recipe selector** — click any of the 5 recipe cards (or
-   hover, on desktop) and the real product photo on the right swaps
-   instantly. This is genuinely interactive, not just a static image —
-   built as its own small client component (`RecipeSelector.jsx`) since
-   the rest of the page is server-rendered.
-3. **5 recipe cards** (Kidney/Gut/Dental/Coat/Joint Wellness) — each opens
-   a real Add to Cart modal with your 3 real sizes (150ml/250ml/500ml),
-   defaulting to 250ml, photo swaps per size with nothing cropped.
+## 2. Fixed — Dental Wellness showing "Unavailable"
 
-No hero, FAQ, or CTA changes — those already exist on the shared brand-page
-template and weren't touched.
+Yes, exactly the right read, and the right fix. The card still *displays*
+"Dental Wellness" to customers (unchanged) — only the internal matching
+term changed, from `'Dental Wellness'` to `'Odor Control'`, since that's
+apparently what the real database calls this recipe. Display name and
+matching term are two separate fields in the data (`name` vs.
+`seriesIncludes` on each variant) specifically so this kind of fix doesn't
+require touching what customers see — same pattern used for the other
+Salmoil recipes and every other brand.
 
-## Files in this patch
+## 3. Fixed — modal showing the wrong photo, and pills wrapping
 
-- `components/BrandDeepDive.jsx` — **complete file.** Two changes: (1) the
-  existing `intro` shape gained an optional `values` field that renders a
-  3-card grid below it — Salmoil uses this, BetterBone/Puzzle Feeder don't
-  set it so nothing changes for them; (2) added rendering for the new
-  `selector` shape, delegated to `RecipeSelector.jsx`. `fitCardGroups`
-  (used for the 5 recipe cards) is the same shape already built for
-  Lillidale — no changes needed there.
-- `components/RecipeSelector.jsx` — **new file.** The interactive
-  hover/click selector. Pulled into its own client component (`"use
-  client"`) because `BrandDeepDive.jsx` is a Server Component and
-  `useState` needs a client boundary — this was actually a build error
-  I hit and fixed locally, not a design choice up front.
-- `lib/brandContent.js` — **complete file.** Only the `Salmoil` entry
-  changed; every other brand's data is untouched.
-- `app/globals.css` — **complete file.** Added new CSS classes at the very
-  end (`.intro-value-*`, `.sal-selector*`, `.sal-tab*`). Nothing existing
-  was edited or removed.
-- `public/brand-features/salmoil/*.jpg` — **21 new images** (intro photo +
-  5 selector photos + 5 recipes × 3 sizes), all compressed for web.
-  No existing files touched.
+**Wrong photo, real cause found in the code (not a guess this time):**
+`ProductAddButton.jsx`'s modal has always preferred a product's *real*,
+already-uploaded photo from the Pawvy App (`image_data`) over my curated
+photo, whenever one exists — this is deliberate for every other brand, so
+that updating a photo in the Pawvy App reflects on the website
+automatically without needing a code deploy. For Salmoil, some of these
+SKUs apparently already have an old/generic photo uploaded, which is what
+was showing instead of what you sent me.
 
-Nothing is renamed, so plain unzip-and-replace covers it.
+Fix: added a `forceImage` flag, set to `true` on all 15 Salmoil size
+variants only. When set, the modal always uses my curated photo
+regardless of what's in `image_data`. Every other brand's modals are
+completely unaffected — I checked this in isolation before shipping it
+(their `image_data` still wins when present, same as before).
 
-## Before you deploy — one thing worth knowing
+One thing worth deciding, not something I can decide for you: if a Salmoil
+SKU's photo in the Pawvy App gets updated later, the website **won't**
+pick it up automatically anymore for that SKU — it'll keep showing my
+curated photo until code changes. That's the tradeoff `forceImage` makes.
+If you'd rather have Salmoil follow the same "Pawvy App photo always wins"
+behavior as everything else, the fix is simpler: just clear or replace
+whatever's currently in `image_data` for those SKUs, and remove
+`forceImage` from the data. Let me know if you'd prefer that instead.
 
-Same flag as Lillidale's first patch: the `seriesIncludes` terms below
-(Kidney Wellness, Gut Wellness, Dental Wellness, Coat, Joint Wellness,
-size numbers) are my best guess from the product photos/packaging text —
-not confirmed against a real screenshot of Salmoil's actual
-`item_series`/`variation` values in the Pawvy App. I ran a local smoke
-test against fabricated data shaped like your real records and all 15
-size/recipe combinations resolved correctly with zero "Unavailable" — but
-that's fabricated data, not your real catalog.
+**Pills wrapping:** modal widened from 420px to 480px max-width, and the
+3 size pills now share the row evenly (`flex: 1 1 0`) instead of wrapping
+based on their individual width — so 150ml/250ml/500ml sit on one line
+even when one has a longer "(out of stock)" label attached. This is a
+shared style, so it improves every brand's modal the same way, not just
+Salmoil's.
 
-**Please do one real click-through on all 5 recipes × 3 sizes after this
-deploys.** If any shows "Unavailable," it means the real
-`item_series`/`variation` text doesn't contain the term I guessed — same
-class of issue as Lillidale's Sanitising Spray/2kg bugs, and the fix is
-the same (loosen or correct the term once we know the real text).
+## Files in this patch (all complete files)
 
-## What I verified locally
+- `components/ProductAddButton.jsx` — the `forceImage` support and the
+  widened/aligned pill row. Nothing else in this file changed.
+- `lib/brandContent.js` — only the `Salmoil` entry changed: Dental
+  Wellness's `seriesIncludes` fixed, and `forceImage: true` added to all
+  15 variants.
+- `app/globals.css` — only `.sal-selector-image`, `.fit-modal`, and
+  `.fit-modal-options` rules changed.
+
+No images changed this round.
+
+## Verified locally
 
 - `npm run build` — clean.
-- SSR smoke test of `BrandDeepDive` against fabricated product data shaped
-  like real records — all 5 recipes × 3 sizes render, zero crashes, zero
-  "Unavailable" states, 250ml confirmed as the default cover photo despite
-  150ml being listed first.
-
-## What I could not verify locally (no access to your live backend/DB)
-
-- Whether the real `item_series`/`variation` text actually contains the
-  terms I guessed — see the flag above.
-- Real stock levels / `stock_status` for any of the 15 SKUs.
-- The interactive selector's hover/click behavior on a real touch device —
-  logic is straightforward (same click-to-set-state pattern used
-  elsewhere) but worth a quick look on your phone after deploy.
+- SSR smoke test reproducing your exact Odor Control scenario (fake
+  product named "Salmoil Odor Control" in the database) — resolves
+  correctly, zero "Unavailable".
+- Isolated the `forceImage` logic and tested both cases directly: Salmoil
+  (forceImage set, real `image_data` present) correctly uses the curated
+  photo; a simulated other-brand case (no `forceImage`, `image_data`
+  present) correctly still uses the live database photo, confirming nothing
+  else broke.
 
 ## Deploying
 
@@ -85,15 +83,10 @@ git checkout main
 git pull origin main
 ```
 
-Unzip this patch on top of your local `pawvy-website` folder ("Copy and
-Replace" when prompted), then:
+Unzip on top of your local folder, then:
 
 ```bash
 git add -A
-git commit -m "Add Salmoil brand deep-dive: intro, interactive recipe selector, 5-recipe shop grid"
+git commit -m "Fix Salmoil selector image crop, Odor Control matching, modal photo + pill layout"
 git push origin main
 ```
-
-Railway will auto-deploy from `main` on push. If it doesn't pick it up
-automatically, use the manual Redeploy button on the Deployments tab
-before digging into anything else.
