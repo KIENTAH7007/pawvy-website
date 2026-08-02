@@ -1,72 +1,72 @@
-# Lillidale brand deep-dive — fix + before/after redesign patch
+# Modal reorder + compact mobile grid patch (+ status on the nav bug)
 
-This replaces the previous Lillidale patch delivery. If you already applied
-that one, this is a straight overwrite — same files, updated content.
+## 1. Fixed — ProJoint/ProHealth modal size order
 
-## What changed since the last patch
+Display order is now 200g / 500g / 2kg. 500g stays pre-selected and stays
+the default card photo (before you tap Add to Cart) — I didn't want
+reordering the display to silently change which size/photo shows by
+default, so I added a `default: true` flag on the 500g variant in the data
+and taught `ProductAddButton.jsx` to prefer that flagged variant for the
+initial selection, falling back to "first in stock" the way it always did
+if nothing's flagged. This only affects Lillidale's cards — Puzzle
+Feeder/Eastsea Brother's explicit-variant cards don't use `default` and
+behave exactly as before.
 
-**1. Fixed the "Unavailable" bugs you found live:**
-- ProJoint & ProHealth 2kg — was matching the exact text "2kg"; now also
-  accepts "2 kg" and "2000g" as valid matches (`ProductAddButton.jsx` gained
-  a new `variationIncludesAny` option for this — small, reusable addition,
-  doesn't affect any other brand's cards).
-- Sanitizing Spray — now matches both "Sanitising" (the spelling actually
-  on the product photo) and "Sanitizing".
-- Ear Cleanser / Dental Spray — loosened to shorter, safer keywords ("Ear",
-  "Dental") since the exact phrases weren't matching your real data.
-- Wound Care — corrected the displayed size from 100ml to 65ml.
+## 2. Fixed — 2 columns on compact mobile
 
-**2. Removed the pillar bullet-point lists** (Supplements/Antimicrobial/
-Wellness cards) per your markup — cards now just show the photo,
-description, and jump-link.
+`.pf-fit-grid` (the shared shop-grid class every brand's Add to Cart cards
+use) now shows 2 columns below 620px instead of collapsing to 1. Wide
+mobile (620–900px, already 2 columns) and desktop (3 columns) are
+untouched, per your "others are all okay" note. Added a bit of extra
+tightening below 460px (smaller gap, smaller card text) so 2-up doesn't
+feel cramped on the narrowest phones.
 
-**3. Rebuilt the before/after section — Option C, with your two tweaks:**
-- Trimmed real blank white space out of the ProHealth and Plaque Guard
-  photos (Plaque Guard's originals were ~65% blank — cropped that out).
-- Taller frame (340px vs. the old 190px) so images actually read clearly.
-- **Plaque Guard card now stacks Before/After top-to-bottom** instead of
-  side-by-side, since those photos are landscape to begin with.
-- **Every card now has a "Before"/"After" (or "Day 1"/"Day 7") pill directly
-  on the image**, not just in the text underneath.
+Since this is the shared class, it also affects BetterBone/Puzzle
+Feeder/Eastsea Brother's cards the same way — worth a quick look at those
+too after deploy, though the change is small (column count + spacing
+only).
+
+## 3. Not fixed yet — the stuck hamburger menu
+
+I wasn't able to reproduce or diagnose this one with confidence, and I'd
+rather say so than guess-patch the site's global nav — a wrong guess there
+risks breaking navigation everywhere, not just Lillidale.
+
+What I checked: `Nav.jsx`'s mobile drawer code looks structurally correct
+— it renders Home, Shop (with all 6 brand links), Stockist, Contact, Blog,
+and login/account, and closes on route change or overlay click. I tried
+to actually load a real brand page locally to watch it happen, but the
+site needs your live Railway backend to server-render `/brands/[slug]`
+(it fetches real product/brand data on every request), and my sandbox
+can't reach that — so I could only review the code, not reproduce the bug.
+
+To actually fix this I'd need a bit more to go on — whichever of these you
+can grab would help a lot:
+- Does it happen on **every** brand page, or specifically Lillidale?
+- Does it happen on non-brand pages too (home, shop, stockist)?
+- What device/browser, and roughly what screen width?
+- A short screen recording of it happening, if easy to grab — that would
+  probably let me spot it immediately from the code.
 
 ## Files in this patch (all complete files)
 
-- `components/BrandDeepDive.jsx` — before/after section updated (tag pills,
-  vertical-split support). Nothing else in this file changed since the
-  last patch.
-- `components/ProductAddButton.jsx` — added `variationIncludesAny` support
-  to `findMatches()`. This is a small, backwards-compatible addition — every
-  other brand's cards (BetterBone, Puzzle Feeder, Eastsea Brother) are
-  unaffected since they don't use this new option.
-- `lib/brandContent.js` — only the `Lillidale` entry changed.
-- `app/globals.css` — only the `.lil-*` rules at the end changed (taller
-  split frame, image tag pills, vertical variant, pillar-list rule
-  removed).
-- `public/brand-features/lillidale/*.jpg` — `prohealth-before/after.jpg`
-  and `plaqueguard-before/after.jpg` are replaced with trimmed versions
-  (blank space cropped out). Everything else is unchanged from the last
-  patch — just re-included here so this zip is a complete, self-contained
-  overwrite.
+- `components/ProductAddButton.jsx` — added the `default` flag support to
+  `findMatches`'s caller (small, backwards-compatible; other brands
+  unaffected).
+- `components/BrandDeepDive.jsx` — card cover photo now also respects the
+  `default` flag instead of always using the first array item.
+- `lib/brandContent.js` — only the `Lillidale` entry changed (variant
+  order + `default: true` flags).
+- `app/globals.css` — only the `.pf-fit-grid` responsive rules changed.
 
-Nothing is renamed, so plain unzip-and-replace covers it — no manual
-deletion needed.
+No images in this patch — nothing to re-add there.
 
-## Still an open question, same as last time
-
-The Sanitizing/Ear Cleanser/Dental Spray fix is a best-effort loosening,
-not a confirmed fix — I still don't have a screenshot of those three SKUs'
-real `item_series`/`variation` text. If any of them still show
-"Unavailable" after this deploys, that's the next thing to check directly
-in the Pawvy App's Products search.
-
-## What I verified locally
+## Verified locally
 
 - `npm run build` — clean.
-- SSR smoke test reproducing your exact reported failures (2kg written as
-  "2 kg", Sanitising spelling, etc.) — all 13 cards now resolve, zero
-  "Unavailable".
-- Confirmed the vertical split renders for Plaque Guard and the tag pills
-  render on all 6 before/after images.
+- SSR smoke test confirms: ProJoint/ProHealth cards still show the 500g
+  photo by default despite the new 200g/500g/2kg display order, and no
+  new "Unavailable" states introduced.
 
 ## Deploying
 
@@ -75,23 +75,10 @@ git checkout main
 git pull origin main
 ```
 
-Unzip on top of your local `pawvy-website` folder ("Copy and Replace"),
-then:
+Unzip on top of your local folder, then:
 
 ```bash
 git add -A
-git commit -m "Fix Lillidale matching bugs, redesign before/after (Option C)"
+git commit -m "Reorder Lillidale size picker, 2-col compact mobile grid"
 git push origin main
 ```
-
-Railway auto-deploys from `main`. If it doesn't pick it up, use the manual
-Redeploy button on the Deployments tab first.
-
-## Please click-test again after this deploys
-
-Same ask as last time, now narrower:
-- The 13 Add to Cart buttons, especially Sanitizing Spray / Ear Cleanser /
-  Dental Spray / 2kg sizes — since those are the loosened/hedged fixes.
-- The before/after section on both desktop and mobile widths, to make sure
-  the taller frame and the Plaque Guard stacked layout look right at your
-  actual screen sizes.

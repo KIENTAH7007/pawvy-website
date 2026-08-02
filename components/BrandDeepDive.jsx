@@ -294,7 +294,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
             <div className="pf-fit-grid">
               {group.items.map(item => (
                 <div className="pf-fit-card" key={item.name}>
-                  <ImageSlot image={item.variants[0].image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
+                  <ImageSlot image={(item.variants.find(v => v.default) || item.variants[0]).image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
                   <div className="pf-fit-info">
                     <h3>{item.name}</h3>
                     <div className="fit-for">{item.fitFor}</div>

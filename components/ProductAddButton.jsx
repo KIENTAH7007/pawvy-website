@@ -111,7 +111,7 @@ export default function ProductAddButton({ products, productLabel, variants, ser
         variationIncludes: v.variationIncludes,
         variationIncludesAny: v.variationIncludesAny,
       })[0] || null;
-      return { label: v.label, hex: v.hex, image: v.image, product: match };
+      return { label: v.label, hex: v.hex, image: v.image, default: v.default, product: match };
     });
   }, [products, variants]);
 
@@ -172,7 +172,11 @@ export default function ProductAddButton({ products, productLabel, variants, ser
       setSelectedSize(first?.size || '');
       setSelectedFlavor(first?.flavor || '');
     } else {
-      setSelected(options.findIndex(o => o.product && o.product.stock_status !== 'out_of_stock'));
+      // Prefer the variant explicitly flagged `default: true` (e.g. the
+      // size a brand wants shown first, regardless of display order) if
+      // it's in stock; otherwise fall back to the first available option.
+      const defaultIdx = options.findIndex(o => o.default && o.product && o.product.stock_status !== 'out_of_stock');
+      setSelected(defaultIdx >= 0 ? defaultIdx : options.findIndex(o => o.product && o.product.stock_status !== 'out_of_stock'));
     }
     setModalOpen(true);
   }
