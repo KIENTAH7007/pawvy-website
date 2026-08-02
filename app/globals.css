@@ -752,12 +752,12 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .sal-tab:hover, .sal-tab.active { border-color: var(--tab-color, var(--orange)); background: rgba(255,255,255,.08); }
 .sal-tab-recipe { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; color: var(--tab-color, var(--orange)); }
 .sal-tab h4 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 15.5px; color: var(--ivory); }
-.sal-selector-image { position: relative; width: 100%; border-radius: 18px; overflow: hidden; background: var(--ivory); aspect-ratio: 900/1273; max-height: 620px; margin: 0 auto; }
+.sal-selector-image { position: relative; width: 100%; border-radius: 18px; overflow: hidden; background: var(--ivory); aspect-ratio: 900/1273; }
 .sal-selector-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity .25s ease; pointer-events: none; }
 .sal-selector-img.active { opacity: 1; pointer-events: auto; }
 
 @media (max-width: 900px) {
   .intro-value-grid { grid-template-columns: 1fr 1fr; }
   .sal-selector-grid { grid-template-columns: 1fr; }
-  .sal-selector-image { max-height: 480px; }
+  .sal-selector-image { aspect-ratio: 900/1273; }
 }
