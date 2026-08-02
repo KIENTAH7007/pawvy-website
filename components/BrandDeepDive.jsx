@@ -22,6 +22,7 @@
 // matching logic.
 import { Fragment } from 'react';
 import ProductAddButton from './ProductAddButton';
+import RecipeSelector from './RecipeSelector';
 
 function ImageSlot({ image, alt, hint, className }) {
   if (image) return <img src={image} alt={alt} className={className} />;
@@ -51,7 +52,7 @@ const VetIcon = () => (
 
 export default function BrandDeepDive({ deepDive, brandDisplayName, products }) {
   if (!deepDive) return null;
-  const { chew, durability, intro, featureSplit, stats, checklist, fishGroups, fitCards, pillars, beforeAfter, fitCardGroups } = deepDive;
+  const { chew, durability, intro, featureSplit, stats, checklist, fishGroups, fitCards, pillars, beforeAfter, fitCardGroups, selector } = deepDive;
 
   return (
     <>
@@ -179,6 +180,16 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
             </div>
             <ImageSlot image={intro.image} alt={intro.heading} hint={intro.imageHint} className="feature-intro-image" />
           </div>
+          {intro.values && (
+            <div className="wrap intro-value-grid">
+              {intro.values.map(v => (
+                <div className="intro-value-card" key={v.title}>
+                  <h3>{v.title}</h3>
+                  <p>{v.body}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       )}
 
@@ -194,6 +205,8 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
           </div>
         </section>
       )}
+
+      {selector && <RecipeSelector selector={selector} />}
 
       {stats && stats.length > 0 && (
         <section className="pf-stats">

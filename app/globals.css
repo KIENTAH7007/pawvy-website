@@ -727,3 +727,36 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 @media (max-width: 900px) {
   .lil-pillars-grid, .lil-ba-grid { grid-template-columns: 1fr; }
 }
+
+/* ---- Salmoil deep-dive: intro value cards + interactive recipe selector ----
+   Salmoil reuses the existing `intro` shape (adds an optional `values` 3-card
+   grid below it — no-op for BetterBone/Puzzle Feeder, which don't set it)
+   and the existing `fitCardGroups` shape (same as Lillidale's shop grids)
+   for its 5 recipe cards. The one genuinely new shape is `selector`: an
+   interactive hover/click ingredient-highlight panel — KT specifically
+   asked for "hover on desktop, click on mobile" to swap which recipe photo
+   shows, which none of the existing shapes did. */
+.intro-value-grid { margin-top: 56px; display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; }
+.intro-value-card { background: var(--ivory); border-radius: 16px; padding: 26px; }
+.intro-value-card h3 { font-weight: 800; font-size: 18px; color: var(--orange); margin-bottom: 8px; }
+.intro-value-card p { font-size: 13.5px; color: var(--dark-gray); line-height: 1.6; }
+
+.sal-selector { padding: 100px 0; background: var(--navy); color: var(--ivory); }
+.sal-selector-head { text-align: center; margin-bottom: 48px; }
+.sal-selector-head h2 { font-weight: 900; font-size: clamp(28px,3.6vw,40px); color: var(--ivory); letter-spacing: -.6px; margin-bottom: 14px; }
+.sal-selector-head p { max-width: 620px; margin: 0 auto; font-size: 15px; color: rgba(245,242,235,.75); line-height: 1.7; }
+.sal-selector-grid { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 40px; align-items: stretch; }
+.sal-tabs { display: flex; flex-direction: column; gap: 10px; }
+.sal-tab { background: rgba(255,255,255,.04); border: 1.5px solid rgba(255,255,255,.12); border-radius: 14px; padding: 18px 20px; cursor: pointer; transition: border-color .2s, background .2s; }
+.sal-tab:hover, .sal-tab.active { border-color: var(--tab-color, var(--orange)); background: rgba(255,255,255,.08); }
+.sal-tab-recipe { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; color: var(--tab-color, var(--orange)); }
+.sal-tab h4 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 15.5px; color: var(--ivory); }
+.sal-selector-image { position: relative; border-radius: 18px; overflow: hidden; background: var(--ivory); min-height: 420px; }
+.sal-selector-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity .25s ease; pointer-events: none; }
+.sal-selector-img.active { opacity: 1; pointer-events: auto; }
+
+@media (max-width: 900px) {
+  .intro-value-grid { grid-template-columns: 1fr 1fr; }
+  .sal-selector-grid { grid-template-columns: 1fr; }
+  .sal-selector-image { min-height: 320px; }
+}
