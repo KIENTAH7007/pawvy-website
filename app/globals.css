@@ -747,11 +747,11 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .sal-selector-head h2 { font-weight: 900; font-size: clamp(28px,3.6vw,40px); color: var(--ivory); letter-spacing: -.6px; margin-bottom: 14px; }
 .sal-selector-head p { max-width: 620px; margin: 0 auto; font-size: 15px; color: rgba(245,242,235,.75); line-height: 1.7; }
 .sal-selector-grid { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 40px; align-items: stretch; }
-.sal-tabs { display: flex; flex-direction: column; gap: 10px; }
-.sal-tab { background: rgba(255,255,255,.04); border: 1.5px solid rgba(255,255,255,.12); border-radius: 14px; padding: 18px 20px; cursor: pointer; transition: border-color .2s, background .2s; }
+.sal-tabs { display: flex; flex-direction: column; gap: 10px; height: 100%; }
+.sal-tab { flex: 1; display: flex; flex-direction: column; justify-content: center; background: rgba(255,255,255,.04); border: 1.5px solid rgba(255,255,255,.12); border-radius: 14px; padding: 18px 24px; cursor: pointer; transition: border-color .2s, background .2s; }
 .sal-tab:hover, .sal-tab.active { border-color: var(--tab-color, var(--orange)); background: rgba(255,255,255,.08); }
-.sal-tab-recipe { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; color: var(--tab-color, var(--orange)); }
-.sal-tab h4 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 15.5px; color: var(--ivory); }
+.sal-tab-recipe { font-size: 12.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; color: var(--tab-color, var(--orange)); }
+.sal-tab h4 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 19px; color: var(--ivory); }
 .sal-selector-image { position: relative; width: 100%; border-radius: 18px; overflow: hidden; background: var(--ivory); aspect-ratio: 900/1273; }
 .sal-selector-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity .25s ease; pointer-events: none; }
 .sal-selector-img.active { opacity: 1; pointer-events: auto; }

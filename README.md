@@ -1,29 +1,24 @@
-# Salmoil selector — fix the cream bars for real this time
+# Salmoil selector — tabs now stretch to fill the full image height
 
-## What was actually wrong
+## What changed
 
-My last fix set `aspect-ratio: 900/1273` on `.sal-selector-image`, which
-was correct — but I'd also left a `max-height: 620px` on it from an
-earlier version. That cap fought the aspect-ratio: on a wide screen, the
-box's natural aspect-ratio height would be taller than 620px, so the cap
-shrank it — but the *width* stayed at 100% of its column. That mismatch
-is exactly what caused the side bars: `object-fit: contain` fit the image
-to the (too-short) height and centered it, leaving cream showing on both
-sides.
+The 5 tabs used their natural content height with gaps between them,
+which fell short of the image column's height (set by the image's
+aspect-ratio), leaving the gap you circled in yellow.
 
-## The fix
-
-Removed the `max-height` cap (desktop and the mobile override) entirely.
-`aspect-ratio` alone now fully controls the box's height based on its
-width, so it stays exactly proportional to your real photos with nothing
-fighting it. Since the box ratio now matches the photos exactly, the
-image fills edge-to-edge with zero gap.
+- `.sal-tabs` now stretches to the full height of its grid row (`height:
+  100%`), and each `.sal-tab` gets `flex: 1` so all 5 grow equally to
+  fill that height exactly — no matter how tall the image column ends up
+  being.
+- Content inside each tab is now vertically centered, so the extra room
+  doesn't just pad the bottom of each pill.
+- Bumped the text sizes for a bit more presence now that each tab has
+  more room: recipe label 11px → 12.5px, ingredient name 15.5px → 19px.
 
 ## File in this patch
 
-- `app/globals.css` — only the two `.sal-selector-image` rules changed
-  (desktop and the `max-width: 900px` mobile breakpoint). Nothing else
-  touched.
+- `app/globals.css` — only the `.sal-tabs`/`.sal-tab`/`.sal-tab-recipe`/
+  `.sal-tab h4` rules changed. Nothing else touched.
 
 ## Deploying
 
@@ -36,6 +31,6 @@ Unzip on top of your local folder, then:
 
 ```bash
 git add -A
-git commit -m "Fix Salmoil selector image cream bars (remove conflicting max-height)"
+git commit -m "Stretch Salmoil selector tabs to match image height, bump text size"
 git push origin main
 ```
