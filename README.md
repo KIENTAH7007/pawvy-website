@@ -1,72 +1,58 @@
-# Modal reorder + compact mobile grid patch (+ status on the nav bug)
+# Nav fix + a note on items 1 & 2
 
-## 1. Fixed — ProJoint/ProHealth modal size order
+## Important — please read before re-testing items 1 & 2
 
-Display order is now 200g / 500g / 2kg. 500g stays pre-selected and stays
-the default card photo (before you tap Add to Cart) — I didn't want
-reordering the display to silently change which size/photo shows by
-default, so I added a `default: true` flag on the 500g variant in the data
-and taught `ProductAddButton.jsx` to prefer that flagged variant for the
-initial selection, falling back to "first in stock" the way it always did
-if nothing's flagged. This only affects Lillidale's cards — Puzzle
-Feeder/Eastsea Brother's explicit-variant cards don't use `default` and
-behave exactly as before.
+I checked my own source files and both changes from the last patch are
+still there, exactly as delivered — 200g/500g/2kg order in
+`lib/brandContent.js`, and the 2-column mobile rule in `app/globals.css`.
+Since your git push and manual redeploy both succeeded, the most likely
+explanation is your browser (or a CDN in front of Railway) serving a
+cached copy of the page.
 
-## 2. Fixed — 2 columns on compact mobile
+**Before assuming anything's still broken, please try:** a hard refresh
+(Ctrl+Shift+R / Cmd+Shift+R), or open the Lillidale page in a fresh
+incognito/private window on your phone. If it's still showing 500g first
+or 1 card per row after that, let me know and I'll dig further — but I
+wanted to flag this as the likely explanation rather than blindly
+re-patch code that's already correct.
 
-`.pf-fit-grid` (the shared shop-grid class every brand's Add to Cart cards
-use) now shows 2 columns below 620px instead of collapsing to 1. Wide
-mobile (620–900px, already 2 columns) and desktop (3 columns) are
-untouched, per your "others are all okay" note. Added a bit of extra
-tightening below 460px (smaller gap, smaller card text) so 2-up doesn't
-feel cramped on the narrowest phones.
+## 3. Fixed — the stuck hamburger menu
 
-Since this is the shared class, it also affects BetterBone/Puzzle
-Feeder/Eastsea Brother's cards the same way — worth a quick look at those
-too after deploy, though the change is small (column count + spacing
-only).
+Found it, and it's the exact same bug class as an Add to Cart modal bug
+fixed earlier this session, just in the site nav instead: `position:
+fixed` gets trapped inside the nearest ancestor that has a `transform`
+set (or `filter`/`will-change`), and ends up positioned relative to THAT
+element's box instead of the real viewport. On a page you've scrolled
+down, a trapped "fixed" drawer can end up rendered mostly or entirely
+above/outside the visible screen — showing just a sliver (in your case,
+"Home") and behaving stuck, because the DOM and React state are actually
+fine, it's purely a CSS positioning problem.
 
-## 3. Not fixed yet — the stuck hamburger menu
+**Fix**: the mobile drawer + overlay are now portaled directly into
+`document.body` (via `createPortal`), exactly like `ProductAddButton.jsx`
+already does for the Add to Cart modal. This makes `position: fixed`
+resolve against the true viewport regardless of what any page's content
+does with transforms — reveal-on-scroll animations, card hover effects,
+anything. Since this happens on every page (not just brand pages), this
+should fix it everywhere in one shot.
 
-I wasn't able to reproduce or diagnose this one with confidence, and I'd
-rather say so than guess-patch the site's global nav — a wrong guess there
-risks breaking navigation everywhere, not just Lillidale.
+## File in this patch
 
-What I checked: `Nav.jsx`'s mobile drawer code looks structurally correct
-— it renders Home, Shop (with all 6 brand links), Stockist, Contact, Blog,
-and login/account, and closes on route change or overlay click. I tried
-to actually load a real brand page locally to watch it happen, but the
-site needs your live Railway backend to server-render `/brands/[slug]`
-(it fetches real product/brand data on every request), and my sandbox
-can't reach that — so I could only review the code, not reproduce the bug.
-
-To actually fix this I'd need a bit more to go on — whichever of these you
-can grab would help a lot:
-- Does it happen on **every** brand page, or specifically Lillidale?
-- Does it happen on non-brand pages too (home, shop, stockist)?
-- What device/browser, and roughly what screen width?
-- A short screen recording of it happening, if easy to grab — that would
-  probably let me spot it immediately from the code.
-
-## Files in this patch (all complete files)
-
-- `components/ProductAddButton.jsx` — added the `default` flag support to
-  `findMatches`'s caller (small, backwards-compatible; other brands
-  unaffected).
-- `components/BrandDeepDive.jsx` — card cover photo now also respects the
-  `default` flag instead of always using the first array item.
-- `lib/brandContent.js` — only the `Lillidale` entry changed (variant
-  order + `default: true` flags).
-- `app/globals.css` — only the `.pf-fit-grid` responsive rules changed.
-
-No images in this patch — nothing to re-add there.
+- `components/Nav.jsx` — complete file. Only change: the mobile
+  overlay/drawer JSX now renders through a `Portal` component (same
+  pattern, copied comment-for-comment from `ProductAddButton.jsx`) instead
+  of inline inside `<nav>`. No other logic touched — same links, same
+  open/close behavior, same scroll-lock.
 
 ## Verified locally
 
 - `npm run build` — clean.
-- SSR smoke test confirms: ProJoint/ProHealth cards still show the 500g
-  photo by default despite the new 200g/500g/2kg display order, and no
-  new "Unavailable" states introduced.
+- Couldn't fully click-test this one interactively (the site needs your
+  live Railway backend to server-render pages, which my sandbox can't
+  reach), but the fix itself is a proven, already-working pattern in this
+  exact codebase — not a guess. Please do a real click-through after
+  deploy: navigate anywhere, scroll down, open the hamburger, and confirm
+  you see the full menu and can close it normally.
 
 ## Deploying
 
@@ -79,6 +65,6 @@ Unzip on top of your local folder, then:
 
 ```bash
 git add -A
-git commit -m "Reorder Lillidale size picker, 2-col compact mobile grid"
+git commit -m "Fix mobile nav drawer getting trapped by ancestor transforms"
 git push origin main
 ```

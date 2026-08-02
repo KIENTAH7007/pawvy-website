@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BRAND_SLUGS, displayBrandName } from '../lib/brandSlugs';
@@ -11,6 +12,24 @@ import { customerApi, getSessionToken, setSessionToken } from '../lib/api';
 // established elsewhere on the site (ShopClient, checkout) — keep these
 // in sync if that number ever changes.
 const FREE_SHIPPING_THRESHOLD = 60;
+
+// Same fix as ProductAddButton's Add to Cart modal (see the comment
+// there): `position: fixed` gets trapped inside the nearest ancestor
+// that has a `transform`/`filter`/`will-change` set, and ends up
+// positioned relative to THAT box instead of the real viewport — which
+// on a page you've scrolled down can make a fixed drawer render mostly
+// or entirely off the top of the screen, looking "stuck" and unclosable
+// even though the DOM/state is actually correct. Portaling straight into
+// document.body sidesteps this regardless of what any given page's
+// content does with transforms (reveal-on-scroll animations, card hover
+// effects, etc.) — same reasoning as the modal fix, just applied to the
+// mobile nav drawer instead.
+function Portal({ children }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+  return createPortal(children, document.body);
+}
 
 // Pages whose content starts with a navy-background hero (home's morphing
 // blobs, or a .subhero/.shop-hero) — on these, the nav starts transparent
@@ -150,41 +169,43 @@ export default function Nav() {
         </div>
       </div>
 
-      <div className={`mobile-overlay${mobileOpen ? ' open' : ''}`} onClick={() => setMobileOpen(false)} />
+      <Portal>
+        <div className={`mobile-overlay${mobileOpen ? ' open' : ''}`} onClick={() => setMobileOpen(false)} />
 
-      <div className={`mobile-drawer${mobileOpen ? ' open' : ''}`}>
-        <Link href="/" className="mobile-link" onClick={() => setMobileOpen(false)}>Home</Link>
+        <div className={`mobile-drawer${mobileOpen ? ' open' : ''}`}>
+          <Link href="/" className="mobile-link" onClick={() => setMobileOpen(false)}>Home</Link>
 
-        <div className={`mobile-shop${mobileShopOpen ? ' open' : ''}`}>
-          <button type="button" className="mobile-link mobile-shop-toggle" onClick={() => setMobileShopOpen((o) => !o)}>
-            Shop
-            <svg className="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6"><path d="M6 9l6 6 6-6" /></svg>
-          </button>
-          <div className="mobile-shop-list">
-            <Link href="/shop" className="mobile-sublink" onClick={() => setMobileOpen(false)}>All products</Link>
-            {Object.entries(BRAND_SLUGS).map(([name, slug]) => (
-              <Link key={slug} href={`/brands/${slug}`} className="mobile-sublink" onClick={() => setMobileOpen(false)}>{displayBrandName(name)}</Link>
-            ))}
+          <div className={`mobile-shop${mobileShopOpen ? ' open' : ''}`}>
+            <button type="button" className="mobile-link mobile-shop-toggle" onClick={() => setMobileShopOpen((o) => !o)}>
+              Shop
+              <svg className="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6"><path d="M6 9l6 6 6-6" /></svg>
+            </button>
+            <div className="mobile-shop-list">
+              <Link href="/shop" className="mobile-sublink" onClick={() => setMobileOpen(false)}>All products</Link>
+              {Object.entries(BRAND_SLUGS).map(([name, slug]) => (
+                <Link key={slug} href={`/brands/${slug}`} className="mobile-sublink" onClick={() => setMobileOpen(false)}>{displayBrandName(name)}</Link>
+              ))}
+            </div>
           </div>
+
+          <Link href="/stockist" className="mobile-link" onClick={() => setMobileOpen(false)}>Stockist</Link>
+          <Link href="/#enquiry" className="mobile-link" onClick={() => setMobileOpen(false)}>Contact</Link>
+          <Link href="/blog" className="mobile-link" onClick={() => setMobileOpen(false)}>Blog</Link>
+
+          <div className="mobile-drawer-divider" />
+
+          {customer ? (
+            <Link href="/account" className="mobile-link mobile-greeting" onClick={() => setMobileOpen(false)}>
+              Hi, {firstName} <span className="nav-greeting-balance">{balance}B</span>
+            </Link>
+          ) : (
+            <div className="mobile-auth-row">
+              <Link href="/login" className="mobile-link" onClick={() => setMobileOpen(false)}>Log in</Link>
+              <Link href="/signup" className="btn btn-orange" onClick={() => setMobileOpen(false)}><span>Sign up</span></Link>
+            </div>
+          )}
         </div>
-
-        <Link href="/stockist" className="mobile-link" onClick={() => setMobileOpen(false)}>Stockist</Link>
-        <Link href="/#enquiry" className="mobile-link" onClick={() => setMobileOpen(false)}>Contact</Link>
-        <Link href="/blog" className="mobile-link" onClick={() => setMobileOpen(false)}>Blog</Link>
-
-        <div className="mobile-drawer-divider" />
-
-        {customer ? (
-          <Link href="/account" className="mobile-link mobile-greeting" onClick={() => setMobileOpen(false)}>
-            Hi, {firstName} <span className="nav-greeting-balance">{balance}B</span>
-          </Link>
-        ) : (
-          <div className="mobile-auth-row">
-            <Link href="/login" className="mobile-link" onClick={() => setMobileOpen(false)}>Log in</Link>
-            <Link href="/signup" className="btn btn-orange" onClick={() => setMobileOpen(false)}><span>Sign up</span></Link>
-          </div>
-        )}
-      </div>
+      </Portal>
     </nav>
   );
 }
