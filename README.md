@@ -69,6 +69,11 @@ behind it.
   photo, filling the existing rounded square card via `object-fit: cover`.
   The source image (1491×1557) is already close to square, matches the
   box's `aspect-ratio: 1` well — no cropping guesswork needed.
+- **Mobile fix**: there was an existing mobile-only override
+  (`@media (max-width: 860px)`) forcing the box to a 16:9 aspect ratio —
+  harmless with the old blob placeholder, but visibly cropped a real
+  photo down to a thin strip on phones. Removed that override so it
+  stays 1:1 at every screen size, as requested.
 
 ### 4. Guest checkout
 `app/cart/page.js`, `app/login/page.js`, `app/signup/page.js`

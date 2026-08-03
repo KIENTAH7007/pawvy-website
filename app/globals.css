@@ -319,7 +319,7 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
 .why-visual .blob { width: 70%; height: 70%; background: var(--orange); opacity: .5; position: relative; top: auto; right: auto; }
 .why-visual .paw-emoji { position: absolute; font-size: 64px; }
 .why-visual-photo { width: 100%; height: 100%; object-fit: cover; }
-@media (max-width: 860px) { .why-visual { position: relative; top: auto; aspect-ratio: 16/9; } }
+@media (max-width: 860px) { .why-visual { position: relative; top: auto; } }
 .why-item { padding: 36px 0; border-top: 2px solid rgba(20,33,61,.1); }
 .why-item:last-child { border-bottom: 2px solid rgba(20,33,61,.1); }
 .why-item .num { font-weight: 900; font-size: 13px; color: var(--orange); margin-bottom: 10px; display: block; }
