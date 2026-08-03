@@ -115,22 +115,17 @@ export default function CategoryBrowser({ browser, products }) {
           {activeCards.map(card => {
             if (card.type === 'single') {
               const matched = matchByPrefix(products, card.skuPrefix);
-              if (!matched) {
-                return (
-                  <div className="product-card" key={card.skuPrefix} style={{ opacity: 0.6 }}>
-                    <div className="thumb"><span className="no-img">No image</span></div>
-                    <div className="info">
-                      <h3>{card.name}</h3>
-                      <div className="price" />
-                    </div>
-                    <div className="info" style={{ paddingTop: 0 }}>
-                      <button className="add-btn" disabled>Unavailable</button>
-                    </div>
-                  </div>
-                );
-              }
+              // Archived/removed SKUs just don't match anymore — the
+              // right behavior is for the card to disappear, not sit on
+              // the page permanently showing "Unavailable". (A genuine
+              // matching bug looks identical from here — that's what the
+              // README's click-through ask is for, not a permanent
+              // on-page state.)
+              if (!matched) return null;
               return <ProductCard key={card.skuPrefix} product={matched} onAdd={addItem} />;
             }
+            const anyMatch = card.variants.some(v => matchByPrefix(products, v.skuPrefix));
+            if (!anyMatch) return null;
             return <GroupCard key={card.name} card={card} products={products} />;
           })}
         </div>
