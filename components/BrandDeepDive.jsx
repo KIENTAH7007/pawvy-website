@@ -23,6 +23,7 @@
 import { Fragment } from 'react';
 import ProductAddButton from './ProductAddButton';
 import RecipeSelector from './RecipeSelector';
+import CategoryBrowser from './CategoryBrowser';
 
 function ImageSlot({ image, alt, hint, className }) {
   if (image) return <img src={image} alt={alt} className={className} />;
@@ -52,7 +53,7 @@ const VetIcon = () => (
 
 export default function BrandDeepDive({ deepDive, brandDisplayName, products }) {
   if (!deepDive) return null;
-  const { chew, durability, intro, featureSplit, stats, checklist, fishGroups, fitCards, pillars, beforeAfter, fitCardGroups, selector } = deepDive;
+  const { chew, durability, intro, featureSplit, stats, checklist, fishGroups, fitCards, pillars, beforeAfter, fitCardGroups, selector, categoryIntro, browser } = deepDive;
 
   return (
     <>
@@ -207,6 +208,29 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
       )}
 
       {selector && <RecipeSelector selector={selector} />}
+
+      {categoryIntro && (
+        <section className="cat-intro">
+          <div className="wrap">
+            <div className="cat-intro-head">
+              <div className="eyebrow center" style={{ color: 'var(--lime, #B4D93C)' }}>{categoryIntro.eyebrow}</div>
+              <h2>{categoryIntro.heading}</h2>
+              <p>{categoryIntro.sub}</p>
+            </div>
+            <div className="cat-intro-grid">
+              {categoryIntro.items.map(item => (
+                <div className="cat-intro-card" key={item.title} style={{ '--accent': item.color }}>
+                  <div className="cat-intro-icon"><ImageSlot image={item.image} alt={item.title} hint={item.title} className="cat-intro-icon-img" /></div>
+                  <h3>{item.title}</h3>
+                  <p>{item.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {browser && <CategoryBrowser browser={browser} products={products} />}
 
       {stats && stats.length > 0 && (
         <section className="pf-stats">
