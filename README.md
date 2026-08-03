@@ -109,6 +109,19 @@ wide landscape shot), let me know and I'll either adjust the panel ratio
 to fit or switch that card to a letterboxed/contain layout so nothing
 gets cut off.
 
+**Follow-up fix**: with only 4 unique reviews and the marquee needing to
+fill (and then double) the full screen width to loop seamlessly, the
+old 340px card width meant 5–6 cards were visible on wide screens —
+making the repeat obvious almost immediately. Widened cards to 460px
+(gap 22px → 32px) so ~4 fit in a typical desktop viewport before the
+set repeats, much closer to what you asked for. Added a mobile override
+(cards scale to 78vw under 600px) so this doesn't blow out phone
+screens. This is a genuine tradeoff, not a perfect fix — the exact
+number visible still shifts a bit with screen width, and the cleanest
+permanent fix is simply having more than 4 real reviews to cycle
+through, which naturally spaces out the repeats. Worth keeping in mind
+as more reviews come in.
+
 ---
 
 ## Git commands
