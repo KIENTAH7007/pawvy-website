@@ -11,10 +11,10 @@ import { contentApi } from '../lib/api';
 const FACTS_FALLBACK = ['Premium Pet Wellness', 'Exclusive Singapore Distributor', 'Six Brands, One Standard', '107+ Retail Partners'];
 
 const TESTIMONIALS = [
-  { quote: 'Thank you for the recommendation! Sparky has not stopped playing since we came home.', who: 'Sparky_yipeedee_dee' },
-  { quote: "We've been adding this to Maddie's food for almost a week and can absolutely see the difference on her teeth and breath.", who: 'Macholefrenchie' },
-  { quote: 'Now the puzzle feeder is keeping him occupied — and more importantly, slowing him down!', who: 'Megan' },
-  { quote: 'I saw mobility improvement in my chihuahua. She likes to play a lot now.', who: 'Freya_deedee_millie' },
+  { quote: 'Thank you for the recommendation! Sparky has not stopped playing since we came home.', who: 'Sparky_yipeedee_dee', image: null },
+  { quote: "We've been adding this to Maddie's food for almost a week and can absolutely see the difference on her teeth and breath.", who: 'Macholefrenchie', image: null },
+  { quote: 'Now the puzzle feeder is keeping him occupied — and more importantly, slowing him down!', who: 'Megan', image: null },
+  { quote: 'I saw mobility improvement in my chihuahua. She likes to play a lot now.', who: 'Freya_deedee_millie', image: null },
 ];
 
 // Server Component — real HTML for SEO. Only the pieces that need
@@ -34,7 +34,6 @@ export default async function Home() {
   return (
     <>
       <section className="hero">
-        <img src="/hero-bg.jpg" alt="" className="hero-bg-photo" />
         <div className="blob" />
         <div className="blob b2" />
         <div className="blob b3" />
@@ -82,10 +81,10 @@ export default async function Home() {
 
       <section className="stats">
         <Reveal className="wrap stats-grid" stagger>
-          <div><div className="stat-num"><StatCounter target={6} /></div><div className="stat-label">Brands Distributed</div></div>
-          <div><div className="stat-num"><StatCounter target={107} suffix="+" /></div><div className="stat-label">Retail Partners</div></div>
-          <div><div className="stat-num"><StatCounter target={1000} suffix="+" /></div><div className="stat-label">Happy Pets</div></div>
-          <div><div className="stat-num"><StatCounter target={100} /></div><div className="stat-label">% Vetted Quality</div></div>
+          <div><div className="stat-num"><StatCounter target={200} suffix="+" /></div><div className="stat-label">Products</div></div>
+          <div><div className="stat-num"><StatCounter target={100} suffix="%" /></div><div className="stat-label">Vetted Quality</div></div>
+          <div><div className="stat-num"><StatCounter target={5} suffix="⭐" /></div><div className="stat-label">Reviews</div></div>
+          <div><div className="stat-num"><StatCounter target={5} suffix="+" /></div><div className="stat-label">Years in Singapore</div></div>
         </Reveal>
       </section>
 
@@ -129,7 +128,7 @@ export default async function Home() {
             <Reveal as="div" className="why-item">
               <span className="num">03</span>
               <h3>The one we stand behind</h3>
-              <p>As the exclusive distributor, we vet every brand before it reaches you — no marketplace guesswork.</p>
+              <p>We vet every brand before it reaches you — no marketplace guesswork.</p>
             </Reveal>
           </div>
         </div>
@@ -143,6 +142,9 @@ export default async function Home() {
         <Marquee pxPerSecond={38} trackClassName="test-track">
           {TESTIMONIALS.map((t, i) => (
             <div className="test-card" key={i}>
+              <div className="test-avatar">
+                {t.image ? <img src={t.image} alt={t.who} /> : <span className="test-avatar-fallback">🐾</span>}
+              </div>
               <div className="stars">★★★★★</div>
               <p>"{t.quote}"</p>
               <div className="who">— {t.who}</div>
@@ -155,7 +157,7 @@ export default async function Home() {
         <div className="wrap">
           <Reveal as="div" className="eyebrow center">Social media</Reveal>
           <h2>Instagram</h2>
-          <p className="sub">Follow us at <a href="https://instagram.com/pawvy_sg" target="_blank" rel="noopener noreferrer">@Pawvy_SG</a> to discover new products, exciting updates, and care tips for your pets.</p>
+          <p className="sub">Follow us at <a href="https://instagram.com/pawvy_sg" target="_blank" rel="noopener noreferrer">Pawvy_SG</a> to discover new products, exciting updates, and care tips for your pets.</p>
           {igUrls.length > 0 ? (
             <Reveal as="div" className="ig-embed-wrap">
               <InstagramGrid urls={igUrls} />

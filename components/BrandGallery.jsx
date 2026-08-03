@@ -21,10 +21,10 @@ const LOGO_SCALE = {
 const LOGO_BASE_MAX_HEIGHT = 60; // px, matches .tilt-card .logostage img in globals.css
 
 const TAGLINES = {
-  'Better Bone': 'Better for your dog, better for the planet — plant-based, biodegradable chews.',
-  'Lillidale': 'UK-formulated care, from waterless shampoo to joint supplements.',
+  'Better Bone': 'Better for your dog, better for the planet — plant-based, ingestible chews.',
+  'Lillidale': 'Nutritionist-formulated pet care, from all-natural supplements to hygiene care products.',
   'Puzzle Feeder': 'Slows the gulp, keeps the mind busy — the slow feeder that truly works.',
-  'East Sea Brother': 'Korean-made treats, closely sourced — simple, traceable ingredients.',
+  'East Sea Brother': 'Human-grade treats, closely sourced — simple, traceable ingredients.',
   'Salmoil': 'Norwegian-grade omega-3, from real salmon — for coat, joints and heart health.',
   'GiGwi': 'Playful design, durable build — toys made for dogs that play hard.',
 };

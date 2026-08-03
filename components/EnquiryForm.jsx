@@ -62,8 +62,8 @@ export default function EnquiryForm() {
         <input required type="email" value={form.email} onChange={e => update('email', e.target.value)} placeholder="you@example.com" />
       </div>
       <div className="field">
-        <label>Phone (optional)</label>
-        <input value={form.phone} onChange={e => update('phone', e.target.value)} placeholder="+65 ..." />
+        <label>Phone</label>
+        <input required value={form.phone} onChange={e => update('phone', e.target.value)} placeholder="+65 ..." />
       </div>
       <div className="field">
         <label>Message</label>
