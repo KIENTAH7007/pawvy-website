@@ -18,8 +18,6 @@
 // Pawvy App screenshot of GiGwi's actual item_series format — flagged in
 // the README, needs a real click-through per category after deploy.
 import { useState, useMemo } from 'react';
-import { useCart } from '../lib/CartContext';
-import ProductCard from './ProductCard';
 import ProductAddButton from './ProductAddButton';
 
 function matchByPrefix(products, prefix) {
@@ -42,13 +40,27 @@ function shuffle(arr) {
   return a;
 }
 
-function GroupCard({ card, products }) {
-  // Cover photo: first variant that actually matches a real, in-catalog
-  // product — no curated image field exists for GiGwi, this is always a
-  // live database photo.
-  const coverMatch = card.variants.map(v => matchByPrefix(products, v.skuPrefix)).find(m => m?.image_data);
-  const anyMatch = card.variants.map(v => matchByPrefix(products, v.skuPrefix)).find(Boolean);
-  const priceRef = anyMatch;
+// Single-SKU and grouped-SKU cards render through the exact same
+// component — a "single" card is just a group with one variant. This is
+// deliberate, not just less code: it's what fixed the earlier
+// inconsistency where single cards showed the raw database item_series
+// (SKU code + vendor name baked in) instead of KT's curated Excel name,
+// and where single cards used the sitewide orange .add-btn while grouped
+// cards used ProductAddButton's navy .fit-add-btn. Routing everything
+// through ProductAddButton means one card always displays `card.name`
+// (never touches item_series for the title) and always gets the navy
+// button — a single real variant just skips straight to Add to Cart with
+// no picker, same as it would ProductAddButton's own single-variant logic
+// already handled elsewhere.
+function GiGwiCard({ card, products }) {
+  const variants = card.type === 'single'
+    ? [{ skuPrefix: card.skuPrefix }]
+    : card.variants;
+
+  const matches = variants.map(v => matchByPrefix(products, v.skuPrefix));
+  const coverMatch = matches.find(m => m?.image_data) || matches.find(Boolean);
+  const prices = matches.filter(Boolean).map(m => m.effective_price_rrp_sg);
+  const minPrice = prices.length ? Math.min(...prices) : null;
 
   return (
     <div className="product-card">
@@ -63,18 +75,17 @@ function GroupCard({ card, products }) {
       <div className="info">
         <h3>{card.name}</h3>
         <div className="price">
-          {priceRef ? `From $${priceRef.effective_price_rrp_sg.toFixed(2)}` : ''}
+          {minPrice != null ? (variants.length > 1 ? `From $${minPrice.toFixed(2)}` : `$${minPrice.toFixed(2)}`) : ''}
         </div>
       </div>
       <div className="info" style={{ paddingTop: 0 }}>
-        <ProductAddButton products={products} productLabel={card.name} variants={card.variants.map(v => ({ label: v.label, seriesIncludes: v.skuPrefix }))} />
+        <ProductAddButton products={products} productLabel={card.name} variants={variants.map(v => ({ label: v.label, seriesIncludes: v.skuPrefix }))} />
       </div>
     </div>
   );
 }
 
 export default function CategoryBrowser({ browser, products }) {
-  const { addItem } = useCart();
   const [activeTab, setActiveTab] = useState(browser.tabs[0]?.id);
 
   // useMemo (not useEffect) so the shuffle happens exactly once per real
@@ -113,20 +124,15 @@ export default function CategoryBrowser({ browser, products }) {
         </div>
         <div className="product-grid">
           {activeCards.map(card => {
-            if (card.type === 'single') {
-              const matched = matchByPrefix(products, card.skuPrefix);
-              // Archived/removed SKUs just don't match anymore — the
-              // right behavior is for the card to disappear, not sit on
-              // the page permanently showing "Unavailable". (A genuine
-              // matching bug looks identical from here — that's what the
-              // README's click-through ask is for, not a permanent
-              // on-page state.)
-              if (!matched) return null;
-              return <ProductCard key={card.skuPrefix} product={matched} onAdd={addItem} />;
-            }
-            const anyMatch = card.variants.some(v => matchByPrefix(products, v.skuPrefix));
+            const variants = card.type === 'single' ? [{ skuPrefix: card.skuPrefix }] : card.variants;
+            const anyMatch = variants.some(v => matchByPrefix(products, v.skuPrefix));
+            // Archived/removed SKUs just don't match anymore — the right
+            // behavior is for the card to disappear, not sit on the page
+            // permanently showing "Unavailable". (A genuine matching bug
+            // looks identical from here — that's what the README's
+            // click-through ask is for, not a permanent on-page state.)
             if (!anyMatch) return null;
-            return <GroupCard key={card.name} card={card} products={products} />;
+            return <GiGwiCard key={card.type === 'single' ? card.skuPrefix : card.name} card={card} products={products} />;
           })}
         </div>
       </div>

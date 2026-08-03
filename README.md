@@ -1,51 +1,54 @@
-# Archived SKUs disappearing instead of showing "Unavailable" + shop hero text fix
+# GiGwi cards — always show your Excel name, always navy button
 
-## 1. Fixed — archiving a GiGwi SKU now removes its card, not "Unavailable"
+## Root cause
 
-Root cause: a card with zero matching live products used to render a
-permanent disabled "Unavailable" placeholder. That was meant as a
-build-time signal ("this shouldn't happen, go check the matching"), but
-it's the wrong behavior for the ongoing lifecycle — an intentionally
-archived SKU will *always* fail to match, forever, so it would sit on the
-page permanently looking broken instead of just being gone.
+Grouped cards were built from scratch and correctly showed `card.name`
+(your Excel's Card Name column). Single-SKU cards, though, were reusing
+the site's shared `ProductCard` component — the same one the main `/shop`
+page uses — which always shows the raw `item_series` straight from the
+database (SKU code, vendor name, and all). That's why "Red/Purple
+Signature Ball" (your curated name) sat right next to "3019 SkipDawg —
+Neon Glow Ball" (raw database text) on the same row. Same root cause
+explained the button color mismatch: `ProductCard` uses the sitewide
+orange `.add-btn`, while the grouped cards used `ProductAddButton`'s navy
+`.fit-add-btn`.
 
-Now: a single-product card with no live match, or a grouped card where
-*every* size has no live match, simply doesn't render. A grouped card
-where *some* sizes are still live keeps showing, with just the archived
-size disabled and labeled "(unavailable)" inside the picker — that part
-was already correct, built into `ProductAddButton.jsx` from an earlier
-brand, no change needed there.
+## The fix
 
-One tradeoff worth knowing: this also means a genuine matching bug (SKU
-still exists in the Pawvy App, but the text match failed) now looks
-identical to an intentionally archived product — the card just quietly
-doesn't appear either way. That's why the click-through ask in the last
-README matters: it's the only way to catch "silently missing because of
-a real bug" versus "silently missing because you archived it on purpose".
+Single and grouped cards now render through the exact same code path — a
+single card is treated as a "group" with one variant. Concretely:
 
-## 2. Fixed — Shop page hero text was unreadable
+- Every card always displays `card.name` (your Excel name) as the title.
+  `item_series` is never shown to the customer here.
+- Every card always uses `ProductAddButton`, so every button is the same
+  navy `.fit-add-btn` — a single real variant skips straight to Add to
+  Cart with no picker popup, so there's no behavior change for those,
+  just the button color.
+- This only affects GiGwi's category browser. `ProductCard` itself is
+  untouched, so the main `/shop` page and every other brand's grid still
+  look exactly as they did.
 
-`.shop-hero h1` had an explicit cream color set, but the paragraph right
-under it ("Every product, across all six brands...") never got a color
-rule, so it fell back to the default dark body text — invisible against
-the navy hero background. Added `.shop-hero-inner p` with a light color.
-This affects the main /shop page only, not any brand page.
+As you already suspected: the cart record was never affected by any of
+this — it's always tied to the real matched product (its real
+`item_series`, `id`, price), regardless of what label the card displays.
+This was purely a display-layer fix.
 
-## Files in this patch
+## File in this patch
 
-- `components/CategoryBrowser.jsx` — only the single-card and group-card
-  rendering logic changed (skip instead of placeholder). Matching logic
-  itself, the shuffle, and the tab switching are untouched.
-- `app/globals.css` — one new rule, `.shop-hero-inner p`. Nothing else
-  touched.
+- `components/CategoryBrowser.jsx` — complete file. Removed the
+  `ProductCard`/`useCart` imports (no longer needed — `ProductAddButton`
+  handles its own cart access), merged the single-card and group-card
+  render paths into one `GiGwiCard` component.
 
 ## Verified locally
 
 - `npm run build` — clean.
-- Direct test of the exact scenario you hit: a SKU with no matching
-  product in the live list now resolves to `null` and the card doesn't
-  render, while a SKU that's still live continues to resolve and show
-  normally.
+- SSR smoke test using fabricated products with a deliberately "wrong"
+  raw `item_series` (mimicking what you saw — vendor name baked in) to
+  confirm the fix actually holds: the raw text never appears anywhere on
+  the page, your Excel names show for every card (single and grouped),
+  and all 12 rendered buttons use the navy `.fit-add-btn` class with zero
+  instances of the orange `.add-btn`.
 
 ## Deploying
 
@@ -58,6 +61,6 @@ Unzip on top of your local folder, then:
 
 ```bash
 git add -A
-git commit -m "Hide archived GiGwi SKUs instead of showing Unavailable, fix shop hero text color"
+git commit -m "Fix GiGwi card naming/button color: always use Excel name, always navy Add to Cart"
 git push origin main
 ```
