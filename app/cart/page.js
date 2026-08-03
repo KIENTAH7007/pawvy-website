@@ -31,7 +31,13 @@ export default function CartPage() {
   const [customer, setCustomer] = useState(null); // logged-in customer, if any
   const [buttonsBalance, setButtonsBalance] = useState(0);
   const [redeemInput, setRedeemInput] = useState('');
-  const [guest, setGuest] = useState({ email: '', name: '', phone: '', address: '', pdpa_consent: false });
+  // pdpa_consent covers only what's legally required to process the order
+  // itself; create_account is a separate, optional opt-in for a Pawvy
+  // rewards account. These used to be one combined checkbox, which meant
+  // declining the account also blocked checkout entirely — there was no
+  // way to actually check out as a guest. See README for the matching
+  // backend contract this now expects.
+  const [guest, setGuest] = useState({ email: '', name: '', phone: '', address: '', pdpa_consent: false, create_account: true });
   const [loggedInAddress, setLoggedInAddress] = useState('');
   const [checkingOut, setCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState(null);
@@ -78,7 +84,10 @@ export default function CartPage() {
         body.guest_name = guest.name;
         body.guest_phone = guest.phone;
         body.pdpa_consent = guest.pdpa_consent;
-        body.pdpa_consent_text = 'I agree to Pawvy collecting my details to process this order and, optionally, create a Pawvy rewards account.';
+        body.create_account = guest.create_account;
+        body.pdpa_consent_text = guest.create_account
+          ? 'I agree to Pawvy collecting my details to process this order and create a Pawvy rewards account for me.'
+          : 'I agree to Pawvy collecting my details to process this order only. I am checking out as a guest.';
       }
 
       const result = await checkoutApi.createSession(body);
@@ -152,20 +161,36 @@ export default function CartPage() {
               <>
                 <h2>Contact & shipping details</h2>
                 <p className="hint">
-                  Have a Pawvy account? <Link href="/login" style={{ color: 'var(--orange)', fontWeight: 700 }}>Log in</Link> first to use your BUTTONS and track this order.
+                  Have a Pawvy account? <Link href="/login?next=/cart" style={{ color: 'var(--orange)', fontWeight: 700 }}>Log in</Link> first to use your BUTTONS and track this order.
                 </p>
                 <FormField label="Email" type="email" value={guest.email} onChange={v => setGuest(g => ({ ...g, email: v }))} />
                 <FormField label="Name" value={guest.name} onChange={v => setGuest(g => ({ ...g, name: v }))} />
                 <FormField label="Phone" value={guest.phone} onChange={v => setGuest(g => ({ ...g, phone: v }))} />
                 <FormField label="Shipping address" value={guest.address} onChange={v => setGuest(g => ({ ...g, address: v }))} />
+
                 <label style={{ display: 'flex', alignItems: 'flex-start', gap: 9, marginTop: 14, fontSize: 13.5, color: 'var(--dark-gray)' }}>
                   <input
                     type="checkbox" checked={guest.pdpa_consent}
                     onChange={e => setGuest(g => ({ ...g, pdpa_consent: e.target.checked }))}
                     style={{ marginTop: 3 }}
                   />
-                  <span>I agree to Pawvy collecting my details to process this order and create a Pawvy rewards account for me.</span>
+                  <span>I agree to Pawvy collecting my details to process this order. (Required)</span>
                 </label>
+
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 9, marginTop: 10, fontSize: 13.5, color: 'var(--dark-gray)' }}>
+                  <input
+                    type="checkbox" checked={guest.create_account}
+                    onChange={e => setGuest(g => ({ ...g, create_account: e.target.checked }))}
+                    style={{ marginTop: 3 }}
+                  />
+                  <span>Also create a free Pawvy rewards account for me, so I can earn BUTTONS on this order and track it later.</span>
+                </label>
+
+                {!guest.create_account && (
+                  <p className="hint" style={{ marginTop: 10, color: 'var(--orange)', fontWeight: 600 }}>
+                    You're checking out as a guest — you won't earn BUTTONS on this order, and you'll need to re-enter your details next time. You can still create an account later using this same email.
+                  </p>
+                )}
               </>
             )}
           </div>

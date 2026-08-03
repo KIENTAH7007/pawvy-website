@@ -34,6 +34,7 @@ export default async function Home() {
   return (
     <>
       <section className="hero">
+        <img src="/hero-bg.jpg" alt="" className="hero-bg-photo" />
         <div className="blob" />
         <div className="blob b2" />
         <div className="blob b3" />
@@ -111,8 +112,7 @@ export default async function Home() {
       <section className="why">
         <div className="wrap why-grid">
           <Reveal as="div" className="why-visual">
-            <div className="blob" />
-            <span className="paw-emoji">🐾</span>
+            <img src="/why-pawvy.jpg" alt="Pawvy team sourcing products at a pet trade show" className="why-visual-photo" />
           </Reveal>
           <div>
             <Reveal as="div" className="eyebrow">Why Pawvy</Reveal>

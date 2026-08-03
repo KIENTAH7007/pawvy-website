@@ -21,6 +21,12 @@ function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const referralCode = searchParams.get('ref') || '';
+  // Where to send someone who decides not to sign up after all — set when
+  // this page is reached from the login flow's "no account found" handoff
+  // (e.g. from checkout, via /login?next=/cart). Defaults to /cart since
+  // that's the only place this handoff currently happens from.
+  const next = searchParams.get('next') || '/cart';
+  const [showGuestWarning, setShowGuestWarning] = useState(false);
 
   const [form, setForm] = useState({ name: '', email: searchParams.get('email') || '', phone: '', address: '' });
   const [consent, setConsent] = useState(false);
@@ -106,6 +112,41 @@ function SignupForm() {
       <p style={{ fontSize: 13, color: '#666', marginTop: 20 }}>
         Already have an account? <Link href="/login">Log in</Link>
       </p>
+
+      <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid #eee' }}>
+        {!showGuestWarning ? (
+          <p style={{ fontSize: 13, color: '#666' }}>
+            Not ready to sign up?{' '}
+            <button
+              type="button"
+              onClick={() => setShowGuestWarning(true)}
+              style={{ background: 'none', border: 'none', color: 'var(--orange)', fontWeight: 700, textDecoration: 'underline', cursor: 'pointer', padding: 0, fontSize: 13 }}
+            >
+              Check out as guest instead
+            </button>
+          </p>
+        ) : (
+          <div style={{ background: '#fdf3ef', border: '1px solid #f3d9cc', borderRadius: 10, padding: 14 }}>
+            <p style={{ fontSize: 13, color: 'var(--navy)', fontWeight: 700, margin: 0 }}>Skip signup and check out as a guest?</p>
+            <p style={{ fontSize: 13, color: '#666', marginTop: 6 }}>
+              You'll miss out on your 150 BUTTONS signup bonus, earning BUTTONS on this order, and saved
+              order history — you can always create an account later using the same email.
+            </p>
+            <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+              <button type="button" onClick={() => router.push(next)} style={{ padding: '8px 14px' }}>
+                Yes, continue as guest
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowGuestWarning(false)}
+                style={{ padding: '8px 14px', background: 'none', border: '1px solid #ccc', cursor: 'pointer' }}
+              >
+                Stay and sign up
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

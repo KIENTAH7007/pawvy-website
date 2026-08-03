@@ -1,12 +1,27 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { Suspense, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { customerApi, setSessionToken } from '../../lib/api';
 
+// useSearchParams() requires a Suspense boundary in the App Router — the
+// page export below just provides that; LoginForm has the actual logic.
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px' }}>Loading…</div>}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // Where to send the customer after logging in, or after choosing to
+  // continue as a guest from the signup handoff — defaults to home so
+  // links to /login with no ?next= behave exactly as before.
+  const next = searchParams.get('next') || '/';
   const [step, setStep] = useState('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,7 +35,7 @@ export default function LoginPage() {
     try {
       const { exists, has_password } = await customerApi.checkEmail(email);
       if (!exists) {
-        router.push(`/signup?email=${encodeURIComponent(email)}`);
+        router.push(`/signup?email=${encodeURIComponent(email)}&next=${encodeURIComponent(next)}`);
         return;
       }
       if (has_password) {
@@ -43,7 +58,7 @@ export default function LoginPage() {
     try {
       const result = await customerApi.loginPassword(email, password);
       setSessionToken(result.session_token);
-      router.push(result.customer?.profile_bonus_claimed ? '/' : '/account');
+      router.push(result.customer?.profile_bonus_claimed ? next : '/account');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -107,7 +122,7 @@ export default function LoginPage() {
       )}
 
       <p style={{ fontSize: 13, color: '#666', marginTop: 20 }}>
-        New to Pawvy? <Link href="/signup">Sign up</Link>
+        New to Pawvy? <Link href={`/signup?next=${encodeURIComponent(next)}`}>Sign up</Link>
       </p>
     </div>
   );

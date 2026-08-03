@@ -7,6 +7,19 @@ import { BRAND_SLUGS, BRAND_LOGOS, displayBrandName } from '../lib/brandSlugs';
 // Short, punchy taglines per brand for the gallery cards — same copy
 // confirmed in the reviewed mockup. Real per-brand descriptions live on
 // each brand's own page.
+// Per-brand logo size adjustments relative to the shared 60px base
+// max-height — some brand marks read visually smaller/larger than others
+// at the same pixel height, so these are tuned per-brand rather than
+// forcing every logo to an identical box. 1 = unchanged.
+const LOGO_SCALE = {
+  'Better Bone': 0.9,     // -10%
+  'Lillidale': 1.5,       // +50%
+  'Puzzle Feeder': 1.2,   // +20%
+  'Salmoil': 0.9,         // -10%
+  'GiGwi': 1.5,           // +50%
+};
+const LOGO_BASE_MAX_HEIGHT = 60; // px, matches .tilt-card .logostage img in globals.css
+
 const TAGLINES = {
   'Better Bone': 'Better for your dog, better for the planet — plant-based, biodegradable chews.',
   'Lillidale': 'UK-formulated care, from waterless shampoo to joint supplements.',
@@ -48,7 +61,13 @@ export default function BrandGallery() {
     <div className="gallery-grid" ref={gridRef}>
       {Object.entries(BRAND_SLUGS).map(([name, slug]) => (
         <Link key={slug} href={`/brands/${slug}`} className="tilt-card">
-          <div className="logostage"><img src={BRAND_LOGOS[name]} alt={name} /></div>
+          <div className="logostage">
+            <img
+              src={BRAND_LOGOS[name]}
+              alt={name}
+              style={{ maxHeight: `${LOGO_BASE_MAX_HEIGHT * (LOGO_SCALE[name] || 1)}px` }}
+            />
+          </div>
           <p>{TAGLINES[name]}</p>
           <span className="go">
             Shop {displayBrandName(name)}
