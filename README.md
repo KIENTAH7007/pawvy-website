@@ -109,18 +109,25 @@ wide landscape shot), let me know and I'll either adjust the panel ratio
 to fit or switch that card to a letterboxed/contain layout so nothing
 gets cut off.
 
-**Follow-up fix**: with only 4 unique reviews and the marquee needing to
-fill (and then double) the full screen width to loop seamlessly, the
-old 340px card width meant 5–6 cards were visible on wide screens —
-making the repeat obvious almost immediately. Widened cards to 460px
-(gap 22px → 32px) so ~4 fit in a typical desktop viewport before the
-set repeats, much closer to what you asked for. Added a mobile override
-(cards scale to 78vw under 600px) so this doesn't blow out phone
-screens. This is a genuine tradeoff, not a perfect fix — the exact
-number visible still shifts a bit with screen width, and the cleanest
-permanent fix is simply having more than 4 real reviews to cycle
-through, which naturally spaces out the repeats. Worth keeping in mind
-as more reviews come in.
+**Follow-up redesign**: the marquee-widening fix wasn't good enough, so
+this replaces the auto-scrolling marquee for testimonials entirely with
+a new component, `components/TestimonialCarousel.jsx` — a paginated
+carousel with left/right arrow buttons instead of infinite auto-scroll.
+Card size reverted back to the original 340px/22px gap.
+
+- **PC and wide mobile** (>480px): 2 cards per page, arrows page through
+  both pages (4 reviews ÷ 2 = 2 pages), wrapping around at the ends.
+- **Compact screens** (≤480px): 1 card per page, arrows page through all
+  4 individually.
+- Breakpoint is tracked live via `matchMedia`, so rotating a device or
+  resizing a browser window updates the layout immediately, not just on
+  first load.
+- Small dot indicators between the arrows show which page you're on —
+  a minor addition on top of what was asked, easy to remove if you'd
+  rather keep it to just the two buttons.
+- No filler/duplicate cards anymore — since it's paginated rather than
+  looping, it only ever shows real reviews, so this scales cleanly
+  whenever more reviews get added later (pages just increase).
 
 ---
 
