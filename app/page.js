@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Typewriter from '../components/Typewriter';
 import Marquee from '../components/Marquee';
+import TestimonialCarousel from '../components/TestimonialCarousel';
 import BrandGallery from '../components/BrandGallery';
 import StatCounter from '../components/StatCounter';
 import EnquiryForm from '../components/EnquiryForm';
@@ -139,20 +140,7 @@ export default async function Home() {
           <div className="eyebrow center">Customer reviews</div>
           <h2>Here's what pawrents are saying</h2>
         </Reveal>
-        <Marquee pxPerSecond={38} trackClassName="test-track">
-          {TESTIMONIALS.map((t, i) => (
-            <div className="test-card" key={i}>
-              <div className="test-photo">
-                {t.image ? <img src={t.image} alt={t.who} /> : <span className="test-avatar-fallback">🐾</span>}
-              </div>
-              <div className="test-body">
-                <div className="stars">★★★★★</div>
-                <p>"{t.quote}"</p>
-                <div className="who">— {t.who}</div>
-              </div>
-            </div>
-          ))}
-        </Marquee>
+        <TestimonialCarousel testimonials={TESTIMONIALS} />
       </section>
 
       <section className="instagram">
