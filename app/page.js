@@ -11,10 +11,10 @@ import { contentApi } from '../lib/api';
 const FACTS_FALLBACK = ['Premium Pet Wellness', 'Exclusive Singapore Distributor', 'Six Brands, One Standard', '107+ Retail Partners'];
 
 const TESTIMONIALS = [
-  { quote: 'Thank you for the recommendation! Sparky has not stopped playing since we came home.', who: 'Sparky_yipeedee_dee', image: null },
-  { quote: "We've been adding this to Maddie's food for almost a week and can absolutely see the difference on her teeth and breath.", who: 'Macholefrenchie', image: null },
-  { quote: 'Now the puzzle feeder is keeping him occupied — and more importantly, slowing him down!', who: 'Megan', image: null },
-  { quote: 'I saw mobility improvement in my chihuahua. She likes to play a lot now.', who: 'Freya_deedee_millie', image: null },
+  { quote: 'Thank you for the recommendation! Sparky has not stopped playing since we came home.', who: 'Sparky_yipeedee_dee', image: '/testimonials/sparky.jpg' },
+  { quote: "We've been adding this to Maddie's food for almost a week and can absolutely see the difference on her teeth and breath.", who: 'Macholefrenchie', image: '/testimonials/macholefrenchie.jpg' },
+  { quote: 'Now the puzzle feeder is keeping him occupied — and more importantly, slowing him down!', who: 'Megan', image: '/testimonials/megan.jpg' },
+  { quote: 'I saw mobility improvement in my chihuahua. She likes to play a lot now.', who: 'Freya_deedee_millie', image: '/testimonials/freya.jpg' },
 ];
 
 // Server Component — real HTML for SEO. Only the pieces that need
@@ -142,12 +142,14 @@ export default async function Home() {
         <Marquee pxPerSecond={38} trackClassName="test-track">
           {TESTIMONIALS.map((t, i) => (
             <div className="test-card" key={i}>
-              <div className="test-avatar">
+              <div className="test-photo">
                 {t.image ? <img src={t.image} alt={t.who} /> : <span className="test-avatar-fallback">🐾</span>}
               </div>
-              <div className="stars">★★★★★</div>
-              <p>"{t.quote}"</p>
-              <div className="who">— {t.who}</div>
+              <div className="test-body">
+                <div className="stars">★★★★★</div>
+                <p>"{t.quote}"</p>
+                <div className="who">— {t.who}</div>
+              </div>
             </div>
           ))}
         </Marquee>

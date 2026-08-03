@@ -333,10 +333,11 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
 .test-track.ready { animation-play-state: running; }
 .testimonials:hover .test-track.ready { animation-play-state: paused; }
 @keyframes testScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-.test-card { width: 340px; flex-shrink: 0; background: rgba(245,242,235,.06); border: 1px solid rgba(245,242,235,.14); border-radius: 20px; padding: 28px; }
-.test-avatar { width: 56px; height: 56px; border-radius: 50%; overflow: hidden; margin-bottom: 16px; background: rgba(245,242,235,.1); display: flex; align-items: center; justify-content: center; }
-.test-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.test-avatar-fallback { font-size: 24px; }
+.test-card { width: 340px; flex-shrink: 0; background: rgba(245,242,235,.06); border: 1px solid rgba(245,242,235,.14); border-radius: 20px; overflow: hidden; }
+.test-photo { width: 100%; aspect-ratio: 3 / 4; background: rgba(245,242,235,.08); display: flex; align-items: center; justify-content: center; }
+.test-photo img { width: 100%; height: 100%; object-fit: cover; }
+.test-avatar-fallback { font-size: 40px; }
+.test-body { padding: 22px 28px 28px; }
 .test-card .stars { color: var(--orange); letter-spacing: 4px; margin-bottom: 14px; font-size: 36px; line-height: 1; }
 .test-card p { font-size: 15px; line-height: 1.65; color: var(--cream); margin-bottom: 16px; }
 .test-card .who { font-size: 12px; letter-spacing: .6px; text-transform: uppercase; color: rgba(245,242,235,.5); font-weight: 700; }

@@ -21,12 +21,11 @@ one line in `globals.css`:
 ```
 
 This is an intentional accessibility feature, already in the code from
-before — if the operating system has "Reduce Motion" (macOS: System
-Settings → Accessibility → Display; Windows: Settings → Accessibility →
-Visual effects → Animation effects) turned **off**/**on** for reduced
-motion, every animation on the site — the marquee, the morphing blobs,
-the typewriter effect — is disabled site-wide, on purpose, for people
-sensitive to motion.
+before — if the operating system has "Reduce Motion" turned on (macOS:
+System Settings → Accessibility → Display; Windows: Settings →
+Accessibility → Visual effects → Animation effects), every animation on
+the site — the marquee, the morphing blobs, the typewriter effect — is
+disabled site-wide, on purpose, for people sensitive to motion.
 
 **My guess**: Janice's PC has this OS-level setting enabled. Worth her
 checking that setting first — nothing to fix in code unless you want to
@@ -88,21 +87,27 @@ morphing blobs, as it was before that patch. I've left the actual
 deleting it, in case you want to reuse it somewhere else later; let me
 know if you'd rather I remove the file too.
 
-## 8. Testimonial cards — avatar image + bigger stars
-`app/page.js`, `app/globals.css`
+## 8. Testimonial cards — real photos + bigger stars
+`app/page.js`, `app/globals.css`, `public/testimonials/*.jpg`
 
-Added an image slot above the star rating on each card, and enlarged the
-stars roughly 2.5x (14px → 36px), per your spec: image → stars →
-comment (unchanged).
+Added the four photos you sent, matched to their reviewer (Sparky,
+Macholefrenchie, Megan, Freya), and enlarged the stars roughly 2.5x
+(14px → 36px).
 
-**One thing I need from you**: no actual customer/pet photos exist in
-the codebase for these four testimonials yet, so each card currently
-falls back to a small circular paw icon (🐾) in a soft circle — this is
-just a placeholder so the layout doesn't look broken while empty. Send
-me the real photos (or point me to where they already live, e.g. socials
-or existing reviews) mapped to which testimonial they belong to, and
-I'll drop them in — it's already wired to just work once an `image` URL
-is added per testimonial in the code.
+**On "try not to crop them"**: all four photos you sent are portrait
+orientation and — happy coincidence — share almost exactly the same
+aspect ratio (~3:4, within 1% of each other across all four). Instead of
+the small circular avatar I first mocked up (which definitely would have
+cropped these), I restructured the card into a full-width photo panel
+across the top with the same 3:4 aspect ratio, so each photo displays
+essentially in full — the ~1% difference between the photos' exact
+ratios and the card's fixed ratio is imperceptible. Stars/quote/name
+moved into a padded section below the photo.
+
+If you send photos with a very different aspect ratio in future (e.g. a
+wide landscape shot), let me know and I'll either adjust the panel ratio
+to fit or switch that card to a letterboxed/contain layout so nothing
+gets cut off.
 
 ---
 
@@ -113,7 +118,7 @@ git checkout main
 git pull origin main
 # unzip this patch on top ("Copy and Replace")
 git add -A
-git commit -m "Homepage: Janice's wording revisions, stats update, testimonial avatars + bigger stars, hero bg revert"
+git commit -m "Homepage: Janice's wording revisions, stats update, real testimonial photos + bigger stars, hero bg revert"
 git push origin main
 ```
 
@@ -125,8 +130,8 @@ field to be enforced server-side too.
 - Homepage: new stats numbers, updated brand card wording, "As the
   exclusive distributor" gone from Why Pawvy 03, Instagram line without
   the @, un-bolded contact info, hero back to plain navy+blobs.
-- Testimonial cards show the paw-icon placeholder cleanly (not broken)
-  and stars are visibly bigger.
+- Testimonial cards show the real photos uncropped (or close to it) and
+  stars are visibly bigger.
 - Contact form: try submitting with phone blank — should be blocked
   both by the browser (required field) and, if you bypass that, by the
   API itself once the app-side patch is applied.
