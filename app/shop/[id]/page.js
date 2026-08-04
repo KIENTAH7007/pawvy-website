@@ -68,14 +68,26 @@ export default async function ProductPage({ params }) {
             </div>
           )}
 
-          {BRAND_CONTENT[product.brand_name]?.sizeGuideFaqQuestion && (
-            <Link
-              href={`/brands/${brandSlug(product.brand_name)}#${faqSlug(BRAND_CONTENT[product.brand_name].sizeGuideFaqQuestion)}`}
-              className="size-guide-link"
-            >
-              Not sure which size to get? See our sizing guide →
-            </Link>
-          )}
+          {(() => {
+            // sizeGuideFaqQuestion can be a plain string (applies to every
+            // SKU of the brand — e.g. Salmoil, where every product is a
+            // fish-oil bottle) or a function of the product that returns
+            // the matching FAQ question string, or null to skip the link
+            // for that specific product (e.g. Lillidale, where only the
+            // three Supplements SKUs have a real sizing decision — see
+            // the comment on Lillidale's entry in lib/brandContent.js).
+            const raw = BRAND_CONTENT[product.brand_name]?.sizeGuideFaqQuestion;
+            const question = typeof raw === 'function' ? raw(product) : raw;
+            if (!question) return null;
+            return (
+              <Link
+                href={`/brands/${brandSlug(product.brand_name)}#${faqSlug(question)}`}
+                className="size-guide-link"
+              >
+                Not sure which size to get? See our sizing guide →
+              </Link>
+            );
+          })()}
         </div>
       </div>
     </div>
