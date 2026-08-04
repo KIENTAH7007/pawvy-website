@@ -536,6 +536,7 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .fit-modal-loading { color: var(--dark-gray); font-size: 14.5px; padding: 20px 0; }
 .fit-modal-image-wrap { aspect-ratio: 1/1; width: 100%; border-radius: 18px; overflow: hidden; background: var(--ivory); margin-bottom: 18px; }
 .fit-modal-image-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fit-modal-description { font-size: 14px; line-height: 1.65; color: var(--dark-gray); margin: 0 0 20px; }
 .fit-modal-options { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
 .fit-modal-options .fit-modal-option { flex: 1 1 0; justify-content: center; text-align: center; }
 .fit-modal-selects { display: flex; flex-direction: column; gap: 14px; margin-bottom: 22px; }
