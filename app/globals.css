@@ -554,7 +554,17 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .faq-head { max-width: 600px; margin: 0 auto 50px; text-align: center; position: relative; z-index: 1; }
 .faq-head h2 { font-weight: 900; font-size: clamp(28px,3.6vw,40px); color: var(--cream); letter-spacing: -.6px; }
 .faq-list { max-width: 820px; margin: 0 auto; text-align: left; position: relative; z-index: 1; }
-.faq-item { border-bottom: 1px solid rgba(245,242,235,.18); padding: 26px 0; }
+.faq-item { border-bottom: 1px solid rgba(245,242,235,.18); padding: 26px 0; scroll-margin-top: 110px; }
+/* Guaranteed-visibility fallback for deep links (e.g. the product-page
+   "see our sizing guide" link): :target is native CSS/browser behavior
+   tied purely to the URL fragment, evaluated the same way regardless of
+   how the navigation happened (full page load or client-side routing) —
+   unlike JS-based open-on-mount logic, there's no timing window where
+   this can miss. FaqAutoOpen.jsx still sets the real `open` attribute
+   too when its JS runs, for correct semantics/accessibility, but this
+   rule means the answer is visible either way. */
+.faq-item:target .faq-answer { display: block !important; }
+.faq-item:target .plus { transform: rotate(45deg); }
 .faq-item summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 20px; font-weight: 800; font-size: 18px; color: var(--cream); }
 .faq-item summary::-webkit-details-marker { display: none; }
 .faq-item .plus { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--orange); flex-shrink: 0; position: relative; transition: transform .3s ease; }

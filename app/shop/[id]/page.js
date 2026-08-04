@@ -72,7 +72,6 @@ export default async function ProductPage({ params }) {
             <Link
               href={`/brands/${brandSlug(product.brand_name)}#${faqSlug(BRAND_CONTENT[product.brand_name].sizeGuideFaqQuestion)}`}
               className="size-guide-link"
-              scroll={false}
             >
               Not sure which size to get? See our sizing guide →
             </Link>

@@ -1,52 +1,65 @@
-# Pawvy Website — Patch: fix FAQ answer not auto-opening from the link
+# Pawvy Website — Patch: robust CSS-based fix for FAQ auto-expand
 
-Applies on top of `KIENTAH7007/pawvy-website` @ `main` (after the
-sizing-guide-link patch). 2 files changed:
-`components/FaqAutoOpen.jsx`, `app/shop/[id]/page.js`. Build verified
-clean, including a full end-to-end test: cloned your real `main`
-fresh, applied this exact patch zip, ran `npm install && npm run
-build` from a cold start.
+Applies on top of `KIENTAH7007/pawvy-website` @ `main`. 3 files
+changed: `app/globals.css`, `app/shop/[id]/page.js`,
+`components/FaqAutoOpen.jsx`. Build verified clean, including a full
+end-to-end test (fresh clone of your real `main`, patch applied, cold
+build) — and I additionally confirmed the new CSS rule is actually
+present in the compiled output, not just the source file.
 
-## Being upfront about this one
+## What I found from fetching your live URL directly
 
-I don't have a way to reproduce the actual bug in my environment — the
-`/brands/salmoil` route needs a live call to your Pawvy App backend
-that isn't running in this sandbox, so I can't click through it myself
-the way you did. I first ruled out the most obvious suspect (a
-mismatched anchor id between the link and the FAQ item) by extracting
-both strings directly from the file and confirming they're byte-for-
-byte identical — that's not it.
+I fetched `salmoil-fish-oil-for-dogs#which-salmoil-size...` directly —
+the server-rendered content is 100% correct: both tables are there,
+the FAQ answers are exactly what they should be. So this was never a
+deploy or content problem. It's purely about what happens in the
+browser *after* the page loads.
 
-What's left points at a timing/race issue during Next.js's client-side
-navigation (clicking the link doesn't reload the page — Next swaps in
-the new page's content in place), specifically two things that can each
-independently cause exactly what you saw (link lands near the right
-spot, but the answer stays collapsed):
+## Why the previous JS-retry fix likely didn't work
 
-1. **The FAQ item's opening code ran too early.** My first version
-   checked for the target element exactly once, right when the
-   component mounted. On a full page reload this is reliable; on
-   Next's client-side navigation there can be a brief gap where the
-   component has mounted but the specific `<details>` element isn't
-   fully ready yet — the one-shot check can silently miss it and never
-   try again.
-2. **Next's own built-in "scroll to the hash" behavior** (a default
-   feature of `next/link` when the destination URL has a `#anchor`)
-   was running independently of ours, and could visually land the page
-   in a way that looked like nothing happened, even if our code
-   technically fired a moment later.
+Both of my previous attempts assumed the fix needed to be JavaScript
+that runs after the page loads and finds+opens the element. The
+problem with that whole approach: I was debugging blind (no way to
+reproduce Next.js's exact client-side navigation timing in my
+environment), so I was guessing at *which* timing issue, not fixing a
+confirmed one. Rather than try a third guess in the same direction, I
+switched to a fundamentally different mechanism that removes the
+timing question entirely.
 
-## What changed
+## The actual fix: CSS `:target`, not more JavaScript timing
 
-**`components/FaqAutoOpen.jsx`** — instead of a single check on mount,
-it now retries every 250ms for up to ~1.5 seconds (stopping early as
-soon as it succeeds), so a brief timing gap during client-side
-navigation no longer causes a silent miss.
+`:target` is a native CSS feature — the browser automatically applies
+it to whichever element's `id` matches the current URL's `#fragment`.
+Critically, this is **re-evaluated declaratively whenever the URL
+changes**, regardless of *how* it changed (full page load, or Next's
+client-side routing) — there's no mount timing, no "did my effect run
+before or after the element existed" question, because it isn't JS at
+all.
 
-**`app/shop/[id]/page.js`** — added `scroll={false}` to the sizing-guide
-link, so Next's own built-in scroll-to-hash behavior stands down
-entirely and only our code (which also opens the answer, not just
-scrolls to it) handles the landing.
+`app/globals.css`:
+```css
+.faq-item:target .faq-answer { display: block !important; }
+.faq-item:target .plus { transform: rotate(45deg); }
+.faq-item { ... scroll-margin-top: 110px; }
+```
+
+This forces the answer visible whenever that FAQ item is the URL's
+target — independent of whether the `<details>` element's `open`
+attribute is set by anything else. It cannot silently fail to fire the
+way a JS effect can.
+
+`components/FaqAutoOpen.jsx` — kept, but simplified. It still sets the
+real `open` attribute (so the item is also semantically/accessibly
+marked open, and stays open if the person browses elsewhere on the
+page afterward), but it's no longer load-bearing for *visibility* —
+that's now guaranteed by CSS regardless of whether this JS runs
+successfully. I also removed the scrolling code from it entirely.
+
+`app/shop/[id]/page.js` — removed `scroll={false}` from the sizing-
+guide link, so Next's own built-in scroll-to-hash behavior handles
+positioning again (that part was likely working fine before — I'd
+disabled it out of caution while debugging, not because I'd confirmed
+it was the problem).
 
 ## Git commands
 
@@ -55,17 +68,16 @@ git checkout main
 git pull origin main
 # unzip this patch on top ("Copy and Replace")
 git add -A
-git commit -m "Fix: FAQ answer not auto-opening from the sizing-guide link"
+git commit -m "Fix FAQ auto-expand with CSS :target instead of JS-only timing"
 git push origin main
 ```
 
 ## What to check live after deploy
 
-Same test as before — click "Not sure which size to get?" on a Salmoil
-product page, confirm it lands on `/brands/salmoil` with the sizing FAQ
-already **expanded**, not just scrolled to. If this specific fix
-doesn't fully resolve it, the next thing worth checking is whether it's
-consistent across browsers (Safari's `<details>`/`scrollIntoView`
-timing occasionally differs from Chrome) — let me know exactly what you
-see (does it still land at the FAQ section but collapsed, or does it
-land somewhere else now?) and I can narrow further from there.
+Same test as before. This time, even if scroll positioning is slightly
+off, the answer itself should show as expanded — that part no longer
+depends on JS timing at all, so if it's still collapsed after this, the
+next thing to check would be the actual anchor id in the page's HTML
+source (e.g. via "View Page Source" or DevTools) to make sure it
+matches the link's fragment exactly, which would point to something
+different than what I've been assuming.
