@@ -582,6 +582,24 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .faq-table td { color: rgba(245,242,235,.75); }
 .faq-table tr:last-child td { border-bottom: none; }
 
+/* CSS-only tab selector used inside Lillidale's feeding-guide FAQ answer
+   (lib/brandContent.js) — three radio inputs (visually hidden) + labels
+   styled as pill buttons, general-sibling selectors show only the panel
+   matching the checked radio. No JS. Radio #1 has `checked` in the raw
+   HTML, so ProHealth is the default panel shown. Scoped under .feed-tabs
+   so nothing here leaks into unrelated FAQ answers. */
+.feed-tabs input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
+.feed-tabs-nav { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.feed-tabs-nav label { padding: 8px 16px; border-radius: 999px; border: 1px solid rgba(245,242,235,.2); font-size: 13.5px; font-weight: 700; color: rgba(245,242,235,.75); cursor: pointer; transition: background .15s, color .15s, border-color .15s; user-select: none; }
+.feed-tabs-nav label:hover { border-color: rgba(245,242,235,.4); }
+.feed-panel { display: none; }
+#feed-tab-prohealth:checked ~ .feed-panel[data-panel="prohealth"],
+#feed-tab-projoint:checked ~ .feed-panel[data-panel="projoint"],
+#feed-tab-plaqueguard:checked ~ .feed-panel[data-panel="plaqueguard"] { display: block; }
+#feed-tab-prohealth:checked ~ .feed-tabs-nav label[for="feed-tab-prohealth"],
+#feed-tab-projoint:checked ~ .feed-tabs-nav label[for="feed-tab-projoint"],
+#feed-tab-plaqueguard:checked ~ .feed-tabs-nav label[for="feed-tab-plaqueguard"] { background: var(--orange); border-color: var(--orange); color: var(--navy); }
+
 .cta-band { padding: 90px 0; background: var(--navy); text-align: center; }
 /* Used on brand pages only, via the extra class on that page's CTA band —
    without it, the page ends FAQ (navy) -> CTA (navy) -> Footer (navy),
