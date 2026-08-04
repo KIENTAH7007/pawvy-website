@@ -562,7 +562,15 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .faq-item .plus::before { width: 11px; height: 2px; }
 .faq-item .plus::after { width: 2px; height: 11px; }
 .faq-item[open] .plus { transform: rotate(45deg); }
-.faq-item p { margin-top: 16px; font-size: 15.5px; color: rgba(245,242,235,.7); line-height: 1.75; max-width: 680px; }
+.faq-item .faq-answer { margin-top: 16px; font-size: 15.5px; color: rgba(245,242,235,.7); line-height: 1.75; max-width: 680px; }
+.faq-item .faq-answer p { margin: 0 0 12px; }
+.faq-item .faq-answer p:last-child { margin-bottom: 0; }
+.faq-table-wrap { overflow-x: auto; margin: 6px 0 14px; -webkit-overflow-scrolling: touch; }
+.faq-table { border-collapse: collapse; width: 100%; min-width: 420px; font-size: 14px; }
+.faq-table th, .faq-table td { padding: 9px 14px; text-align: left; border-bottom: 1px solid rgba(245,242,235,.14); white-space: nowrap; }
+.faq-table th { color: var(--cream); font-weight: 800; font-size: 12.5px; letter-spacing: .3px; text-transform: uppercase; }
+.faq-table td { color: rgba(245,242,235,.75); }
+.faq-table tr:last-child td { border-bottom: none; }
 
 .cta-band { padding: 90px 0; background: var(--navy); text-align: center; }
 /* Used on brand pages only, via the extra class on that page's CTA band —

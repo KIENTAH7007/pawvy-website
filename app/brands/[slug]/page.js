@@ -69,7 +69,12 @@ export default async function BrandPage({ params }) {
               {content.faqs.map(([q, a]) => (
                 <details className="faq-item" key={q}>
                   <summary>{q}<span className="plus" /></summary>
-                  <p>{a}</p>
+                  {/* FAQ answers are first-party authored content (not user
+                      input), so a small set of them use real HTML — mainly
+                      tables, where a table is genuinely easier to scan than
+                      a paragraph (e.g. dosage-by-weight guides). Plain-text
+                      answers render exactly the same either way. */}
+                  <div className="faq-answer" dangerouslySetInnerHTML={{ __html: a }} />
                 </details>
               ))}
             </div>

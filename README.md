@@ -1,44 +1,56 @@
-# Pawvy Website — Patch: real Salmoil dosage/size FAQ answers
+# Pawvy Website — Patch: table-format Salmoil dosage/size FAQ answers
 
-Applies on top of `KIENTAH7007/pawvy-website` @ `main` (after the
-testimonial carousel patch). One file changed: `lib/brandContent.js`.
-Build verified clean.
+Applies on top of `KIENTAH7007/pawvy-website` @ `main`. Three files
+changed: `lib/brandContent.js`, `app/globals.css`,
+`app/brands/[slug]/page.js`. Build verified clean — including a full
+end-to-end test: cloned your real `main` fresh, applied this exact
+patch zip on top, ran `npm install && npm run build` from scratch. Not
+just checked against my working copy.
 
 ## What changed
 
-On the Salmoil brand page (`/brands/salmoil`), FAQ section:
+You asked for the two dosage/size FAQ answers to render as tables
+instead of paragraphs — easier to scan and refer back to. That needed
+one structural change plus the content itself:
 
-- **"How much Salmoil should I give my dog?"** — was a generic
-  "depends on weight, check the label" placeholder. Replaced with your
-  actual dosage-by-weight numbers (1 tsp @ 5kg up to 3.5 tsp @ 30kg,
-  flat 1 tsp for cats).
-- **New FAQ added**: "Which Salmoil size should I get — 150ml, 250ml,
-  or 500ml?" — answers using your "finish within 2–3 months once
-  opened" guidance, translated into which size fits which pet weight.
+**`app/brands/[slug]/page.js`** — FAQ answers now render as real HTML
+(`dangerouslySetInnerHTML`) instead of plain text. This is safe here
+because FAQ answers are first-party content you and I write, never
+user input — there's no injection risk. Plain-text answers (every other
+FAQ on every other brand page) render identically either way, since
+plain text is valid HTML with no tags. I checked every existing FAQ
+answer across all brands for stray `<`/`&` characters that could break
+under this change — none found.
 
-## Why this lives here, not in each product's Description field
+**`lib/brandContent.js`** — the two dosage FAQs on the Salmoil page are
+now real `<table>` markup:
+- "How much Salmoil should I give my dog?" — pet weight → daily dose
+- "Which Salmoil size should I get?" — bottle size × pet weight → how
+  many days it lasts, plus a one-line takeaway on which size to pick
 
-The dosage/size guide applies identically across all 6 recipes and all
-18 SKUs — it's about the pet's weight, not which recipe they're on.
-Pasting the same guide into 18 separate product descriptions would
-create heavy duplicate content across those pages, which works against
-the SEO goal of this whole project (search engines de-value near-
-identical pages). The brand page's FAQ section is genuinely shared
-content that already existed for exactly this kind of question — so
-this fixes a placeholder that was already there rather than adding new
-surface area.
+**`app/globals.css`** — added `.faq-table` styling matching the FAQ
+section's dark navy palette, and made it horizontally scrollable on
+narrow screens (the size table has 6 columns, which won't fit on a
+phone at readable font size — it scrolls instead of squishing).
 
-## A separate thing I noticed while in this file — not touched, just flagging
+## How this was verified (no live backend in my environment)
 
-The Salmoil recipe selector on this same page only lists 5 recipes
-(Kidney, Gut, Dental/Odor Control, Coat, Joint) — Recipe 3 (100% Vegan /
-Linseaoil) isn't in there at all, and doesn't have a
-`selector-vegan.jpg` image prepared. This looks like it was built
-before Recipe 3 existed in the real catalog, or the image was never
-supplied. Your database has all 6 recipes confirmed (SR1–SR6, 3 sizes
-each), so this is a real gap — just out of scope for this patch since
-it needs a new photo from you first. Let me know if you want this
-added; it's a small change once I have the image.
+`/brands/salmoil` needs a live API call to your Pawvy App backend to
+resolve the brand and its products — not available in my sandbox. So
+instead of guessing, I verified two ways:
+1. Extracted the two new table strings directly from the file and
+   confirmed every HTML tag is properly opened and closed (7 rows / 2
+   columns for the dosage table, 4 rows / 6 columns for the size
+   table — both balanced).
+2. A full clone-patch-build end-to-end test: cloned your actual `main`
+   fresh into a scratch folder, applied this exact patch zip on top,
+   ran `npm install && npm run build` from a cold start — clean, no
+   errors. This catches any JS syntax errors the table strings might
+   have introduced (none did).
+
+I'd still ask for a real click-through after deploy, same as always,
+since balanced tags don't guarantee it *looks* right — just that it
+won't crash.
 
 ## Git commands
 
@@ -47,12 +59,12 @@ git checkout main
 git pull origin main
 # unzip this patch on top ("Copy and Replace")
 git add -A
-git commit -m "Salmoil brand page: real dosage/size FAQ answers"
+git commit -m "Salmoil FAQ: table-format dosage and size guides"
 git push origin main
 ```
 
 ## What to check live after deploy
 
-Visit `/brands/salmoil`, scroll to the FAQ section, expand "How much
-Salmoil should I give my dog?" and the new sizing question — confirm
-the numbers read correctly.
+Visit `/brands/salmoil`, expand both dosage FAQs, confirm both tables
+render cleanly on desktop and on a narrow phone screen (the 6-column
+size table should scroll sideways rather than break the layout).
