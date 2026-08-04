@@ -2,8 +2,9 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { shopApi } from '../../../lib/api';
 import { brandNameFromSlug, BRAND_SLUGS, BRAND_HERO_PHOTOS, displayBrandName } from '../../../lib/brandSlugs';
-import { BRAND_CONTENT } from '../../../lib/brandContent';
+import { BRAND_CONTENT, faqSlug } from '../../../lib/brandContent';
 import BrandDeepDive from '../../../components/BrandDeepDive';
+import FaqAutoOpen from '../../../components/FaqAutoOpen';
 
 export async function generateStaticParams() {
   return Object.values(BRAND_SLUGS).map(slug => ({ slug }));
@@ -66,8 +67,9 @@ export default async function BrandPage({ params }) {
               <h2>{displayBrandName(brandName)} FAQ</h2>
             </div>
             <div className="faq-list">
+              <FaqAutoOpen />
               {content.faqs.map(([q, a]) => (
-                <details className="faq-item" key={q}>
+                <details className="faq-item" id={faqSlug(q)} key={q}>
                   <summary>{q}<span className="plus" /></summary>
                   {/* FAQ answers are first-party authored content (not user
                       input), so a small set of them use real HTML — mainly

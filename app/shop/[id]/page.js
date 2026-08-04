@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { shopApi } from '../../../lib/api';
-import { displayBrandName } from '../../../lib/brandSlugs';
+import { displayBrandName, brandSlug } from '../../../lib/brandSlugs';
+import { BRAND_CONTENT, faqSlug } from '../../../lib/brandContent';
 import AddToCartSection from '../../../components/AddToCartSection';
 
 // generateMetadata runs server-side per request — this is what actually
@@ -65,6 +66,15 @@ export default async function ProductPage({ params }) {
               <div className="label">Description</div>
               <p>{product.description}</p>
             </div>
+          )}
+
+          {BRAND_CONTENT[product.brand_name]?.sizeGuideFaqQuestion && (
+            <Link
+              href={`/brands/${brandSlug(product.brand_name)}#${faqSlug(BRAND_CONTENT[product.brand_name].sizeGuideFaqQuestion)}`}
+              className="size-guide-link"
+            >
+              Not sure which size to get? See our sizing guide →
+            </Link>
           )}
         </div>
       </div>
