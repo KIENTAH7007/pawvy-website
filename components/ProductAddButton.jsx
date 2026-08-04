@@ -33,7 +33,7 @@
 // visibly jump to the true screen-centered position the instant the mouse
 // left the card (that transform-triggered containing block disappearing).
 // Portaling to body sidesteps this entirely.
-import { useState, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useCart } from '../lib/CartContext';
 import QtyStepper from './QtyStepper';
@@ -97,7 +97,7 @@ function Portal({ children }) {
   return createPortal(children, document.body);
 }
 
-const ProductAddButton = forwardRef(function ProductAddButton({ products, productLabel, variants, seriesIncludes, seriesExcludes, variationIncludes }, ref) {
+export default function ProductAddButton({ products, productLabel, variants, seriesIncludes, seriesExcludes, variationIncludes }) {
   const { addItem } = useCart();
   const isDynamic = !variants;
 
@@ -146,6 +146,9 @@ const ProductAddButton = forwardRef(function ProductAddButton({ products, produc
   const dynamicAvailable = parsed.filter(x => x.product.stock_status !== 'out_of_stock');
 
   const noOptionsAtAll = isDynamic ? parsed.length === 0 : options.every(o => !o.product);
+  if (noOptionsAtAll) {
+    return <button type="button" className="fit-add-btn" disabled title="Couldn't find a matching product in the catalog">Unavailable</button>;
+  }
 
   const single = isDynamic
     ? parsed.length === 1 && dynamicAvailable.length === 1
@@ -157,13 +160,12 @@ const ProductAddButton = forwardRef(function ProductAddButton({ products, produc
     setTimeout(() => setStatus(null), 1800);
   }
 
-  // Sets up which variant is pre-selected when the modal opens — shared by
-  // the quick-add button's modal path (multi-variant products) and by
-  // openInfo() below (which opens the modal unconditionally, including for
-  // single-variant products, so the card itself can always show a
-  // description on click without changing the button's own fast-add
-  // behavior for the common case).
-  function prepareSelection() {
+  function handleAddClick(e) {
+    e.preventDefault();
+    if (single) {
+      addNow(isDynamic ? dynamicAvailable[0].product : explicitAvailable[0].product);
+      return;
+    }
     setQty(1);
     if (isDynamic) {
       const first = dynamicAvailable[0] || parsed[0];
@@ -176,30 +178,8 @@ const ProductAddButton = forwardRef(function ProductAddButton({ products, produc
       const defaultIdx = options.findIndex(o => o.default && o.product && o.product.stock_status !== 'out_of_stock');
       setSelected(defaultIdx >= 0 ? defaultIdx : options.findIndex(o => o.product && o.product.stock_status !== 'out_of_stock'));
     }
-  }
-
-  function handleAddClick(e) {
-    e.preventDefault();
-    e.stopPropagation(); // don't also trigger a wrapping card's openInfo() click handler
-    if (single) {
-      addNow(isDynamic ? dynamicAvailable[0].product : explicitAvailable[0].product);
-      return;
-    }
-    prepareSelection();
     setModalOpen(true);
   }
-
-  // Exposed so parent card markup can open the info/variant modal from a
-  // click anywhere on the card (image, title, etc.) — separate from the
-  // Add to Cart button itself, which keeps its existing instant-add
-  // behavior for single-variant products untouched.
-  useImperativeHandle(ref, () => ({
-    openInfo() {
-      if (noOptionsAtAll) return;
-      prepareSelection();
-      setModalOpen(true);
-    },
-  }));
 
   function handleConfirmAdd() {
     const chosen = isDynamic ? currentDynamic : options[selected];
@@ -210,10 +190,6 @@ const ProductAddButton = forwardRef(function ProductAddButton({ products, produc
 
   const noStockAtAll = isDynamic ? dynamicAvailable.length === 0 : explicitAvailable.length === 0;
   const current = isDynamic ? currentDynamic : options[selected];
-
-  if (noOptionsAtAll) {
-    return <button type="button" className="fit-add-btn" disabled title="Couldn't find a matching product in the catalog">Unavailable</button>;
-  }
 
   return (
     <>
@@ -238,10 +214,6 @@ const ProductAddButton = forwardRef(function ProductAddButton({ products, produc
                   ? <img src={current.forceImage ? current.image : (current.product?.image_data || current.image)} alt={productLabel} />
                   : <div className="img-placeholder" style={{ width: '100%', height: '100%' }}><span>No photo</span></div>}
               </div>
-
-              {current?.product?.description && (
-                <p className="fit-modal-description">{current.product.description}</p>
-              )}
 
               {isDynamic ? (
                 <div className="fit-modal-selects">
@@ -304,6 +276,4 @@ const ProductAddButton = forwardRef(function ProductAddButton({ products, produc
       )}
     </>
   );
-});
-
-export default ProductAddButton;
+}

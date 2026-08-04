@@ -17,7 +17,7 @@
 // appearing elsewhere in the same string). Not confirmed against a real
 // Pawvy App screenshot of GiGwi's actual item_series format — flagged in
 // the README, needs a real click-through per category after deploy.
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import ProductAddButton from './ProductAddButton';
 
 function matchByPrefix(products, prefix) {
@@ -62,27 +62,24 @@ function GiGwiCard({ card, products }) {
   const prices = matches.filter(Boolean).map(m => m.effective_price_rrp_sg);
   const minPrice = prices.length ? Math.min(...prices) : null;
 
-  const btnRef = useRef(null);
-  const openInfo = () => btnRef.current?.openInfo();
-
   return (
     <div className="product-card">
       <div className="card-tags">
         <span className="brand-tag">GiGwi</span>
       </div>
-      <div className="thumb" onClick={openInfo} style={{ cursor: 'pointer' }}>
+      <div className="thumb">
         {coverMatch?.image_data
           ? <img src={coverMatch.image_data} alt={card.name} />
           : <span className="no-img">No image</span>}
       </div>
-      <div className="info" onClick={openInfo} style={{ cursor: 'pointer' }}>
+      <div className="info">
         <h3>{card.name}</h3>
         <div className="price">
           {minPrice != null ? (variants.length > 1 ? `From $${minPrice.toFixed(2)}` : `$${minPrice.toFixed(2)}`) : ''}
         </div>
       </div>
       <div className="info" style={{ paddingTop: 0 }}>
-        <ProductAddButton ref={btnRef} products={products} productLabel={card.name} variants={variants.map(v => ({ label: v.label, seriesIncludes: v.skuPrefix }))} />
+        <ProductAddButton products={products} productLabel={card.name} variants={variants.map(v => ({ label: v.label, seriesIncludes: v.skuPrefix }))} />
       </div>
     </div>
   );
