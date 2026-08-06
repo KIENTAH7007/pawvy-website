@@ -48,10 +48,10 @@ export default async function BrandPage({ params }) {
           </Link>
           <h1>{displayBrandName(brandName)}</h1>
           {content.tagline && <p className="tag">{content.tagline}</p>}
-          <p className="desc">{content.description}</p>
+          {content.description && <p className="desc">{content.description}</p>}
           <div className="subhero-actions">
-            <a href="#enquiry-cta" className="btn btn-orange"><span>Ask about {displayBrandName(brandName)}</span></a>
-            <Link href="/stockist" className="btn btn-outline-light"><span>Find a stockist</span></Link>
+            <a href="#shop" className="btn btn-orange"><span>Shop now</span></a>
+            <a href="#faq" className="btn btn-outline-light"><span>FAQ</span></a>
           </div>
         </div>
       </section>
