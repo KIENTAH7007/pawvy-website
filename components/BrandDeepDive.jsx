@@ -24,6 +24,7 @@ import { Fragment } from 'react';
 import ProductAddButton from './ProductAddButton';
 import RecipeSelector from './RecipeSelector';
 import CategoryBrowser from './CategoryBrowser';
+import FitCard from './FitCard';
 
 function ImageSlot({ image, alt, hint, className }) {
   if (image) return <img src={image} alt={alt} className={className} />;
@@ -311,17 +312,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
             </div>
             <div className="pf-fit-grid">
               {fitCards.items.map(item => (
-                <div className="pf-fit-card" key={item.name}>
-                  <ImageSlot image={item.variants[0].image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
-                  <div className="pf-fit-info">
-                    <h3>{item.name}</h3>
-                    <div className="fit-for">{item.fitFor}</div>
-                    <div className="pf-swatches">
-                      {item.variants.map(v => <span key={v.label} className="pf-swatch" style={{ background: v.hex }} title={v.label} />)}
-                    </div>
-                    <ProductAddButton products={products} productLabel={item.name} variants={item.variants} />
-                  </div>
-                </div>
+                <FitCard item={item} products={products} key={item.name} />
               ))}
             </div>
           </div>
