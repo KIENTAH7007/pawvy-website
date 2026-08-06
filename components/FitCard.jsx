@@ -28,6 +28,15 @@ function ImageSlot({ image, alt, hint, className }) {
 // FitCard import in components/BrandDeepDive.jsx. Exact same classNames
 // and DOM structure as before this feature existed, just wrapped with
 // state, so no layout/CSS changes were needed alongside this.
+//
+// halfPack (new): a variant flagged `halfPack: true` renders as a
+// half-filled circle (solid color on one side, the card's own cream
+// background showing through the other, via a hard-stop CSS gradient)
+// instead of a plain solid dot — KT's Option B for visually
+// distinguishing a "half" size (e.g. Pollack 60g) from the full size
+// (125g) sharing the same base color, rather than the two looking
+// identical. No new shape/asset needed, and it still shows the
+// variant's real color, just half of it.
 export default function FitCard({ item, products }) {
   const defaultIndex = Math.max(item.variants.findIndex(v => v.default), 0);
   const [hoverIndex, setHoverIndex] = useState(null);
@@ -44,9 +53,11 @@ export default function FitCard({ item, products }) {
           {item.variants.map((v, i) => (
             <span
               key={v.label}
-              className="pf-swatch"
-              style={{ background: v.hex }}
-              title={v.label}
+              className={`pf-swatch${v.halfPack ? ' pf-swatch-half' : ''}`}
+              style={v.halfPack
+                ? { background: `linear-gradient(90deg, ${v.hex} 50%, transparent 50%)` }
+                : { background: v.hex }}
+              title={v.halfPack ? `${v.label} (smaller pack)` : v.label}
               onMouseEnter={() => setHoverIndex(i)}
               onMouseLeave={() => setHoverIndex(null)}
             />

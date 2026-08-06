@@ -523,6 +523,7 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .pf-swatches { display: flex; gap: 8px; align-items: center; margin-bottom: 18px; }
 .pf-swatch { width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(255,255,255,.8); box-shadow: 0 0 0 1px rgba(20,33,61,.12); cursor: pointer; transition: transform .15s ease; }
 .pf-swatch:hover { transform: scale(1.25); }
+.pf-swatch-half { box-shadow: 0 0 0 1px rgba(20,33,61,.28); } /* slightly stronger outline than the plain .pf-swatch, since half the fill is transparent and needs a touch more definition to still read clearly as a selectable dot */
 .pf-tags { display: flex; gap: 7px; flex-wrap: wrap; }
 .pf-tag { font-size: 11.5px; font-weight: 600; color: var(--navy); background: rgba(20,33,61,.06); border: 1px solid rgba(20,33,61,.1); padding: 5px 11px; border-radius: 100px; }
 

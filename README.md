@@ -1,93 +1,82 @@
-# Janice's wording feedback — Eastsea Brother page (7 items) + site-wide font-weight sweep
+# Eastsea Brother — swatch hex colors + half-pack design (Option B)
 
-## What changed (3 files)
+**Note**: this delivery is fully self-contained (complete files, not a
+patch) — if you've already applied the earlier Eastsea Brother
+delivery (font-weight sweep, Pollack Stick split, etc.), re-applying
+this one is harmless; it just adds the two things below on top. If you
+haven't applied that one yet, this single zip has everything.
 
-### `lib/brandContent.js`
+## What changed (4 files)
 
-**Items 1, 2, 3, 7** — straightforward text updates: hero description
-clause removed, intro body clause removed, fitCards subtitle replaced,
-all 4 old FAQs replaced with your 3 new ones. One small fix flagged:
-your shelf-life answer said "the freeze-dried treats **is**
-shelf-stable" — corrected to "**are**" (subject-verb agreement).
+### 1. `lib/brandContent.js`
+- **Swatch hex colors** updated to your exact values: Pollack
+  `#6FA6C9`, Salmon `#F1ABB5`, Flatfish `#F1BD83`, Capelin `#02A88F`,
+  Sandlance `#B683C6`, Pollack Stick `#DBBE55`, Green Lipped Mussels
+  `#314249`. Every size variant within one fish keeps that fish's
+  color (a size isn't a different color) — verified each card's
+  variants all share exactly one hex.
+- **`halfPack: true` flag** added to the three smaller-size variants:
+  Pollack 60g, Salmon 55g, Flatfish 55g. This is what the new visual
+  treatment (below) hooks into. Their full-size siblings (125g/120g/
+  110g) are untouched.
 
-**Item 4** — swatch colors. Rather than picking arbitrary colors, I
-reused the **exact same palette already established** in the "Which
-Fish For Your Furkid?" section just above this one on the same page:
-White Fish `#E8CE85` (Pollack, Flatfish, Pollack Stick), Red Fish
-`#E8916E` (Salmon), Whole Fish `#7FB0AA` (Capelin, Sandlance). Green
-Lipped Mussels doesn't belong to any of those three existing
-categories, so it gets its own new color (`#8DA47E`, a sage green)
-rather than borrowing one that would misleadingly suggest it's grouped
-with a category it isn't part of. Every size variant within one fish
-keeps that fish's color — a size isn't a different color, so there was
-no reason to vary it further within a card.
+### 2. `components/FitCard.jsx` — Option B implemented
+Any variant flagged `halfPack: true` now renders as a **half-filled
+circle** instead of a plain solid dot — the same color as its
+full-size sibling, just half of it, with the card's own cream
+background showing through the other half via a hard-stop CSS
+gradient. No new image/asset needed, purely CSS.
 
-**Item 5** — Pollack Stick split into its own standalone card,
-positioned after Sandlance and before Green Lipped Mussels as
-requested. Pollack's card is now "2 sizes" instead of "3", and the
-`seriesExcludes: ['Stick']` guard on its remaining two variants is no
-longer needed (there's no Stick variant left in that card to
-accidentally match against) so I removed it — one less thing for a
-future edit to trip over. The new Pollack Stick card matches the exact
-same real backend data it always did (`seriesIncludes: 'Pollack'`,
-`variationIncludes: 'Stick'`), so nothing about which real product it
-points to changed, only where it's displayed.
+This component is shared with Puzzle Feeder (both brands use the same
+"Find the one" card shape) — Puzzle Feeder's variants never set
+`halfPack`, so nothing changes there; confirmed this directly rather
+than assuming.
 
-### `app/globals.css` + `app/cart/page.js`
+### 3. `app/globals.css`
+New `.pf-swatch-half` rule — a very slightly stronger outline than the
+plain swatch, since half the fill is transparent and needed a touch
+more definition to still read clearly as a selectable dot. Also
+contains the earlier font-weight 800→600 sweep from the previous
+delivery, unchanged.
 
-**Item 6 + your follow-up ask** — the nav bar's font-weight was 800;
-dropped to 600, same as you decided for the FAQ questions earlier.
-Since you also asked me to check the *entire* site for any other
-`font-weight: 800` and bring all of them down to 600 too: I found
-**39 occurrences in `globals.css`** (everything from card titles and
-badges to buttons, tags, table headers, form labels — the full list is
-in my conversation reply, not repeated here) plus **2 inline instances
-in `app/cart/page.js`** (the checkout customer-name display and the
-"🔥 Popular right now" heading). All 41 are now 600. Nothing else was
-touched — I specifically searched for the literal string
-"font-weight: 800" / "fontWeight: 800" so this didn't accidentally
-touch unrelated numbers (e.g. `max-width: 800px` on the subhero, which
-I confirmed by hand is still untouched, or the Google Fonts `@import`
-line which lists 800 as a downloadable weight variant but isn't an
-applied style anywhere anymore — left as-is since removing it wasn't
-part of what you asked and it's harmless either way).
+### 4. `app/cart/page.js`
+Unchanged from what's already deployed (confirmed via a fresh clone
+diff) — included for a fully self-contained delivery, this file is a
+no-op if applied.
 
 ## Verified
 - `npm run build` — passes clean, both locally and from a genuine
   fresh cold-clone simulation.
-- Real checks against the actual data: confirmed all 4 text items
-  match exactly, confirmed the FAQ array (3 entries, grammar fix
-  applied), confirmed every swatch color assignment matches the
-  reasoning above and genuinely matches the fishGroups palette values
-  (not just visually similar — checked the literal hex strings are
-  identical).
-- **Item 5 specifically verified**: Pollack now has exactly 2
-  variants, Pollack Stick is a new standalone card in the exact
-  requested position, and its matching data (`seriesIncludes`/
-  `variationIncludes`) — the actual link to the real product in your
-  database — is byte-identical to what it was before the split, so
-  Add to Cart still finds the same real product.
-- **Font-weight sweep verified exhaustively**: grepped the entire
-  codebase (excluding `node_modules` and build artifacts) for every
-  spelling variant of `font-weight: 800` after the change — zero
-  remaining. Also manually confirmed the two things that legitimately
-  still contain the digits "800" are unrelated (an unrelated
-  `max-width: 800px`, and the font-loader import) rather than missed
-  instances.
+- Real checks against the actual data: confirmed the `halfPack` flag
+  sits on exactly the right 3 variants (not their full-size siblings,
+  not any of the single-variant cards like Capelin/Sandlance/Pollack
+  Stick/Green Lipped Mussels, which have no "half" concept at all),
+  confirmed each half-pack variant's hex still matches its full-size
+  sibling exactly (same fish = same color, just half-rendered),
+  confirmed the real backend matching fields (`seriesIncludes` etc.)
+  on those variants are untouched by this change.
+- Confirmed Puzzle Feeder's cards (sharing the same `FitCard.jsx`
+  component) are entirely unaffected — no variant there has `halfPack`
+  set, so the conditional class/style logic evaluates to exactly the
+  same plain swatch as before.
+- Re-ran the core data checks against a genuine fresh `git clone` with
+  this delivery applied, not just my working copy — all pass there
+  too, and confirmed the earlier hex-color and Pollack Stick changes
+  are still present alongside the new half-pack ones.
 
 ## Not yet verified
-No live browser access from this sandbox — worth a visual pass on the
-new Pollack Stick card's placement/spacing in the grid, and on how the
-whole site reads now that so many elements dropped from 800 to 600 at
-once (this was a genuinely wide-reaching change — 41 elements across
-nav, buttons, cards, badges, forms, tables) to confirm nothing feels
-*too* light now that it's applied everywhere at once, not just in the
-one or two places we tested it first.
+No live browser access from this sandbox — worth a visual check once
+deployed to confirm the half-circle swatches read clearly at their
+small size (18px) and look like an intentional design choice rather
+than a rendering glitch, especially on the lighter colors (Pollack's
+blue, Flatfish's orange) where the transparent half might be less
+obviously "cut off" than on the darker Green Lipped Mussels color (not
+that this one needs the treatment, single-variant card).
 
 ## To apply
 1. `git checkout main`
 2. `git pull origin main`
 3. Unzip this delivery on top of your local `pawvy-website` folder
 4. `git add -A`
-5. `git commit -m "Janice feedback: Eastsea Brother page (7 items) + site-wide font-weight 800 to 600"`
+5. `git commit -m "Eastsea Brother: swatch hex colors + half-pack half-circle design"`
 6. `git push origin main`
