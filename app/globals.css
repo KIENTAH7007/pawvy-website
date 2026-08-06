@@ -355,7 +355,7 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
 .instagram p.sub { color: var(--dark-gray); margin-bottom: 50px; }
 .instagram p.sub a { color: var(--orange); font-weight: 800; }
 .ig-embed-wrap { margin-top: 40px; }
-.ig-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 16px; }
+.ig-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
 @media (max-width: 1100px) { .ig-grid { grid-template-columns: repeat(3,1fr); } }
 @media (max-width: 640px) { .ig-grid { grid-template-columns: repeat(2,1fr); } }
 @media (max-width: 420px) { .ig-grid { grid-template-columns: 1fr; } }
