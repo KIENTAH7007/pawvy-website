@@ -69,7 +69,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                   <div className="lil-pillar-body">
                     <h3>{p.heading}</h3>
                     <p>{p.body}</p>
-                    <span className="lil-pillar-link">Jump to {p.heading.toLowerCase()} ↓</span>
+                    <span className="lil-pillar-link">Shop {p.heading} ↓</span>
                   </div>
                 </a>
               ))}
@@ -98,6 +98,13 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                     </div>
                   </div>
                   <div className="lil-ba-body">
+                    {item.productImages && item.productImages.length > 0 && (
+                      <div className="lil-ba-product-thumbs">
+                        {item.productImages.map((img, i) => (
+                          <ImageSlot key={i} image={img} alt={item.product} hint={item.product} className="lil-ba-product-thumb" />
+                        ))}
+                      </div>
+                    )}
                     <div className="lil-ba-product">{item.product}</div>
                     <h3>{item.title}</h3>
                     <div className="lil-ba-label">{item.beforeLabel}</div>
