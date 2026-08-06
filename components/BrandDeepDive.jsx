@@ -57,17 +57,6 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
 
   return (
     <>
-      {/* Invisible scroll target for the hero's "Shop now" button
-          (app/brands/[slug]/page.js). Deliberately NOT placed on any of
-          the section-specific anchors below (durability/fitCards/etc.) —
-          those already carry their own semantic ids that other things
-          link to (e.g. Lillidale's pillar nav links to #supplements,
-          not #shop), and brands differ in which section shape they use.
-          A dedicated zero-height anchor at the very top of the deep-dive
-          block, right after the hero, works identically for all 6 brands
-          without touching any existing anchor. */}
-      <div id="shop" style={{ height: 0 }} aria-hidden="true" />
-
       {pillars && (
         <section className="lil-pillars">
           <div className="wrap">
@@ -141,7 +130,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
       )}
 
       {durability && (
-        <section className="durability">
+        <section className="durability" id="shop">
           <div className="wrap">
             <div className="durability-head">
               <div className="eyebrow center">{durability.eyebrow}</div>
@@ -306,7 +295,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
       )}
 
       {fitCards && (
-        <section className="pf-fit">
+        <section className="pf-fit" id="shop">
           <div className="wrap">
             <div className="pf-fit-head">
               <div className="eyebrow center">{fitCards.eyebrow}</div>
@@ -330,6 +319,15 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
             </div>
           </div>
         </section>
+      )}
+      {/* Invisible marker for the hero's "Shop now" button — placed
+          right before the first real product grid (not on it, since
+          fitCardGroups[0]'s own id is already used by other on-page
+          navigation, e.g. Lillidale's pillar nav links to #supplements).
+          Zero height, so it doesn't add visible space; the browser still
+          scrolls to right where the actual Add to Cart cards begin. */}
+      {fitCardGroups && fitCardGroups.length > 0 && (
+        <div id="shop" style={{ height: 0 }} aria-hidden="true" />
       )}
       {fitCardGroups && fitCardGroups.map(group => (
         <section className={`pf-fit lil-fit-group${group.alt ? ' alt' : ''}`} id={group.anchor} key={group.anchor}>

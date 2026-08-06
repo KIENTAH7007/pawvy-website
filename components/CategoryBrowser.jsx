@@ -103,7 +103,7 @@ export default function CategoryBrowser({ browser, products }) {
   const activeCards = orderedByTab[activeTab] || [];
 
   return (
-    <section className="gigwi-browser">
+    <section className="gigwi-browser" id="shop">
       <div className="wrap">
         <div className="gigwi-browser-head">
           <div className="eyebrow center">{browser.eyebrow}</div>
