@@ -355,10 +355,13 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
 .instagram p.sub { color: var(--dark-gray); margin-bottom: 50px; }
 .instagram p.sub a { color: var(--orange); font-weight: 800; }
 .ig-embed-wrap { margin-top: 40px; }
-.ig-embed-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
-@media (max-width: 900px) { .ig-embed-grid { grid-template-columns: repeat(2,1fr); } }
-@media (max-width: 560px) { .ig-embed-grid { grid-template-columns: 1fr; } }
-.ig-embed-grid .instagram-media { border-radius: 20px !important; }
+.ig-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 16px; }
+@media (max-width: 1100px) { .ig-grid { grid-template-columns: repeat(3,1fr); } }
+@media (max-width: 640px) { .ig-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 420px) { .ig-grid { grid-template-columns: 1fr; } }
+.ig-grid-item { display: block; aspect-ratio: 1 / 1; border-radius: 16px; overflow: hidden; }
+.ig-grid-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .35s ease; }
+.ig-grid-item:hover img { transform: scale(1.06); }
 
 /* ---------- Enquiry / Contact ---------- */
 .enquiry { padding: 110px 0; background: var(--ivory); }

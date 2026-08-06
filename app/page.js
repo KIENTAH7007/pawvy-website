@@ -30,7 +30,7 @@ export default async function Home() {
   const ticker = await contentApi.ticker().catch(() => null);
   const facts = ticker?.messages?.length ? ticker.messages : FACTS_FALLBACK;
   const igPosts = await contentApi.instagramPosts().catch(() => null);
-  const igUrls = igPosts?.urls || [];
+  const igItems = igPosts?.items || [];
 
   return (
     <>
@@ -148,9 +148,9 @@ export default async function Home() {
           <Reveal as="div" className="eyebrow center">Social media</Reveal>
           <h2>Instagram</h2>
           <p className="sub">Follow us at <a href="https://instagram.com/pawvy_sg" target="_blank" rel="noopener noreferrer">Pawvy_SG</a> to discover new products, exciting updates, and care tips for your pets.</p>
-          {igUrls.length > 0 ? (
+          {igItems.length > 0 ? (
             <Reveal as="div" className="ig-embed-wrap">
-              <InstagramGrid urls={igUrls} />
+              <InstagramGrid items={igItems} />
             </Reveal>
           ) : (
             <a href="https://instagram.com/pawvy_sg" target="_blank" rel="noopener noreferrer" className="btn btn-outline-dark" style={{ marginTop: 32 }}>

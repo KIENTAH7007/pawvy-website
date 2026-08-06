@@ -1,54 +1,33 @@
-'use client';
-
-import { useEffect, useRef } from 'react';
-
-// Renders each URL as Instagram's own official embed (the same thing
-// Instagram itself gives you from a post's "..." -> Embed option) rather
-// than a third-party feed widget. Each post loads live, directly from
-// Instagram, whenever the page renders - no separate caching/refresh step,
-// and KT controls exactly which posts show by managing the URL list from
-// the Pawvy App's Marketing page.
-export default function InstagramGrid({ urls }) {
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    if (!urls?.length) return;
-
-    function process() {
-      if (window.instgrm?.Embeds) window.instgrm.Embeds.process();
-    }
-
-    if (window.instgrm) {
-      process();
-    } else {
-      // Instagram's embed script processes every .instagram-media block
-      // present in the DOM once it loads - only need to load it once even
-      // if this component re-renders.
-      const existing = document.querySelector('script[src*="instagram.com/embed.js"]');
-      if (existing) {
-        existing.addEventListener('load', process);
-      } else {
-        const script = document.createElement('script');
-        script.src = 'https://www.instagram.com/embed.js';
-        script.async = true;
-        script.onload = process;
-        document.body.appendChild(script);
-      }
-    }
-  }, [urls]);
-
-  if (!urls?.length) return null;
+// Plain image grid for the homepage Instagram section — each photo is
+// uploaded directly by KT via the Pawvy App's Marketing page (base64,
+// same pattern as product images), not a live Instagram embed. This
+// replaced an earlier version that rendered Instagram's own official
+// embed script (instagram.com/embed.js): that showed the full post card
+// (caption, like count, Instagram's own UI), not a clean photo grid, and
+// depended on Instagram's embed script loading reliably. A plain <img>
+// has neither problem — it looks exactly like what's uploaded, loads as
+// fast as any other image on the site, and has zero external script
+// dependency.
+//
+// Each item is { image, link } — link always has a value (the backend
+// falls back to the Pawvy Instagram profile URL if a specific post link
+// wasn't set for that photo — see server/routes/publicContent.js in
+// pawvy-app), so a click never dead-ends.
+export default function InstagramGrid({ items }) {
+  if (!items?.length) return null;
 
   return (
-    <div className="ig-embed-grid" ref={containerRef}>
-      {urls.map((url) => (
-        <blockquote
-          key={url}
-          className="instagram-media"
-          data-instgrm-permalink={url}
-          data-instgrm-version="14"
-          style={{ background: '#FFF', border: 0, borderRadius: '20px', margin: 0, width: '100%' }}
-        />
+    <div className="ig-grid">
+      {items.map((item, i) => (
+        <a
+          key={item.image.slice(0, 64) + i}
+          href={item.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ig-grid-item"
+        >
+          <img src={item.image} alt="" loading="lazy" />
+        </a>
       ))}
     </div>
   );
