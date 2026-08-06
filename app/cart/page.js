@@ -148,7 +148,7 @@ export default function CartPage() {
             {customer ? (
               <>
                 <div style={{ fontSize: 13, color: 'var(--dark-gray)' }}>Checking out as</div>
-                <div style={{ fontWeight: 800, marginTop: 2, color: 'var(--navy)' }}>{customer.name || customer.email} ({customer.email})</div>
+                <div style={{ fontWeight: 600, marginTop: 2, color: 'var(--navy)' }}>{customer.name || customer.email} ({customer.email})</div>
                 <div className="field" style={{ marginTop: 14 }}>
                   <label>Shipping address</label>
                   <input
@@ -247,7 +247,7 @@ export default function CartPage() {
 
       {upsellProducts.length > 0 && (
         <div style={{ marginTop: 56 }}>
-          <h2 style={{ fontSize: 20, color: 'var(--navy)', fontWeight: 800 }}>🔥 Popular right now</h2>
+          <h2 style={{ fontSize: 20, color: 'var(--navy)', fontWeight: 600 }}>🔥 Popular right now</h2>
           <p style={{ fontSize: 12.5, color: 'var(--dark-gray)', marginTop: -6, marginBottom: 16 }}>Based on real sales over the last 3 months</p>
           <div className="product-grid" style={{ marginTop: 0 }}>
             {upsellProducts.map(p => <ProductCard key={p.id} product={p} onAdd={addItem} />)}

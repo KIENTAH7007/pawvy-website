@@ -1,99 +1,93 @@
-# Janice's wording feedback — Puzzle Feeder page (6 items)
+# Janice's wording feedback — Eastsea Brother page (7 items) + site-wide font-weight sweep
 
-## What changed (4 files: 3 modified, 1 new)
+## What changed (3 files)
 
 ### `lib/brandContent.js`
 
-**Item 1** — hero description fully replaced with your single sentence,
-nothing else kept.
+**Items 1, 2, 3, 7** — straightforward text updates: hero description
+clause removed, intro body clause removed, fitCards subtitle replaced,
+all 4 old FAQs replaced with your 3 new ones. One small fix flagged:
+your shelf-life answer said "the freeze-dried treats **is**
+shelf-stable" — corrected to "**are**" (subject-verb agreement).
 
-**Item 2** — stats card label changed from "Day Habit Program" to "Days
-Training" — the CSS already uppercases this automatically, so it
-renders as "28 DAYS TRAINING" with no other change needed.
+**Item 4** — swatch colors. Rather than picking arbitrary colors, I
+reused the **exact same palette already established** in the "Which
+Fish For Your Furkid?" section just above this one on the same page:
+White Fish `#E8CE85` (Pollack, Flatfish, Pollack Stick), Red Fish
+`#E8916E` (Salmon), Whole Fish `#7FB0AA` (Capelin, Sandlance). Green
+Lipped Mussels doesn't belong to any of those three existing
+categories, so it gets its own new color (`#8DA47E`, a sage green)
+rather than borrowing one that would misleadingly suggest it's grouped
+with a category it isn't part of. Every size variant within one fish
+keeps that fish's color — a size isn't a different color, so there was
+no reason to vary it further within a card.
 
-**Item 4** — "Find your fit" → "Find the one"; "Choose Your Puzzle
-Feeder" → "Choose Your Pup's Puzzle Feeder".
+**Item 5** — Pollack Stick split into its own standalone card,
+positioned after Sandlance and before Green Lipped Mussels as
+requested. Pollack's card is now "2 sizes" instead of "3", and the
+`seriesExcludes: ['Stick']` guard on its remaining two variants is no
+longer needed (there's no Stick variant left in that card to
+accidentally match against) so I removed it — one less thing for a
+future edit to trip over. The new Pollack Stick card matches the exact
+same real backend data it always did (`seriesIncludes: 'Pollack'`,
+`variationIncludes: 'Stick'`), so nothing about which real product it
+points to changed, only where it's displayed.
 
-**Item 6** — all 4 old FAQs replaced with your 3 new Q&As. One thing
-worth flagging: your message had **"How do I introduce a puzzle
-feeder to my dog?" listed twice**, word-for-word identical (question
-and answer both). I included it only once — let me know if that was
-meant to be two different questions and something got cut off when
-you pasted it over.
+### `app/globals.css` + `app/cart/page.js`
 
-### `app/globals.css`
-
-**Item 3** — the Vet Recommended card: widened its grid column from
-0.9fr to an even 1fr (matching the left column), and increased its
-padding (40px→56px), icon size (64px→78px), heading size (20px→26px),
-and body text size (14.5px→16.5px). I reasoned through the approximate
-resulting heights based on the actual CSS values on both sides to get
-them close, but couldn't preview this live — worth a look once
-deployed to confirm they read as comparable, and let me know if it
-needs further adjustment either way.
-
-**FAQ font** — question weight dropped from 800 to 600, color kept as
-cream (monochrome, per your call). Distinction from the answer text
-is still clear on three separate cues, not just weight: size (18px vs
-15.5px), weight (600 vs the answer's default/normal), and color
-(full-opacity cream vs the answer's 70%-opacity cream) — so dropping
-the weight alone doesn't flatten the Q/A distinction.
-
-**Item 5 support** — added `cursor: pointer` and a subtle scale-up on
-hover to the color swatch dots, now that they're actually interactive.
-
-### `components/BrandDeepDive.jsx`
-**Item 5** — the static image + swatches + info markup for each "Find
-the one" card is replaced with the new `<FitCard>` component (below).
-Exact same classNames and DOM structure as before — this is a
-wrap-in-a-component change, not a redesign.
-
-### `components/FitCard.jsx` — new file
-**Item 5** — hover-to-preview. Hovering a color dot now swaps the
-card's photo to that variant's image; moving away reverts to the
-default. Uses the exact same per-variant image data the Add to Cart
-modal already uses for its pill-swap — no new images, no new data,
-just a new way to trigger the swap. Has to be a small standalone
-client component (`'use client'`) since hovering needs live state and
-the rest of this page renders server-side.
-
-**This applies to both brands that use the `fitCards` shape** —
-Puzzle Feeder and Eastsea Brother both get the hover-preview
-automatically, since they share this same component. Wasn't asked for
-on Eastsea Brother specifically, but there was no reason to build two
-versions of the same thing, and every variant on both brands' cards
-already has a real image defined (verified this directly — see below).
+**Item 6 + your follow-up ask** — the nav bar's font-weight was 800;
+dropped to 600, same as you decided for the FAQ questions earlier.
+Since you also asked me to check the *entire* site for any other
+`font-weight: 800` and bring all of them down to 600 too: I found
+**39 occurrences in `globals.css`** (everything from card titles and
+badges to buttons, tags, table headers, form labels — the full list is
+in my conversation reply, not repeated here) plus **2 inline instances
+in `app/cart/page.js`** (the checkout customer-name display and the
+"🔥 Popular right now" heading). All 41 are now 600. Nothing else was
+touched — I specifically searched for the literal string
+"font-weight: 800" / "fontWeight: 800" so this didn't accidentally
+touch unrelated numbers (e.g. `max-width: 800px` on the subhero, which
+I confirmed by hand is still untouched, or the Google Fonts `@import`
+line which lists 800 as a downloadable weight variant but isn't an
+applied style anywhere anymore — left as-is since removing it wasn't
+part of what you asked and it's harmless either way).
 
 ## Verified
 - `npm run build` — passes clean, both locally and from a genuine
-  fresh cold-clone simulation (clone → npm install → apply the 4
-  files → build again).
-- Real checks against the actual data (not visual inspection):
-  confirmed the hero description, stats label, fitCards eyebrow/
-  heading, and FAQ array (exactly 3 entries, no duplicate, correct
-  order) all match exactly what was asked.
-- Confirmed **every variant of every fitCards item, on both Puzzle
-  Feeder and Eastsea Brother, has a real image defined** — this is
-  what the hover feature depends on, so if any variant were missing an
-  image, hovering that dot would show a placeholder instead of a
-  photo. All present.
-- Confirmed the `#shop` anchor (from an earlier round) on the fitCards
-  section is untouched.
-- Confirmed the shared `ImageSlot` helper in `BrandDeepDive.jsx` is
-  still intact for the other sections that still use it directly
-  (only the fitCards usage was extracted into the new component).
+  fresh cold-clone simulation.
+- Real checks against the actual data: confirmed all 4 text items
+  match exactly, confirmed the FAQ array (3 entries, grammar fix
+  applied), confirmed every swatch color assignment matches the
+  reasoning above and genuinely matches the fishGroups palette values
+  (not just visually similar — checked the literal hex strings are
+  identical).
+- **Item 5 specifically verified**: Pollack now has exactly 2
+  variants, Pollack Stick is a new standalone card in the exact
+  requested position, and its matching data (`seriesIncludes`/
+  `variationIncludes`) — the actual link to the real product in your
+  database — is byte-identical to what it was before the split, so
+  Add to Cart still finds the same real product.
+- **Font-weight sweep verified exhaustively**: grepped the entire
+  codebase (excluding `node_modules` and build artifacts) for every
+  spelling variant of `font-weight: 800` after the change — zero
+  remaining. Also manually confirmed the two things that legitimately
+  still contain the digits "800" are unrelated (an unrelated
+  `max-width: 800px`, and the font-loader import) rather than missed
+  instances.
 
 ## Not yet verified
-No live browser access from this sandbox — two things worth a real
-look once deployed: whether the Vet Recommended card (item 3) now
-reads as visually comparable in height to the left column, and how
-the hover-preview (item 5) actually feels in practice (timing,
-whether the image swap feels smooth).
+No live browser access from this sandbox — worth a visual pass on the
+new Pollack Stick card's placement/spacing in the grid, and on how the
+whole site reads now that so many elements dropped from 800 to 600 at
+once (this was a genuinely wide-reaching change — 41 elements across
+nav, buttons, cards, badges, forms, tables) to confirm nothing feels
+*too* light now that it's applied everywhere at once, not just in the
+one or two places we tested it first.
 
 ## To apply
 1. `git checkout main`
 2. `git pull origin main`
 3. Unzip this delivery on top of your local `pawvy-website` folder
 4. `git add -A`
-5. `git commit -m "Janice feedback: Puzzle Feeder page — 6 items incl. hover-to-preview color swatches"`
+5. `git commit -m "Janice feedback: Eastsea Brother page (7 items) + site-wide font-weight 800 to 600"`
 6. `git push origin main`
