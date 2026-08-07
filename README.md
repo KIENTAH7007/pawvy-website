@@ -1,82 +1,60 @@
-# Eastsea Brother — swatch hex colors + half-pack design (Option B)
+# Salmon matching fix — following your Pawvy App rename (115g/55g → 120g/60g)
 
-**Note**: this delivery is fully self-contained (complete files, not a
-patch) — if you've already applied the earlier Eastsea Brother
-delivery (font-weight sweep, Pollack Stick split, etc.), re-applying
-this one is harmless; it just adds the two things below on top. If you
-haven't applied that one yet, this single zip has everything.
+## What changed (1 file, 1 focused edit)
 
-## What changed (4 files)
+### `lib/brandContent.js`
+The Salmon product card's Add-to-Cart matching now searches for `"120"`
+and `"60"` instead of the old `"115"`/`"55"` — matching the real product
+text you renamed in Pawvy App. The customer-facing labels were already
+"120g"/"60g" from the earlier decoupling workaround, so nothing changes
+visually — this just makes the matching agree with what's actually in
+the database now.
 
-### 1. `lib/brandContent.js`
-- **Swatch hex colors** updated to your exact values: Pollack
-  `#6FA6C9`, Salmon `#F1ABB5`, Flatfish `#F1BD83`, Capelin `#02A88F`,
-  Sandlance `#B683C6`, Pollack Stick `#DBBE55`, Green Lipped Mussels
-  `#314249`. Every size variant within one fish keeps that fish's
-  color (a size isn't a different color) — verified each card's
-  variants all share exactly one hex.
-- **`halfPack: true` flag** added to the three smaller-size variants:
-  Pollack 60g, Salmon 55g, Flatfish 55g. This is what the new visual
-  treatment (below) hooks into. Their full-size siblings (125g/120g/
-  110g) are untouched.
+**The decoupling itself is fully removed**, per your "clean it one
+shot" — the stale comment explaining why display and matching used to
+be split is replaced with a short note of what changed and why, so
+anyone reading this file later understands the history without the
+old workaround still being live code.
 
-### 2. `components/FitCard.jsx` — Option B implemented
-Any variant flagged `halfPack: true` now renders as a **half-filled
-circle** instead of a plain solid dot — the same color as its
-full-size sibling, just half of it, with the card's own cream
-background showing through the other half via a hard-stop CSS
-gradient. No new image/asset needed, purely CSS.
+**One small leftover, harmless**: the image file path still says
+`sku-salmon-115.jpg` — that's just the filename on disk, not part of
+the matching logic, so the photo still displays correctly regardless.
+Renaming the actual file wasn't part of what you asked, so I left it
+as-is, but flagging it in case you want file-naming consistency too
+at some point — that would just be a file rename, not a logic change.
 
-This component is shared with Puzzle Feeder (both brands use the same
-"Find the one" card shape) — Puzzle Feeder's variants never set
-`halfPack`, so nothing changes there; confirmed this directly rather
-than assuming.
-
-### 3. `app/globals.css`
-New `.pf-swatch-half` rule — a very slightly stronger outline than the
-plain swatch, since half the fill is transparent and needed a touch
-more definition to still read clearly as a selectable dot. Also
-contains the earlier font-weight 800→600 sweep from the previous
-delivery, unchanged.
-
-### 4. `app/cart/page.js`
-Unchanged from what's already deployed (confirmed via a fresh clone
-diff) — included for a fully self-contained delivery, this file is a
-no-op if applied.
-
-## Verified
+## Verified — this was your biggest worry, so tested accordingly
 - `npm run build` — passes clean, both locally and from a genuine
   fresh cold-clone simulation.
-- Real checks against the actual data: confirmed the `halfPack` flag
-  sits on exactly the right 3 variants (not their full-size siblings,
-  not any of the single-variant cards like Capelin/Sandlance/Pollack
-  Stick/Green Lipped Mussels, which have no "half" concept at all),
-  confirmed each half-pack variant's hex still matches its full-size
-  sibling exactly (same fish = same color, just half-rendered),
-  confirmed the real backend matching fields (`seriesIncludes` etc.)
-  on those variants are untouched by this change.
-- Confirmed Puzzle Feeder's cards (sharing the same `FitCard.jsx`
-  component) are entirely unaffected — no variant there has `halfPack`
-  set, so the conditional class/style logic evaluates to exactly the
-  same plain swatch as before.
-- Re-ran the core data checks against a genuine fresh `git clone` with
-  this delivery applied, not just my working copy — all pass there
-  too, and confirmed the earlier hex-color and Pollack Stick changes
-  are still present alongside the new half-pack ones.
+- **Ran the actual matching algorithm** (copied verbatim from
+  `ProductAddButton.jsx`, not reimplemented from memory) against
+  simulated product records shaped exactly like what you described
+  renaming them to — confirmed both the 120g and 60g variants
+  correctly find their real product.
+- **Confirmed Flatfish's own, unrelated 55g product is completely
+  unaffected** — it also uses `variationIncludes: '55'` for its own
+  matching, but scoped separately by `seriesIncludes: 'Flatfish'`, so
+  Salmon's rename to "60" doesn't touch it at all. Verified this
+  explicitly rather than just assuming the scoping is safe.
+- Confirmed every other part of the page (all 7 fish cards, hex
+  colors, the `#shop` anchor, pillar navigation) is completely
+  untouched — this edit only touches the 2 lines for Salmon's
+  matching terms and the surrounding comment.
 
-## Not yet verified
-No live browser access from this sandbox — worth a visual check once
-deployed to confirm the half-circle swatches read clearly at their
-small size (18px) and look like an intentional design choice rather
-than a rendering glitch, especially on the lighter colors (Pollack's
-blue, Flatfish's orange) where the transparent half might be less
-obviously "cut off" than on the darker Green Lipped Mussels color (not
-that this one needs the treatment, single-variant card).
+## One thing I can't verify from here
+I don't have direct access to your live production database, so I
+built and tested this against simulated data shaped exactly like what
+you described (`'FD Salmon 120g'`, `'Half FD Salmon 60g'`) — if the
+actual renamed text in Pawvy App differs even slightly from that
+(e.g. extra spacing, different capitalization — capitalization
+shouldn't matter since the matching is case-insensitive, but worth
+mentioning), it's worth a real click-through test on the live
+Eastsea Brother page after deploying this, same as you'd normally do.
 
 ## To apply
 1. `git checkout main`
 2. `git pull origin main`
 3. Unzip this delivery on top of your local `pawvy-website` folder
 4. `git add -A`
-5. `git commit -m "Eastsea Brother: swatch hex colors + half-pack half-circle design"`
+5. `git commit -m "Fix Salmon matching to follow Pawvy App rename (115g/55g -> 120g/60g), remove obsolete decoupling"`
 6. `git push origin main`
