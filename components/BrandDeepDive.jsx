@@ -221,7 +221,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
         <section className="cat-intro">
           <div className="wrap">
             <div className="cat-intro-head">
-              <div className="eyebrow center" style={{ color: 'var(--lime, #B4D93C)' }}>{categoryIntro.eyebrow}</div>
+              <div className="eyebrow center">{categoryIntro.eyebrow}</div>
               <h2>{categoryIntro.heading}</h2>
               <p>{categoryIntro.sub}</p>
             </div>
