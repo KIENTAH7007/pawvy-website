@@ -26,10 +26,10 @@ import RecipeSelector from './RecipeSelector';
 import CategoryBrowser from './CategoryBrowser';
 import FitCard from './FitCard';
 
-function ImageSlot({ image, alt, hint, className }) {
-  if (image) return <img src={image} alt={alt} className={className} />;
+function ImageSlot({ image, alt, hint, className, style }) {
+  if (image) return <img src={image} alt={alt} className={className} style={style} />;
   return (
-    <div className={`${className} img-placeholder`}>
+    <div className={`${className} img-placeholder`} style={style}>
       <span>{hint}</span>
     </div>
   );
@@ -228,7 +228,13 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
             <div className="cat-intro-grid">
               {categoryIntro.items.map(item => (
                 <div className="cat-intro-card" key={item.title} style={{ '--accent': item.color }}>
-                  <div className="cat-intro-icon"><ImageSlot image={item.image} alt={item.title} hint={item.title} className="cat-intro-icon-img" /></div>
+                  <div className="cat-intro-icon">
+                    <ImageSlot
+                      image={item.image} alt={item.title} hint={item.title}
+                      className="cat-intro-icon-img"
+                      style={item.iconScale ? { transform: `scale(${item.iconScale})` } : undefined}
+                    />
+                  </div>
                   <h3>{item.title}</h3>
                   <p>{item.body}</p>
                 </div>
