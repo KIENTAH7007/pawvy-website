@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BRAND_SLUGS, displayBrandName } from '../lib/brandSlugs';
 import { useCart } from '../lib/CartContext';
-import { customerApi, getSessionToken, setSessionToken } from '../lib/api';
+import { customerApi, contentApi, getSessionToken, setSessionToken } from '../lib/api';
 
 // FREE_SHIPPING_THRESHOLD matches the $60 free-delivery rule already
 // established elsewhere on the site (ShopClient, checkout) — keep these
@@ -52,7 +52,7 @@ export default function Nav() {
   const [balance, setBalance] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileShopOpen, setMobileShopOpen] = useState(false);
-  const [birthdayBonus, setBirthdayBonus] = useState(null);
+  const [promoBadge, setPromoBadge] = useState(null); // { emoji, multiplier, tooltip } | null
   const { itemCount, subtotal } = useCart();
 
   useEffect(() => {
@@ -64,17 +64,40 @@ export default function Nav() {
 
   useEffect(() => {
     const token = getSessionToken();
-    if (!token) { setCustomer(null); setBalance(0); setBirthdayBonus(null); return; }
+    if (!token) {
+      setCustomer(null); setBalance(0);
+      // Not logged in — there's no known customer, so no birthday bonus
+      // is possible, but a campaign can still be shown to any visitor via
+      // the public (unauthenticated) campaign endpoint. This is the case
+      // that was previously invisible entirely: someone just browsing,
+      // not logged in, had no way to see an active campaign on the site
+      // at all before this fix.
+      contentApi.activeCampaign()
+        .then(({ active, name, multiplier }) => {
+          setPromoBadge(active ? { emoji: '🎉', multiplier, tooltip: name ? `Campaign: ${name}` : 'Active campaign' } : null);
+        })
+        .catch(() => setPromoBadge(null));
+      return;
+    }
     customerApi.me()
-      .then(({ customer, buttons_balance, active_multiplier, active_multiplier_source }) => {
+      .then(({ customer, buttons_balance, active_multiplier, active_multiplier_source, active_campaign_name }) => {
         setCustomer(customer);
         setBalance(buttons_balance);
-        // Only the birthday-month bonus shows in the nav — an active
-        // campaign is already covered by the homepage ticker, so it isn't
-        // duplicated here.
-        setBirthdayBonus(active_multiplier_source === 'birthday' ? active_multiplier : null);
+        // The backend already picks whichever of campaign-or-birthday is
+        // higher (see getActiveMultiplierDetail in pawvy-app) — this just
+        // renders whichever one it decided, same short pill either way so
+        // the nav bar never gets cramped by a longer campaign name (that
+        // goes in the tooltip instead, same pattern the birthday case
+        // already used).
+        if (active_multiplier_source === 'birthday') {
+          setPromoBadge({ emoji: '🎂', multiplier: active_multiplier, tooltip: "Your pet's birthday month bonus is active" });
+        } else if (active_multiplier_source === 'campaign') {
+          setPromoBadge({ emoji: '🎉', multiplier: active_multiplier, tooltip: active_campaign_name ? `Campaign: ${active_campaign_name}` : 'Active campaign' });
+        } else {
+          setPromoBadge(null);
+        }
       })
-      .catch(() => { setSessionToken(null); setCustomer(null); setBalance(0); setBirthdayBonus(null); });
+      .catch(() => { setSessionToken(null); setCustomer(null); setBalance(0); setPromoBadge(null); });
   }, [pathname]);
 
   // Close the mobile menu whenever navigation actually happens, and don't
@@ -127,9 +150,9 @@ export default function Nav() {
             <Link href="/blog">Blog</Link>
           </div>
 
-          {birthdayBonus && (
-            <div className="promo-pill" title="Your pet's birthday month bonus is active">
-              <span>🎂 {birthdayBonus}×B</span>
+          {promoBadge && (
+            <div className="promo-pill" title={promoBadge.tooltip}>
+              <span>{promoBadge.emoji} {promoBadge.multiplier}×B</span>
             </div>
           )}
 

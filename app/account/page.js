@@ -13,6 +13,7 @@ export default function AccountPage() {
   const [balance, setBalance] = useState(0);
   const [activeMultiplier, setActiveMultiplier] = useState(1);
   const [activeMultiplierSource, setActiveMultiplierSource] = useState(null);
+  const [activeCampaignName, setActiveCampaignName] = useState(null);
 
   const [profileForm, setProfileForm] = useState({ name: '', phone: '', address: '', instagram_handle: '', preferred_contact_channel: '' });
   const [petForm, setPetForm] = useState({ name: '', breed: '', weight: '', birthday: '', allergies: '', favorite_item: '', chew_power: '' });
@@ -33,12 +34,13 @@ export default function AccountPage() {
 
   function load() {
     customerApi.me()
-      .then(({ customer, pet, buttons_balance, active_multiplier, active_multiplier_source }) => {
+      .then(({ customer, pet, buttons_balance, active_multiplier, active_multiplier_source, active_campaign_name }) => {
         setCustomer(customer);
         setPet(pet);
         setBalance(buttons_balance);
         setActiveMultiplier(active_multiplier);
         setActiveMultiplierSource(active_multiplier_source);
+        setActiveCampaignName(active_campaign_name);
         setReferralLink(`${window.location.origin}/signup?ref=${customer.referral_code}`);
         setProfileForm({
           name: customer.name || '', phone: customer.phone || '', address: customer.address || '',
@@ -146,6 +148,12 @@ export default function AccountPage() {
           {activeMultiplierSource === 'birthday' && (
             <div className="account-birthday-banner">
               🎂 It's your pet's birthday month — you're earning <strong>{activeMultiplier}× BUTTONS</strong> on every purchase this month!
+            </div>
+          )}
+
+          {activeMultiplierSource === 'campaign' && (
+            <div className="account-birthday-banner">
+              🎉 {activeCampaignName ? <>{activeCampaignName} is on</> : 'A campaign is on'} — you're earning <strong>{activeMultiplier}× BUTTONS</strong> on every purchase right now!
             </div>
           )}
 
