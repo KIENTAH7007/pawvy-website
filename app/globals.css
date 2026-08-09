@@ -236,15 +236,15 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
 /* ---------- Hero ---------- */
 .hero { position: relative; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; padding: 140px 0 0; background: var(--navy); overflow: hidden; }
 .hero-bg-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .15; z-index: 0; }
-.hero .blob { width: 506px; height: 506px; background: var(--orange); opacity: .16; top: -10%; right: -12%; z-index: 0; }
-.hero .blob.b2 { width: 322px; height: 322px; background: var(--light-pitch); opacity: .14; bottom: -15%; left: -8%; animation-duration: 16s; }
-.hero .blob.b3 { width: 219px; height: 219px; background: var(--mid-cream); opacity: .10; top: 15%; left: 5%; animation-duration: 19s; animation-delay: -4s; }
-.hero .blob.b4 { width: 265px; height: 265px; background: var(--pale-orange); opacity: .12; bottom: 8%; right: 8%; animation-duration: 14s; animation-delay: -7s; }
+.hero .blob { width: 253px; height: 253px; background: var(--orange); opacity: .16; top: -10%; right: -12%; z-index: 0; }
+.hero .blob.b2 { width: 161px; height: 161px; background: var(--light-pitch); opacity: .14; bottom: -15%; left: -8%; animation-duration: 16s; }
+.hero .blob.b3 { width: 110px; height: 110px; background: var(--mid-cream); opacity: .10; top: 15%; left: 5%; animation-duration: 19s; animation-delay: -4s; }
+.hero .blob.b4 { width: 132px; height: 132px; background: var(--pale-orange); opacity: .12; bottom: 8%; right: 8%; animation-duration: 14s; animation-delay: -7s; }
 @media (min-width: 1024px) {
-  .hero .blob { width: clamp(1000px, 55vw, 1400px); height: clamp(1000px, 55vw, 1400px); }
-  .hero .blob.b2 { width: clamp(680px, 38vw, 950px); height: clamp(680px, 38vw, 950px); }
-  .hero .blob.b3 { width: clamp(460px, 26vw, 640px); height: clamp(460px, 26vw, 640px); }
-  .hero .blob.b4 { width: clamp(540px, 30vw, 760px); height: clamp(540px, 30vw, 760px); }
+  .hero .blob { width: clamp(500px, 27.5vw, 700px); height: clamp(500px, 27.5vw, 700px); }
+  .hero .blob.b2 { width: clamp(340px, 19vw, 475px); height: clamp(340px, 19vw, 475px); }
+  .hero .blob.b3 { width: clamp(230px, 13vw, 320px); height: clamp(230px, 13vw, 320px); }
+  .hero .blob.b4 { width: clamp(270px, 15vw, 380px); height: clamp(270px, 15vw, 380px); }
 }
 .float-dot { position: absolute; border-radius: 50%; background: var(--orange); opacity: .35; animation: floaty 7s ease-in-out infinite; }
 @keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-22px); } }
