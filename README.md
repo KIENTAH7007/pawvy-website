@@ -1,67 +1,78 @@
-# Fixes: New badge styling + banner scroll-jump on refresh
+# Homepage banner — simplified to a full-bleed clickable image
 
-## Fix 1 — New badge, bigger and Pawvy Orange
+## The mystery circle/X, explained
+That was the banner's close button, which I'd positioned top-right —
+turns out that's roughly where the nav bar's own icons (cart, help)
+sit too, since the nav is fixed at the top of the viewport. The button
+was rendering there and visually colliding with the nav, which is
+exactly why it looked like a stray, unexplained icon rather than
+something that made sense in context. Removed entirely as part of
+this redesign (see below for why that's fine, not just a workaround).
 
-### What changed (`app/globals.css`)
-One shared rule (`.new-tag`) used across all 3 places the New badge
-appears (shop grid, GiGwi's grouped cards, and the shared card on
-your other 5 brand pages) — a single CSS change fixes it everywhere
-at once, regardless of which specific product/page you were looking
-at when you noticed it:
+## What changed
 
-| | Before | After |
-|---|---|---|
-| Font size | 10.5px | 12.5px |
-| Padding | 4px × 10px | 6px × 14px |
-| Background | blue (`#3B82F6`) | Pawvy Orange (`var(--orange)`) |
-| Text color | white | cream (matches how orange is used elsewhere, e.g. buttons) |
-| Shadow | none | subtle orange-tinted drop shadow, for extra pop |
+### `components/HomepageBanner.jsx` — fully rewritten
+Down to the essentials, per your direction:
+- **No eyebrow, no headline text, no buttons, no close button** — the
+  uploaded image is the entire banner now. Your design team owns the
+  whole visual through what they hand over; this component doesn't
+  overlay any of its own text or UI on top of it anymore.
+- **No dimming scrim** — previously there was a dark gradient over the
+  image so the (now-removed) text stayed readable. Gone, so the image
+  shows at full strength, exactly as you asked.
+- **The entire banner is now one big link** to whatever URL is set in
+  "Links to" in the Pawvy App — clicking anywhere on the image takes a
+  visitor straight to the new brand's page. Replaces the old
+  "Discover more" button entirely, rather than sitting alongside it.
+- **No manual close button** — this was a deliberate call, not just
+  simplification for its own sake: since the banner isn't a modal (it
+  never blocked anything below it) and the nav bar above it stays
+  fully clickable the whole time, a visitor who doesn't want to click
+  through can just scroll past or use the nav like normal. Removing it
+  also resolves the stray-icon issue directly, rather than just
+  repositioning it somewhere else.
+- **A subtle hover zoom** on the image (barely-there scale-up) — the
+  one small addition, purely as a "this is clickable" cue now that
+  there's no button telegraphing that anymore.
+- **The headline field still exists in the admin form** (untouched,
+  not removed from Pawvy App) — it's just not shown visually on the
+  banner anymore. Repurposed as the image's `alt` text instead, so it
+  still has a use (accessibility/screen readers) rather than becoming
+  dead weight.
+- **The scroll-jump-on-refresh fix from the previous delivery is
+  unaffected** — that fix lives in this same file and had nothing to
+  do with the buttons/text being removed, so it's still in here,
+  confirmed directly in the diff.
 
-## Fix 2 — banner causing a scroll jump on refresh
-
-### The actual root cause
-This is a genuine browser behavior, not a bug specific to how the
-banner was built: browsers remember scroll position by raw **pixel
-offset** across a page reload (`history.scrollRestoration` defaults to
-`'auto'`), not by *what content* was at that position. Turning the
-banner on makes the homepage taller by inserting a full-viewport
-section **above** everything else. So "the same pixel offset as
-before" — which the browser tries to restore on refresh — now lands
-somewhere inside the old hero instead of at the top, because
-everything shifted down.
-
-### What changed (`components/HomepageBanner.jsx`)
-Two things, both standard fixes for this exact class of bug:
-1. **Disables the browser's automatic scroll-position restoration**
-   (`history.scrollRestoration = 'manual'`) going forward, so this
-   can't happen again on future loads — scoped as a general
-   protection, not tied to whether a banner happens to be active.
-2. **Explicitly corrects the scroll position on this specific load**,
-   scoped to only when the banner is actually active — scroll
-   restoration happens very early in the page load, before React even
-   hydrates, so simply disabling it going forward isn't enough to fix
-   an *already* misplaced position on the load where you're seeing the
-   bug; this actively resets it back to the top.
+### `app/globals.css`
+Removed every CSS rule tied to the elements that no longer exist
+(scrim, close button, eyebrow, headline, action buttons) — confirmed
+zero orphaned references remain anywhere in the codebase. What's left
+is just the container and the image, plus the new subtle hover effect.
 
 ## Verified
 - `npm run build` — passes clean, both locally and from a genuine
   fresh cold-clone simulation.
-- Confirmed the exact `.new-tag` CSS values changed as described.
-- Confirmed the new `useEffect` in `HomepageBanner.jsx` is called
-  unconditionally, before the component's early return — required by
-  React's rules for hooks, checked directly rather than assumed.
+- Grepped the entire codebase for every removed class name
+  (`wb-takeover-scrim`, `-close`, `-inner`, `-eyebrow`, `-headline`,
+  `-actions`) — zero matches remain anywhere.
+- Confirmed the banner correctly links to `banner.link`, confirmed the
+  headline correctly becomes the image's `alt` text (with a sensible
+  fallback when no headline was set), and confirmed the
+  inactive/`null` cases still render nothing, same as before.
+- Confirmed via `git diff` that the scroll-restoration fix's actual
+  logic is untouched by this rewrite — only the surrounding
+  button/text markup around it changed.
 
 ## Not yet verified
-No live browser access from this sandbox — the scroll-jump fix in
-particular is the kind of thing that's easiest to fully confirm by
-actually reproducing the original bug steps (banner on, page already
-open and scrolled, hit refresh) and confirming it now lands at the
-top. Worth that specific test after deploy.
+No live browser access from this sandbox — worth a look at how the
+hover zoom feels in practice, and confirming the close-icon confusion
+is genuinely resolved now that nothing renders near the nav bar.
 
 ## To apply
 1. `git checkout main`
 2. `git pull origin main`
 3. Unzip this delivery on top of your local `pawvy-website` folder
 4. `git add -A`
-5. `git commit -m "Fix: New badge size/color, banner scroll-jump on refresh"`
+5. `git commit -m "Homepage banner: simplified to a full-bleed clickable image, no overlay text/buttons/close"`
 6. `git push origin main`
