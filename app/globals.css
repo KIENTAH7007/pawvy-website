@@ -236,6 +236,22 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
 /* ---------- Hero ---------- */
 .hero { position: relative; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; padding: 140px 0 0; background: var(--navy); overflow: hidden; }
 .hero-bg-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .15; z-index: 0; }
+
+/* Homepage takeover banner (components/HomepageBanner.jsx) — the
+   reusable "new brand" announcement, admin-driven from Pawvy App's
+   Marketing page. Sits directly above the evergreen hero; the hero
+   itself is completely untouched by this. */
+.wb-takeover { position: relative; min-height: 100vh; min-height: 100dvh; display: flex; align-items: center; justify-content: center; background: var(--navy); overflow: hidden; }
+.wb-takeover-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+.wb-takeover-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20,33,61,.55) 0%, rgba(20,33,61,.82) 65%, rgba(20,33,61,.95) 100%); z-index: 1; }
+.wb-takeover-close { position: absolute; top: 28px; right: 28px; z-index: 3; width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid rgba(245,242,235,.35); background: rgba(20,33,61,.4); color: var(--cream); font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .2s ease, border-color .2s ease; }
+.wb-takeover-close:hover { background: rgba(20,33,61,.7); border-color: rgba(245,242,235,.6); }
+.wb-takeover-inner { position: relative; z-index: 2; text-align: center; max-width: 780px; margin: 0 auto; padding: 0 24px; }
+.wb-takeover-eyebrow { display: inline-flex; align-items: center; gap: 10px; background: rgba(245,242,235,.14); border: 1px solid rgba(245,242,235,.28); color: var(--cream); font-size: 13.5px; font-weight: 800; letter-spacing: 1.3px; text-transform: uppercase; padding: 9px 18px; border-radius: 100px; margin-bottom: 28px; }
+.wb-takeover-eyebrow .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); flex-shrink: 0; }
+.wb-takeover-headline { font-weight: 900; color: var(--cream); letter-spacing: -1.5px; font-size: clamp(34px, 5.5vw, 64px); line-height: 1.08; margin-bottom: 38px; }
+.wb-takeover-actions { display: flex; align-items: center; justify-content: center; gap: 18px; flex-wrap: wrap; }
+.wb-takeover-actions .btn-outline-light { background: none; }
 .hero .blob { width: 253px; height: 253px; background: var(--orange); opacity: .16; top: -10%; right: -12%; z-index: 0; }
 .hero .blob.b2 { width: 161px; height: 161px; background: var(--light-pitch); opacity: .14; bottom: -15%; left: -8%; animation-duration: 16s; }
 .hero .blob.b3 { width: 110px; height: 110px; background: var(--mid-cream); opacity: .10; top: 15%; left: 5%; animation-duration: 19s; animation-delay: -4s; }
@@ -515,7 +531,7 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 @media (max-width: 900px) { .pf-fit-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 620px) { .pf-fit-grid { grid-template-columns: 1fr 1fr; gap: 14px; } }
 @media (max-width: 460px) { .pf-fit-grid { gap: 10px; } .pf-fit-info { padding: 14px 12px 16px; } .pf-fit-info h3 { font-size: 14.5px; } }
-.pf-fit-card { display: block; background: var(--cream); border: 2px solid rgba(20,33,61,.08); border-radius: 24px; overflow: hidden; transition: border-color .3s ease, transform .3s ease; }
+.pf-fit-card { display: block; position: relative; background: var(--cream); border: 2px solid rgba(20,33,61,.08); border-radius: 24px; overflow: hidden; transition: border-color .3s ease, transform .3s ease; }
 .pf-fit-card:hover { border-color: var(--orange); transform: translateY(-3px); }
 .pf-fit-image { aspect-ratio: 1/1; width: 100%; object-fit: cover; display: block; }
 .pf-fit-info { padding: 22px 22px 24px; }
@@ -710,6 +726,7 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .product-card:hover { border-color: var(--orange); transform: translateY(-3px); }
 .product-card .thumb { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; position: relative; background: var(--ivory); overflow: hidden; }
 .product-card .thumb img { width: 100%; height: 100%; object-fit: contain; padding: 10px; }
+.new-tag { position: absolute; top: 10px; left: 10px; z-index: 1; font-size: 10.5px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase; color: #fff; background: #3B82F6; padding: 4px 10px; border-radius: 100px; }
 .product-card .no-img { font-size: 12px; color: var(--dark-gray); font-weight: 600; }
 .product-card .card-tags { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 12px 10px; }
 .product-card .brand-tag { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; background: rgba(20,33,61,.06); border: 1px solid rgba(20,33,61,.08); color: var(--navy); padding: 5px 11px; border-radius: 100px; }

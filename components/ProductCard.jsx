@@ -21,6 +21,7 @@ export default function ProductCard({ product: p, onAdd }) {
           )}
         </div>
         <div className="thumb">
+          {p.is_new_active && <span className="new-tag">New</span>}
           {p.image_data ? (
             <img src={p.image_data} alt={p.item_series} />
           ) : (

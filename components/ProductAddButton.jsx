@@ -49,7 +49,7 @@ function swatchFor(text) {
   return hit ? hit[1] : '#B8B2A6';
 }
 
-function findMatches(products, { seriesIncludes, seriesExcludes = [], variationIncludes, variationIncludesAny }) {
+export function findMatches(products, { seriesIncludes, seriesExcludes = [], variationIncludes, variationIncludesAny }) {
   const seriesTerms = Array.isArray(seriesIncludes) ? seriesIncludes : [seriesIncludes];
   const variationTerms = variationIncludesAny || (variationIncludes ? [variationIncludes] : null);
   const lower = s => (s || '').toLowerCase();

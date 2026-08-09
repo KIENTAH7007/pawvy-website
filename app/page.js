@@ -7,6 +7,7 @@ import StatCounter from '../components/StatCounter';
 import EnquiryForm from '../components/EnquiryForm';
 import Reveal from '../components/Reveal';
 import InstagramGrid from '../components/InstagramGrid';
+import HomepageBanner from '../components/HomepageBanner';
 import { contentApi } from '../lib/api';
 
 const FACTS_FALLBACK = ['Premium Pet Wellness', 'Exclusive Singapore Distributor', 'Six Brands, One Standard', '107+ Retail Partners'];
@@ -31,9 +32,11 @@ export default async function Home() {
   const facts = ticker?.messages?.length ? ticker.messages : FACTS_FALLBACK;
   const igPosts = await contentApi.instagramPosts().catch(() => null);
   const igItems = igPosts?.items || [];
+  const banner = await contentApi.homepageBanner().catch(() => null);
 
   return (
     <>
+      <HomepageBanner banner={banner} />
       <section className="hero">
         <img src="/hero-bg.jpg" alt="" className="hero-bg-photo" />
         <div className="blob" />

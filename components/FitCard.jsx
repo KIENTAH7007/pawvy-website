@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import ProductAddButton from './ProductAddButton';
+import ProductAddButton, { findMatches } from './ProductAddButton';
 
 // Local copy of the same tiny helper used in BrandDeepDive.jsx and
 // RecipeSelector.jsx — not worth importing across files for six lines,
@@ -43,8 +43,22 @@ export default function FitCard({ item, products }) {
   const activeIndex = hoverIndex ?? defaultIndex;
   const active = item.variants[activeIndex];
 
+  // Same "is any variant of this card currently new" check used for GiGwi's
+  // grouped cards in CategoryBrowser.jsx — reuses the exact same matching
+  // logic ProductAddButton already uses to find the real product behind
+  // each variant (via the shared findMatches export), so this can never
+  // drift out of sync with what Add to Cart actually finds.
+  const isNew = item.variants.some(v => {
+    const matches = findMatches(products, {
+      seriesIncludes: v.seriesIncludes, seriesExcludes: v.seriesExcludes,
+      variationIncludes: v.variationIncludes, variationIncludesAny: v.variationIncludesAny,
+    });
+    return matches.some(m => m.is_new_active);
+  });
+
   return (
     <div className="pf-fit-card">
+      {isNew && <span className="new-tag">New</span>}
       <ImageSlot image={active.image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
       <div className="pf-fit-info">
         <h3>{item.name}</h3>

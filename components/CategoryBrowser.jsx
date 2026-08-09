@@ -61,6 +61,11 @@ function GiGwiCard({ card, products }) {
   const coverMatch = matches.find(m => m?.image_data) || matches.find(Boolean);
   const prices = matches.filter(Boolean).map(m => m.effective_price_rrp_sg);
   const minPrice = prices.length ? Math.min(...prices) : null;
+  // This card can represent several variant SKUs at once (different colors
+  // of the same product) — shows New if ANY of them currently is, since a
+  // customer would still discover that SKU by opening the card and picking
+  // a variant, even if the "cover" photo variant itself isn't the new one.
+  const anyNew = matches.some(m => m?.is_new_active);
 
   return (
     <div className="product-card">
@@ -68,6 +73,7 @@ function GiGwiCard({ card, products }) {
         <span className="brand-tag">GiGwi</span>
       </div>
       <div className="thumb">
+        {anyNew && <span className="new-tag">New</span>}
         {coverMatch?.image_data
           ? <img src={coverMatch.image_data} alt={card.name} />
           : <span className="no-img">No image</span>}
