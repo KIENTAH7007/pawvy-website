@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 // The reusable full-width homepage takeover banner — built for announcing
 // a new brand (Wild Balance being the first case this was built for, see
@@ -21,6 +21,31 @@ import { useState } from 'react';
 // notice.
 export default function HomepageBanner({ banner }) {
   const [closed, setClosed] = useState(false);
+
+  // Root cause of the "loads scrolled to the old hero position instead of
+  // the banner" bug: browsers remember scroll position by raw pixel
+  // offset across a reload (history.scrollRestoration defaults to
+  // 'auto'), not by what content is actually there. Turning the banner on
+  // makes the page taller by inserting content ABOVE everything else — so
+  // "the same pixel offset as before" now points to wherever the hero
+  // happens to sit today, not the top of the page. This is a real browser
+  // behavior, not something specific to this component, but it only ever
+  // shows up when page height changes between visits, which is exactly
+  // what toggling this banner does. Two things: stop the browser from
+  // trying to restore a remembered offset on this and future loads, and
+  // explicitly correct THIS load if a stale offset already got applied
+  // before this effect had a chance to run (scroll restoration happens
+  // very early, before React hydrates).
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    if (banner?.active && window.scrollY > 0) {
+      window.scrollTo(0, 0);
+    }
+  }, [banner?.active]);
+
   if (!banner?.active || closed) return null;
 
   return (
