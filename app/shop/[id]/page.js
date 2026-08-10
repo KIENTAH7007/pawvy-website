@@ -19,6 +19,7 @@ export async function generateMetadata({ params }) {
       description: product.description
         ? product.description.slice(0, 155)
         : `${name} by ${displayBrandName(product.brand_name)} — available now on Pawvy.co.`,
+      alternates: { canonical: `/shop/${id}` },
     };
   } catch {
     return { title: 'Product | Pawvy' };

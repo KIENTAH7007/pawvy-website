@@ -1,6 +1,7 @@
 export const metadata = {
   title: 'Pet Wellness Tips | Pawvy Blog',
   description: 'Pet care tips and wellness articles from Pawvy.',
+  alternates: { canonical: '/blog' },
 };
 
 // Placeholder — real build needs actual blog content/CMS decision (simple

@@ -4,6 +4,7 @@ import { shopApi } from '../../lib/api';
 export const metadata = {
   title: 'Shop | Pawvy',
   description: 'Browse natural pet wellness products from BetterBone, Salmoil, Lillidale, Eastsea Brother, Puzzle Feeder and GiGwi.',
+  alternates: { canonical: '/shop' },
 };
 
 // Server Component — fetches the initial product list server-side, so the

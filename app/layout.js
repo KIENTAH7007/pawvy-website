@@ -15,6 +15,7 @@ export const metadata = {
   title: 'Pawvy | Natural Pet Wellness Products Singapore',
   description: "Singapore's exclusive distributor of BetterBone, Salmoil, Lillidale, Eastsea Brother & Puzzle Feeder. Trusted, natural pet wellness products to help you make informed choices.",
   metadataBase: new URL('https://pawvy.co'),
+  alternates: { canonical: '/' },
 };
 
 export default function RootLayout({ children }) {

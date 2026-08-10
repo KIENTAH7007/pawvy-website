@@ -18,6 +18,7 @@ export async function generateMetadata({ params }) {
   return {
     title: `${displayBrandName(brandName)} | Pawvy`,
     description: content?.description || `Shop ${displayBrandName(brandName)} products on Pawvy.co — Singapore's exclusive distributor.`,
+    alternates: { canonical: `/brands/${slug}` },
   };
 }
 

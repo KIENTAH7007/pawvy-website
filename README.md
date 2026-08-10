@@ -1,51 +1,66 @@
-# GiGwi — Product Cards now sort New → Featured → Alphabetical
+# SEO improvements: canonical tags + keyword-rich brand slugs (#3 + #4)
 
 ## This delivery is for the Website folder (`pawvy-website`) only
 
-Only one file changed: `components/CategoryBrowser.jsx`.
+9 files changed, listed below. Nothing here touches `pawvy-app`.
 
-## What changed
+## #3 — Canonical tags (done)
 
-The GiGwi brand page's "Shop by category" product cards previously sorted
-**Featured (shuffled) → declaration order**. Worth flagging: the
-non-featured tier was never actually alphabetical before this — it just
-followed whatever row order the cards happened to be listed in inside
-`lib/brandContent.js` (which loosely traces back to your original SKU
-sheet), not a real sort. This delivery makes it genuinely three tiers:
+Added `alternates: { canonical: ... }` to every indexable page's metadata:
+homepage, `/shop`, `/blog`, `/stockist`, every brand page, every product
+page. (Account/cart/login/signup/verify pages are already excluded via
+`robots.txt` and don't need one — they're not meant to be indexed.)
 
-1. **New** — any card with a currently `is_new_active` product (the same
-   flag that already drives the "New" badge on the card itself), sorted
-   alphabetically
-2. **Featured** — unchanged behavior, still reshuffled fresh on every
-   page load
-3. **Everything else** — now genuinely alphabetical by card name (this
-   part is the actual fix vs. before)
+**Favicon — not included, needs a decision first.** The only logo assets
+in `public/` (`pawvy-logo-navy.png` / `-white.png`) are wide wordmarks
+(999×317px), not a square mark — cropping one into a favicon would look
+wrong at 16×16/32×32px. Point me to a proper square brand mark, or
+approve using the 🐾 emoji already used on the homepage as a placeholder,
+and I'll add it in the next pass.
 
-**A card that's both New and Featured lands in the New tier**, not
-duplicated in both — otherwise a brand-new SKU you also mark Featured
-would get buried back into the shuffled Featured group instead of
-leading the page, which defeats the point of the New tier.
+## #4 — Brand slug rename (done)
 
-Cards for archived/unmatched SKUs are still completely excluded, same as
-before (unchanged behavior) — this was already handled correctly and
-untouched by this change.
+| Brand | Old slug | New slug |
+|---|---|---|
+| East Sea Brother | `eastsea-brother` | `eastsea-brother-freeze-dried-dog-treats` |
+| GiGwi | `gigwi` | `gigwi-durable-dog-toys` |
+
+Matches the style of the other 4 brands' existing slugs (already
+keyword-rich). Reasoning: East Sea Brother sells freeze-dried treats (per
+its own tagline in `lib/brandContent.js`); GiGwi's tagline is "playful
+design, durable build."
+
+### "Nothing broken" — what I actually checked
+
+- Searched **both repos** for every hardcoded reference to `eastsea-brother`
+  and `gigwi` in a URL context. Found exactly **one**: the homepage's
+  "exclusive distributor of..." sentence (`app/page.js`) — updated to the
+  new slug.
+- `BrandGallery.jsx` (the homepage's brand cards) and `sitemap.js` both
+  build brand links dynamically from `BRAND_SLUGS`, so they picked up the
+  new values automatically — verified in the built output, not assumed.
+- `pawvy-app` has zero references to either URL — confirmed via a full
+  repo search, not skipped.
+- **Added permanent redirects** (`next.config.js`) from both old slugs to
+  the new ones, so anything you've already tested, bookmarked, or that
+  got crawled today still resolves instead of 404ing. Safe to remove
+  these in a few weeks once you're confident nothing still points at the
+  old paths.
+- Grepped the actual **compiled build output** (`.next/server/app`) for
+  the old slug strings — zero stray references anywhere in what actually
+  ships.
 
 ## Verification performed
 
-- **Real cold-clone build**: fresh `git clone` → applied this file (+ the
-  GiGwi 11-SKU delivery from earlier, so both are tested together as
-  they'll actually ship) → `npm install` → `npm run build` — passed with
-  no errors.
-- **Real logic test** (pure re-implementation of the exact ordering code,
-  run against synthetic cards) confirming:
-  - New tier sorts alphabetically
-  - A card that's both New and Featured lands in the New tier only, not
-    duplicated
-  - The "everything else" tier is genuinely alphabetical now
-  - A card with no matching active product is still correctly excluded
-    entirely (not shown broken)
-- Byte-for-byte diff confirms the file in this zip is the identical file
-  that was cold-clone built above.
+- Real cold-clone build: fresh `git clone` → applied all 9 files together
+  (as they'll actually ship) → `npm install` → `npm run build` — passed
+  with no errors.
+- Verified `BRAND_SLUGS` and the redirect config both resolve to the
+  exact expected values by requiring the real files and printing them.
+- Scanned the compiled `.next` build output directly for old-slug leftovers
+  — none found.
+- Byte-for-byte diff confirms every file in this zip matches what was
+  cold-clone built and tested above.
 
 ## To apply
 
@@ -54,16 +69,12 @@ cd /path/to/your/pawvy-website
 git checkout -- . && git clean -fd && git pull origin main
 ```
 
-Unzip this delivery's `components/CategoryBrowser.jsx` into that folder
-(overwrite), then:
+Unzip this delivery's files into that folder (overwrite), then:
 
 ```bash
 git add .
-git commit -m "GiGwi: sort product cards New -> Featured -> Alphabetical"
+git commit -m "SEO: canonical tags on all indexable pages; keyword-rich slugs for Eastsea Brother & GiGwi with redirects"
 git push origin main
 ```
 
-Railway auto-deploys from `main` — no other steps needed. This is safe to
-apply independently of the "11 New SKUs" delivery — once you activate
-any of those 11 SKUs later, they'll automatically show with the New
-badge and sort to the top, no further changes needed here.
+Railway auto-deploys from `main` — no other steps needed.

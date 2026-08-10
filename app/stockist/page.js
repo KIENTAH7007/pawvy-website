@@ -4,6 +4,7 @@ import { stockistApi, shopApi } from '../../lib/api';
 export const metadata = {
   title: 'Find a Stockist | Pawvy',
   description: "Find where to buy Pawvy's pet wellness brands near you in Singapore — filterable by brand and region.",
+  alternates: { canonical: '/stockist' },
 };
 
 export default async function StockistPage() {
