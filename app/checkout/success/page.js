@@ -89,7 +89,7 @@ function SuccessLanding() {
   }
 
   return (
-    <div style={{ maxWidth: 480, margin: '60px auto', padding: '0 20px' }}>
+    <div style={{ maxWidth: 480, margin: '140px auto 40px', padding: '0 20px' }}>
       {status === 'paid' ? (
         <>
           <h1 style={{ fontSize: 22 }}>🐾 Thank you for your order!</h1>
