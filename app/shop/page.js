@@ -1,10 +1,15 @@
 import ShopClient from '../../components/ShopClient';
 import { shopApi } from '../../lib/api';
+import { buildOgMeta } from '../../lib/seo';
+
+const TITLE = 'Shop | Pawvy';
+const DESCRIPTION = 'Browse natural pet wellness products from BetterBone, Salmoil, Lillidale, Eastsea Brother, Puzzle Feeder and GiGwi.';
 
 export const metadata = {
-  title: 'Shop | Pawvy',
-  description: 'Browse natural pet wellness products from BetterBone, Salmoil, Lillidale, Eastsea Brother, Puzzle Feeder and GiGwi.',
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: { canonical: '/shop' },
+  ...buildOgMeta({ title: TITLE, description: DESCRIPTION, path: '/shop' }),
 };
 
 // Server Component — fetches the initial product list server-side, so the

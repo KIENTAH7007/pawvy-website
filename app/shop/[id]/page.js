@@ -4,6 +4,7 @@ import { shopApi, imageUrl } from '../../../lib/api';
 import { displayBrandName, brandSlug } from '../../../lib/brandSlugs';
 import { BRAND_CONTENT, faqSlug } from '../../../lib/brandContent';
 import { productDisplayName, productTitleTag } from '../../../lib/productDisplayName';
+import { buildOgMeta, buildProductJsonLd } from '../../../lib/seo';
 import AddToCartSection from '../../../components/AddToCartSection';
 
 // generateMetadata runs server-side per request — this is what actually
@@ -19,12 +20,18 @@ export async function generateMetadata({ params }) {
     // on-page card does — worth the keyword there. The meta description
     // and on-page content use the brand-free clean name instead.
     const cleanName = productDisplayName(product);
+    const title = `${productTitleTag(product)} | Pawvy`;
+    const description = product.description
+      ? product.description.slice(0, 155)
+      : `${cleanName} by ${displayBrandName(product.brand_name)} — available now on Pawvy.co.`;
     return {
-      title: `${productTitleTag(product)} | Pawvy`,
-      description: product.description
-        ? product.description.slice(0, 155)
-        : `${cleanName} by ${displayBrandName(product.brand_name)} — available now on Pawvy.co.`,
+      title,
+      description,
       alternates: { canonical: `/shop/${id}` },
+      // Each product's own photo for the share preview — falls back to
+      // the site default (buildOgMeta's own default) for the rare
+      // product that hasn't had a photo uploaded yet.
+      ...buildOgMeta({ title, description, path: `/shop/${id}`, image: product.image_url ? imageUrl(product.image_url) : undefined }),
     };
   } catch {
     return { title: 'Product | Pawvy' };
@@ -40,9 +47,20 @@ export default async function ProductPage({ params }) {
     notFound();
   }
   const name = productDisplayName(product);
+  const jsonLd = buildProductJsonLd({
+    name,
+    description: product.description || `${name} by ${displayBrandName(product.brand_name)}`,
+    image: product.image_url ? imageUrl(product.image_url) : 'https://pawvy.co/og-default.jpg',
+    brandName: displayBrandName(product.brand_name),
+    url: `https://pawvy.co/shop/${id}`,
+  });
 
   return (
     <div className="product-detail-page">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Link href="/shop" className="back">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
         Back to shop

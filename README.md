@@ -1,39 +1,72 @@
-# Favicon revision — opaque background (fixes dark-browser visibility)
+# SEO: Open Graph, Twitter Cards, JSON-LD structured data
 
 ## This delivery is for the Website folder (`pawvy-website`) only
 
-1 file changed: `app/icon.png`.
+23 files total — most were already delivered in earlier sessions (SEO
+canonical tags, product naming, GiGwi sort order, favicon revision, image
+bucket migration) and are unchanged from what you already applied; only
+the files below have new changes from this delivery. Safe to unzip the
+whole thing either way.
 
-## What changed and why
+## What this delivers
 
-The original favicon was a transparent PNG — black icon, no background —
-which meant dark-themed browsers showed it against their own dark tab
-chrome, making it nearly invisible (exactly what you flagged).
+**New shared helper** — `lib/seo.js`:
+- `buildOgMeta()` — builds the `openGraph`/`twitter` metadata object the
+  same way on every page, so nothing drifts between pages.
+- `buildProductJsonLd()` — Product structured data: **name, description,
+  image, brand, url only** — deliberately no `offers` (price/
+  availability), per your call: prices/discounts change often enough
+  that a stale cached price in Google's results risked looking
+  untrustworthy or triggering a manual review, for a benefit that wasn't
+  worth that risk yet. Easy to add later if you change your mind — one
+  field in one function.
+- `ORGANIZATION_JSON_LD` — site-wide Organization schema, rendered once
+  in the root layout.
 
-Replaced with the opaque version you provided (black icon on `#F8F8F8`,
-near-white) rather than the alternative (white icon on pure black).
-Reasoning: the real fix here is opacity itself — baking a solid
-background into the image means it always shows against a background
-Pawvy controls, not whatever color the browser's chrome happens to be.
-Between the two opaque options, light background is the more robust
-choice specifically for dark-mode browsers — a pure black square risks
-blending into dark chrome that's already near-black, which would
-partially reintroduce the same problem just inverted. A light square
-reliably stands out against dark chrome, and reads as a completely
-normal favicon in light-theme browsers too.
+**New file** — `public/og-default.jpg`: the logo+tagline image you sent,
+used as the fallback share image for every page that doesn't have a more
+specific one (homepage, shop grid, blog, stockist).
 
-## Verification performed
+**Per-page OG/Twitter images, each using the most specific real image
+available:**
+- Homepage / shop / blog / stockist → the default logo image
+- Brand pages → that brand's own existing hero photo (already on disk
+  from earlier work — no new asset needed)
+- Product pages → that specific product's own photo (via the bucket),
+  falling back to the default logo image for the rare product with no
+  photo uploaded yet
 
-- Confirmed the source image is genuinely opaque (RGB, no alpha channel)
-  before using it — this was the actual root-cause fix, not just a color
-  swap.
-- Real cold-clone build: fresh `git clone` → applied the file →
-  `npm install` → `npm run build` — passed with no errors.
-- Confirmed in the actual build output that Next.js generated the
-  favicon route from the new image, and that the correct near-white
-  background color survived the build unchanged.
-- Byte-for-byte diff confirms the file in this zip matches what was
-  cold-clone built and tested.
+**Product JSON-LD** rendered directly on the product detail page.
+
+## Verification performed — real, not just a build pass
+
+This one matters more than usual to actually prove, since metadata tags
+don't show up as errors if they're silently wrong — a build can pass
+while `og:image` quietly points at the wrong thing. So beyond the
+standard cold-clone build, I ran a genuine end-to-end test:
+
+1. Started a real instance of the `pawvy-app` backend locally (seeded
+   database, a real inserted test product with a description and an
+   image path).
+2. Built and started the actual `pawvy-website` production server,
+   pointed at that real backend.
+3. Fetched the real rendered HTML of a product page, a brand page, and
+   the homepage, and confirmed:
+   - Product page: `<title>`, `og:title`, `og:description`,
+     `twitter:*`, and the Product JSON-LD block all show the correct
+     product-specific values, and `og:image`/JSON-LD `image` point at
+     that product's own photo — not the default.
+   - Brand page (GiGwi): `og:image` correctly uses GiGwi's own hero
+     photo, not the site default.
+   - Homepage: `og:image` correctly falls back to the default logo
+     image.
+   - Exactly one Organization JSON-LD block and exactly one Product
+     JSON-LD block present on the product page — no duplication.
+4. Ran this full test a second time against the cold-clone-built copy
+   specifically, not just the working directory, with a fresh test
+   product to rule out any leftover state.
+5. Byte-for-byte diff confirms the files in this zip match what was
+   cold-clone built and tested above.
 
 ## To apply
 
@@ -42,14 +75,16 @@ cd /path/to/your/pawvy-website
 git checkout -- . && git clean -fd && git pull origin main
 ```
 
-Unzip this delivery's `app/icon.png` into that folder (overwrite), then:
+Unzip this delivery's files into that folder (overwrite), then:
 
 ```bash
 git add .
-git commit -m "Favicon: switch to opaque background, fixes dark-browser visibility"
+git commit -m "SEO: Open Graph, Twitter Cards, and Product/Organization JSON-LD"
 git push origin main
 ```
 
-Railway auto-deploys from `main`. Browsers cache favicons fairly
-aggressively — if it doesn't look updated right away, a hard refresh or
-checking in a private/incognito window will show the real result.
+Railway auto-deploys from `main`. To see the real result once live, the
+most reliable check is Facebook's Sharing Debugger or Twitter's Card
+Validator (both let you paste a URL and see exactly what they'll render)
+— WhatsApp/iMessage previews can lag behind a cache that takes a bit to
+refresh after a deploy.

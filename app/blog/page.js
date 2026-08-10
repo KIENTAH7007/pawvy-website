@@ -1,7 +1,13 @@
+import { buildOgMeta } from '../../lib/seo';
+
+const TITLE = 'Pet Wellness Tips | Pawvy Blog';
+const DESCRIPTION = 'Pet care tips and wellness articles from Pawvy.';
+
 export const metadata = {
-  title: 'Pet Wellness Tips | Pawvy Blog',
-  description: 'Pet care tips and wellness articles from Pawvy.',
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: { canonical: '/blog' },
+  ...buildOgMeta({ title: TITLE, description: DESCRIPTION, path: '/blog' }),
 };
 
 // Placeholder — real build needs actual blog content/CMS decision (simple

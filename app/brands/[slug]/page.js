@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { shopApi } from '../../../lib/api';
 import { brandNameFromSlug, BRAND_SLUGS, BRAND_HERO_PHOTOS, displayBrandName } from '../../../lib/brandSlugs';
 import { BRAND_CONTENT, faqSlug } from '../../../lib/brandContent';
+import { buildOgMeta } from '../../../lib/seo';
 import BrandDeepDive from '../../../components/BrandDeepDive';
 import FaqAutoOpen from '../../../components/FaqAutoOpen';
 
@@ -15,10 +16,16 @@ export async function generateMetadata({ params }) {
   const brandName = brandNameFromSlug(slug);
   if (!brandName) return { title: 'Brand | Pawvy' };
   const content = BRAND_CONTENT[brandName];
+  const title = `${displayBrandName(brandName)} | Pawvy`;
+  const description = content?.description || `Shop ${displayBrandName(brandName)} products on Pawvy.co — Singapore's exclusive distributor.`;
   return {
-    title: `${displayBrandName(brandName)} | Pawvy`,
-    description: content?.description || `Shop ${displayBrandName(brandName)} products on Pawvy.co — Singapore's exclusive distributor.`,
+    title,
+    description,
     alternates: { canonical: `/brands/${slug}` },
+    // Each brand's own hero photo, not the generic site-wide default —
+    // a real product/lifestyle shot makes for a much better share
+    // preview than the logo repeated on every brand page.
+    ...buildOgMeta({ title, description, path: `/brands/${slug}`, image: BRAND_HERO_PHOTOS[brandName] }),
   };
 }
 

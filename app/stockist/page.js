@@ -1,10 +1,15 @@
 import StockistDirectory from '../../components/StockistDirectory';
 import { stockistApi, shopApi } from '../../lib/api';
+import { buildOgMeta } from '../../lib/seo';
+
+const TITLE = 'Find a Stockist | Pawvy';
+const DESCRIPTION = "Find where to buy Pawvy's pet wellness brands near you in Singapore — filterable by brand and region.";
 
 export const metadata = {
-  title: 'Find a Stockist | Pawvy',
-  description: "Find where to buy Pawvy's pet wellness brands near you in Singapore — filterable by brand and region.",
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: { canonical: '/stockist' },
+  ...buildOgMeta({ title: TITLE, description: DESCRIPTION, path: '/stockist' }),
 };
 
 export default async function StockistPage() {
