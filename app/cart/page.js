@@ -6,6 +6,7 @@ import { useCart } from '../../lib/CartContext';
 import { shopApi, checkoutApi, customerApi, getSessionToken } from '../../lib/api';
 import ProductCard from '../../components/ProductCard';
 import { displayBrandName } from '../../lib/brandSlugs';
+import { productDisplayName } from '../../lib/productDisplayName';
 
 const FREE_SHIPPING_THRESHOLD = 60; // must match server/routes/checkout.js — see note there
 const SHIPPING_COST = 3;            // must match server/routes/checkout.js — see note there
@@ -120,14 +121,14 @@ export default function CartPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
                   <div className="cart-item-thumb">
                     {item.image_data ? (
-                      <img src={item.image_data} alt={item.item_series} />
+                      <img src={item.image_data} alt={productDisplayName(item)} />
                     ) : (
                       <span>No image</span>
                     )}
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <div className="cart-item-brand">{displayBrandName(item.brand_name)}</div>
-                    <div className="cart-item-name">{item.item_series}{item.variation ? ` — ${item.variation}` : ''}</div>
+                    <div className="cart-item-name">{productDisplayName(item)}</div>
                     <div className="cart-item-price">${item.price.toFixed(2)} each</div>
                   </div>
                 </div>

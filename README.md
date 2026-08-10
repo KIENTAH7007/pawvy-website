@@ -1,64 +1,74 @@
-# SEO improvements: canonical tags + keyword-rich brand slugs (#3 + #4)
+# Product naming cleanup (#5) + favicon
 
 ## This delivery is for the Website folder (`pawvy-website`) only
 
-9 files changed, listed below. Nothing here touches `pawvy-app`.
+6 files changed/added, listed below.
 
-## #3 — Canonical tags (done)
+## Favicon
 
-Added `alternates: { canonical: ... }` to every indexable page's metadata:
-homepage, `/shop`, `/blog`, `/stockist`, every brand page, every product
-page. (Account/cart/login/signup/verify pages are already excluded via
-`robots.txt` and don't need one — they're not meant to be indexed.)
+Added your black logomark (`4785_U_Pawvy_Brandguid_PD_PM_06.png`) as
+`app/icon.png` — Next.js's file-based convention auto-generates the
+favicon route from it, confirmed in the actual build output
+(`.next/server/app/icon.png` + the static asset). Used the black version
+since it stays visible against the light tab-bar background virtually
+every browser uses, light or dark page theme. Didn't touch the white
+version — let me know if you specifically want a dark-mode-only variant
+added later, that's a separate small addition.
 
-**Favicon — not included, needs a decision first.** The only logo assets
-in `public/` (`pawvy-logo-navy.png` / `-white.png`) are wide wordmarks
-(999×317px), not a square mark — cropping one into a favicon would look
-wrong at 16×16/32×32px. Point me to a proper square brand mark, or
-approve using the 🐾 emoji already used on the homepage as a placeholder,
-and I'll add it in the next pass.
+## Naming cleanup (#5)
 
-## #4 — Brand slug rename (done)
+**Nothing in Pawvy App changed.** `item_series` stays exactly as stored
+everywhere — POS, Portal, Sales Ledger, Invoices, and critically GiGwi's
+CategoryBrowser (which matches all 100+ of its cards by searching for
+the bare SKU number inside `item_series` — renaming the stored field
+would have broken that matching outright).
 
-| Brand | Old slug | New slug |
-|---|---|---|
-| East Sea Brother | `eastsea-brother` | `eastsea-brother-freeze-dried-dog-treats` |
-| GiGwi | `gigwi` | `gigwi-durable-dog-toys` |
+New file `lib/productDisplayName.js` does the cleanup at display time
+only: strips the leading SKU code and the redundant brand name (handling
+the real "GiGiw" typo found in the data) from `item_series`, leaving the
+actual product-line words + variation. Falls back to `variation` alone
+for brands like East Sea Brother, where `item_series` is a pure internal
+code with no readable words at all.
 
-Matches the style of the other 4 brands' existing slugs (already
-keyword-rich). Reasoning: East Sea Brother sells freeze-dried treats (per
-its own tagline in `lib/brandContent.js`); GiGwi's tagline is "playful
-design, durable build."
+**Wired into every customer-facing spot that showed the raw string** —
+found by grepping the whole codebase for `item_series`, not just the two
+places from the original ask:
+- Shop grid card title + image alt (`ProductCard.jsx`)
+- Product detail page `<h1>`, image alt, and meta description
+  (`app/shop/[id]/page.js`)
+- Cart item name + image alt (`app/cart/page.js`)
+- Order confirmation line items (`app/checkout/success/page.js`)
 
-### "Nothing broken" — what I actually checked
+**`<title>` tags keep the brand name** (via the new `productTitleTag()`
+helper) since search results and link previews don't show the separate
+brand-tag chip the on-page card does — e.g. `"GiGwi Plush Friendz —
+Dinosaur Backpack | Pawvy"`. Everywhere else uses the brand-free clean
+name since the brand's already shown as its own tag right above it.
 
-- Searched **both repos** for every hardcoded reference to `eastsea-brother`
-  and `gigwi` in a URL context. Found exactly **one**: the homepage's
-  "exclusive distributor of..." sentence (`app/page.js`) — updated to the
-  new slug.
-- `BrandGallery.jsx` (the homepage's brand cards) and `sitemap.js` both
-  build brand links dynamically from `BRAND_SLUGS`, so they picked up the
-  new values automatically — verified in the built output, not assumed.
-- `pawvy-app` has zero references to either URL — confirmed via a full
-  repo search, not skipped.
-- **Added permanent redirects** (`next.config.js`) from both old slugs to
-  the new ones, so anything you've already tested, bookmarked, or that
-  got crawled today still resolves instead of 404ing. Safe to remove
-  these in a few weeks once you're confident nothing still points at the
-  old paths.
-- Grepped the actual **compiled build output** (`.next/server/app`) for
-  the old slug strings — zero stray references anywhere in what actually
-  ships.
+### Two rough edges in the source data (not a bug in this fix)
+
+SKUs `7519` ("GiGwi with Silvervine Ring") and `7527` ("GiGwi with
+Leatherette") are missing a product-line name in `item_series` itself —
+they render as "with Silvervine Ring — Raccoon" (starts with a lowercase
+"with"). Nothing to strip because the words just aren't there. Worth a
+quick check in Pawvy App to see if that's a data-entry gap — if you add
+the missing line name there (e.g. "GiGwi **Rookie Hunter** with
+Silvervine Ring"), this display logic picks it up automatically, no code
+change needed.
 
 ## Verification performed
 
-- Real cold-clone build: fresh `git clone` → applied all 9 files together
-  (as they'll actually ship) → `npm install` → `npm run build` — passed
-  with no errors.
-- Verified `BRAND_SLUGS` and the redirect config both resolve to the
-  exact expected values by requiring the real files and printing them.
-- Scanned the compiled `.next` build output directly for old-slug leftovers
-  — none found.
+- Ran the actual naming rule against **all 217 real SKUs across all 6
+  brands** (not a hand-picked sample) before ever wiring it into a page —
+  215 clean, the 2 above flagged automatically by the check script.
+- After building the real module, re-ran a validation pass against the
+  already-confirmed samples to make sure nothing drifted moving from a
+  test script into the real file — matched exactly.
+- Real cold-clone build: fresh `git clone` → applied all 6 files (plus
+  every prior SEO delivery, tested together as they'll actually ship) →
+  `npm install` → `npm run build` — passed with no errors.
+- Confirmed in the actual build output that Next.js generated the
+  favicon route from `app/icon.png`.
 - Byte-for-byte diff confirms every file in this zip matches what was
   cold-clone built and tested above.
 
@@ -73,8 +83,10 @@ Unzip this delivery's files into that folder (overwrite), then:
 
 ```bash
 git add .
-git commit -m "SEO: canonical tags on all indexable pages; keyword-rich slugs for Eastsea Brother & GiGwi with redirects"
+git commit -m "Website: clean product display names (SEO) + favicon"
 git push origin main
 ```
 
-Railway auto-deploys from `main` — no other steps needed.
+Railway auto-deploys from `main` — no other steps needed. Safe to apply
+independently of, or together with, the earlier SEO delivery (canonical
+tags + brand slugs) — no overlap between the two.

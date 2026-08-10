@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { checkoutApi } from '../../../lib/api';
 import { useCart } from '../../../lib/CartContext';
 import { displayBrandName } from '../../../lib/brandSlugs';
+import { productDisplayName } from '../../../lib/productDisplayName';
 
 export default function CheckoutSuccessPage() {
   return (
@@ -110,7 +111,7 @@ function SuccessLanding() {
         <div style={{ background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: 16, marginTop: 20 }}>
           {items.map((item, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, padding: '6px 0' }}>
-              <span>{item.qty}x {displayBrandName(item.brand_name)} — {item.item_series}{item.variation ? ` · ${item.variation}` : ''}</span>
+              <span>{item.qty}x {displayBrandName(item.brand_name)} — {productDisplayName(item)}</span>
               <span>${(item.unit_price * item.qty).toFixed(2)}</span>
             </div>
           ))}

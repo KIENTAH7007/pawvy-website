@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { displayBrandName } from '../lib/brandSlugs';
+import { productDisplayName } from '../lib/productDisplayName';
 import Link from 'next/link';
 import QtyStepper from './QtyStepper';
 
@@ -10,6 +11,7 @@ import QtyStepper from './QtyStepper';
 export default function ProductCard({ product: p, onAdd }) {
   const [qty, setQty] = useState(1);
   const outOfStock = p.stock_status === 'out_of_stock';
+  const name = productDisplayName(p);
 
   return (
     <div className="product-card" style={{ opacity: outOfStock ? 0.6 : 1 }}>
@@ -23,13 +25,13 @@ export default function ProductCard({ product: p, onAdd }) {
         <div className="thumb">
           {p.is_new_active && <span className="new-tag">New</span>}
           {p.image_data ? (
-            <img src={p.image_data} alt={p.item_series} />
+            <img src={p.image_data} alt={name} />
           ) : (
             <span className="no-img">No image</span>
           )}
         </div>
         <div className="info">
-          <h3>{p.item_series}{p.variation ? ` — ${p.variation}` : ''}</h3>
+          <h3>{name}</h3>
           <div className="price">
             {p.is_discount_active && <span className="was">${p.price_rrp_sg.toFixed(2)}</span>}
             ${p.effective_price_rrp_sg.toFixed(2)}

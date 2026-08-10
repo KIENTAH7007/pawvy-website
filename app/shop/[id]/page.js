@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { shopApi } from '../../../lib/api';
 import { displayBrandName, brandSlug } from '../../../lib/brandSlugs';
 import { BRAND_CONTENT, faqSlug } from '../../../lib/brandContent';
+import { productDisplayName, productTitleTag } from '../../../lib/productDisplayName';
 import AddToCartSection from '../../../components/AddToCartSection';
 
 // generateMetadata runs server-side per request — this is what actually
@@ -13,12 +14,16 @@ export async function generateMetadata({ params }) {
   const { id } = await params;
   try {
     const { product } = await shopApi.product(id);
-    const name = `${product.item_series}${product.variation ? ' — ' + product.variation : ''}`;
+    // <title> keeps the brand name (productTitleTag) since search
+    // results/link previews don't show the separate brand-tag chip the
+    // on-page card does — worth the keyword there. The meta description
+    // and on-page content use the brand-free clean name instead.
+    const cleanName = productDisplayName(product);
     return {
-      title: `${name} | Pawvy`,
+      title: `${productTitleTag(product)} | Pawvy`,
       description: product.description
         ? product.description.slice(0, 155)
-        : `${name} by ${displayBrandName(product.brand_name)} — available now on Pawvy.co.`,
+        : `${cleanName} by ${displayBrandName(product.brand_name)} — available now on Pawvy.co.`,
       alternates: { canonical: `/shop/${id}` },
     };
   } catch {
@@ -34,6 +39,7 @@ export default async function ProductPage({ params }) {
   } catch {
     notFound();
   }
+  const name = productDisplayName(product);
 
   return (
     <div className="product-detail-page">
@@ -45,7 +51,7 @@ export default async function ProductPage({ params }) {
       <div className="product-detail-grid">
         <div className="product-detail-image">
           {product.image_data ? (
-            <img src={product.image_data} alt={product.item_series} />
+            <img src={product.image_data} alt={name} />
           ) : (
             <span>No image</span>
           )}
@@ -53,7 +59,7 @@ export default async function ProductPage({ params }) {
 
         <div className="product-detail-info">
           <div className="product-detail-brand" style={{ color: product.brand_color || 'var(--orange)' }}>{displayBrandName(product.brand_name)}</div>
-          <h1>{product.item_series}{product.variation ? ` — ${product.variation}` : ''}</h1>
+          <h1>{name}</h1>
 
           <div className="product-detail-price">
             {product.is_discount_active && <span className="was">${product.price_rrp_sg.toFixed(2)}</span>}
