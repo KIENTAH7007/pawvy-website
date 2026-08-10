@@ -36,6 +36,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useCart } from '../lib/CartContext';
+import { imageUrl } from '../lib/api';
 import QtyStepper from './QtyStepper';
 
 const COLOR_KEYWORDS = [
@@ -210,9 +211,20 @@ export default function ProductAddButton({ products, productLabel, variants, ser
               <h3>{productLabel}</h3>
 
               <div className="fit-modal-image-wrap">
-                {(current?.forceImage ? current?.image : (current?.product?.image_data || current?.image))
-                  ? <img src={current.forceImage ? current.image : (current.product?.image_data || current.image)} alt={productLabel} />
-                  : <div className="img-placeholder" style={{ width: '100%', height: '100%' }}><span>No photo</span></div>}
+                {(() => {
+                  // current.image is a curated STATIC asset path (from
+                  // lib/brandContent.js's variant config, e.g.
+                  // "/brand-features/...") — untouched, not from the API.
+                  // current.product?.image_url is a REAL uploaded photo
+                  // from the database, now a bucket-proxied relative path
+                  // that needs the backend prefix — see lib/api.js.
+                  const src = current?.forceImage
+                    ? current?.image
+                    : (current?.product?.image_url ? imageUrl(current.product.image_url) : current?.image);
+                  return src
+                    ? <img src={src} alt={productLabel} />
+                    : <div className="img-placeholder" style={{ width: '100%', height: '100%' }}><span>No photo</span></div>;
+                })()}
               </div>
 
               {isDynamic ? (

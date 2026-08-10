@@ -1,10 +1,20 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Product images currently come through as base64 data URLs from the
-  // Pawvy App backend (image_data field) — no external image domains to
-  // whitelist yet. Revisit if/when images move to a CDN/object storage.
+  // Product images (Aug 2026 update): now real files served from a
+  // Railway Storage Bucket, proxied through the Pawvy App backend
+  // (/api/uploads/...) rather than base64 data URLs — see
+  // server/lib/bucket.js and server/routes/uploads.js in pawvy-app, and
+  // lib/api.js's imageUrl() helper here. Still using plain <img> tags
+  // everywhere rather than next/image for this delivery — deliberately
+  // conservative, since converting to next/image needs known dimensions
+  // or a sized `fill` container per usage site, and getting that wrong
+  // risks a layout bug I can't verify without a running browser. Real
+  // URLs are already the big win (no more giant base64 in every page/API
+  // response); next/image's automatic resizing/WebP conversion is a
+  // worthwhile follow-up once each usage site's layout is reviewed one
+  // at a time, not a change to rush through in this same pass.
   images: {
-    unoptimized: true, // base64 data URLs don't benefit from next/image optimization anyway
+    unoptimized: true,
   },
   // SEO slug update (Aug 2026): East Sea Brother and GiGwi's brand page
   // slugs changed from bare ('eastsea-brother', 'gigwi') to keyword-rich

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { shopApi } from '../../../lib/api';
+import { shopApi, imageUrl } from '../../../lib/api';
 import { displayBrandName, brandSlug } from '../../../lib/brandSlugs';
 import { BRAND_CONTENT, faqSlug } from '../../../lib/brandContent';
 import { productDisplayName, productTitleTag } from '../../../lib/productDisplayName';
@@ -50,8 +50,8 @@ export default async function ProductPage({ params }) {
 
       <div className="product-detail-grid">
         <div className="product-detail-image">
-          {product.image_data ? (
-            <img src={product.image_data} alt={name} />
+          {product.image_url ? (
+            <img src={imageUrl(product.image_url)} alt={name} />
           ) : (
             <span>No image</span>
           )}

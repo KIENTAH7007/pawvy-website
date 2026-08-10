@@ -45,7 +45,7 @@ export function CartProvider({ children }) {
       return [...prev, {
         id: product.id, item_series: product.item_series, variation: product.variation,
         brand_name: product.brand_name, price: product.effective_price_rrp_sg, qty,
-        image_data: product.image_data || null,
+        image_url: product.image_url || null,
       }];
     });
   }

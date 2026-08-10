@@ -18,6 +18,7 @@
 // Pawvy App screenshot of GiGwi's actual item_series format — flagged in
 // the README, needs a real click-through per category after deploy.
 import { useState, useMemo } from 'react';
+import { imageUrl } from '../lib/api';
 import ProductAddButton from './ProductAddButton';
 
 function matchByPrefix(products, prefix) {
@@ -63,7 +64,7 @@ function GiGwiCard({ card, products }) {
   const variants = cardVariants(card);
 
   const matches = variants.map(v => matchByPrefix(products, v.skuPrefix));
-  const coverMatch = matches.find(m => m?.image_data) || matches.find(Boolean);
+  const coverMatch = matches.find(m => m?.image_url) || matches.find(Boolean);
   const prices = matches.filter(Boolean).map(m => m.effective_price_rrp_sg);
   const minPrice = prices.length ? Math.min(...prices) : null;
   // This card can represent several variant SKUs at once (different colors
@@ -79,8 +80,8 @@ function GiGwiCard({ card, products }) {
       </div>
       <div className="thumb">
         {anyNew && <span className="new-tag">New</span>}
-        {coverMatch?.image_data
-          ? <img src={coverMatch.image_data} alt={card.name} />
+        {coverMatch?.image_url
+          ? <img src={imageUrl(coverMatch.image_url)} alt={card.name} />
           : <span className="no-img">No image</span>}
       </div>
       <div className="info">

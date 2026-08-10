@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { imageUrl } from '../lib/api';
 
 // The reusable full-width homepage takeover banner — built for announcing
 // a new brand (Wild Balance being the first case this was built for, see
@@ -52,7 +53,7 @@ export default function HomepageBanner({ banner }) {
 
   return (
     <a href={banner.link} className="wb-takeover">
-      <img src={banner.image} alt={banner.headline || 'New at Pawvy'} className="wb-takeover-bg" />
+      <img src={imageUrl(banner.image)} alt={banner.headline || 'New at Pawvy'} className="wb-takeover-bg" />
     </a>
   );
 }
