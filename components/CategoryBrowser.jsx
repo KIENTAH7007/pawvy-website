@@ -28,6 +28,13 @@ function matchByPrefix(products, prefix) {
   }) || null;
 }
 
+// A "single" card is just a group with one variant — shared by GiGwiCard
+// (rendering) and the New/Featured/Alphabetical ordering logic below, so
+// both always agree on what a card's real variant list is.
+function cardVariants(card) {
+  return card.type === 'single' ? [{ skuPrefix: card.skuPrefix }] : card.variants;
+}
+
 // Fisher-Yates — reshuffles on every mount (i.e. every page load/nav),
 // per KT's ask: featured items lead each category but in a fresh random
 // order each time, not a fixed ranking.
@@ -53,9 +60,7 @@ function shuffle(arr) {
 // no picker, same as it would ProductAddButton's own single-variant logic
 // already handled elsewhere.
 function GiGwiCard({ card, products }) {
-  const variants = card.type === 'single'
-    ? [{ skuPrefix: card.skuPrefix }]
-    : card.variants;
+  const variants = cardVariants(card);
 
   const matches = variants.map(v => matchByPrefix(products, v.skuPrefix));
   const coverMatch = matches.find(m => m?.image_data) || matches.find(Boolean);
@@ -94,17 +99,42 @@ function GiGwiCard({ card, products }) {
 export default function CategoryBrowser({ browser, products }) {
   const [activeTab, setActiveTab] = useState(browser.tabs[0]?.id);
 
+  // New -> Featured -> Alphabetical, per KT's ask (Aug 2026). "New" means
+  // any matched variant is currently is_new_active — same flag that
+  // drives the "New" badge on the card itself (see GiGwiCard's anyNew
+  // above), so a card lands in this top tier for exactly as long as its
+  // badge shows, no separate rule to keep in sync. A card that's both New
+  // AND Featured counts as New (goes in the top tier, not duplicated) —
+  // otherwise a brand-new SKU KT also marks Featured would get buried
+  // back in the shuffled Featured group instead of leading the page.
+  //
+  // Featured (non-new) keeps the existing once-per-mount shuffle so that
+  // tier still feels fresh on repeat visits, same as before this change.
+  // The bottom tier is now genuinely alphabetical by card.name — it
+  // previously just fell back to whatever order the cards happened to be
+  // declared in lib/brandContent.js (usually KT's original SKU-sheet row
+  // order), which looked roughly alphabetical by coincidence for some
+  // tabs but wasn't actually sorting on anything.
+  //
   // useMemo (not useEffect) so the shuffle happens exactly once per real
   // mount, in the same render pass — no flash of unshuffled order.
   const orderedByTab = useMemo(() => {
     const result = {};
     for (const tab of browser.tabs) {
-      const featured = shuffle(tab.cards.filter(c => c.featured));
-      const rest = tab.cards.filter(c => !c.featured);
-      result[tab.id] = [...featured, ...rest];
+      // Only cards with at least one currently-active matching product —
+      // archived/removed SKUs disappear rather than sitting broken on
+      // the page (see the matchByPrefix note above the component).
+      const visible = tab.cards.filter(card => cardVariants(card).some(v => matchByPrefix(products, v.skuPrefix)));
+      const isNewCard = card => cardVariants(card).some(v => matchByPrefix(products, v.skuPrefix)?.is_new_active);
+
+      const newCards = visible.filter(isNewCard).sort((a, b) => a.name.localeCompare(b.name));
+      const featuredCards = shuffle(visible.filter(c => c.featured && !isNewCard(c)));
+      const restCards = visible.filter(c => !c.featured && !isNewCard(c)).sort((a, b) => a.name.localeCompare(b.name));
+
+      result[tab.id] = [...newCards, ...featuredCards, ...restCards];
     }
     return result;
-  }, [browser]);
+  }, [browser, products]);
 
   const activeCards = orderedByTab[activeTab] || [];
 
@@ -129,17 +159,9 @@ export default function CategoryBrowser({ browser, products }) {
           ))}
         </div>
         <div className="product-grid">
-          {activeCards.map(card => {
-            const variants = card.type === 'single' ? [{ skuPrefix: card.skuPrefix }] : card.variants;
-            const anyMatch = variants.some(v => matchByPrefix(products, v.skuPrefix));
-            // Archived/removed SKUs just don't match anymore — the right
-            // behavior is for the card to disappear, not sit on the page
-            // permanently showing "Unavailable". (A genuine matching bug
-            // looks identical from here — that's what the README's
-            // click-through ask is for, not a permanent on-page state.)
-            if (!anyMatch) return null;
-            return <GiGwiCard key={card.type === 'single' ? card.skuPrefix : card.name} card={card} products={products} />;
-          })}
+          {activeCards.map(card => (
+            <GiGwiCard key={card.type === 'single' ? card.skuPrefix : card.name} card={card} products={products} />
+          ))}
         </div>
       </div>
     </section>
