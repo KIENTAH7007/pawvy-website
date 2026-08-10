@@ -1,73 +1,39 @@
-# Image storage migration: base64 → Railway Storage Bucket (Website side)
+# Favicon revision — opaque background (fixes dark-browser visibility)
 
 ## This delivery is for the Website folder (`pawvy-website`) only
 
-21 files total in this zip — most were already delivered in earlier
-sessions (SEO canonical tags, product naming cleanup, GiGwi sort order)
-and are unchanged from what you already applied; only the files below
-have new changes from this bucket migration. Safe to unzip the whole
-thing either way — re-applying identical content to already-applied
-files is harmless.
+1 file changed: `app/icon.png`.
 
-## What actually changed for the bucket migration
+## What changed and why
 
-The backend (`pawvy-app`) now returns a relative path like
-`/api/uploads/products/123-1723200000000.jpg` in every `image_url`
-field, instead of a giant base64 string in `image_data`. Every place on
-the website that renders a product/banner/Instagram photo needed to
-build the full URL (backend domain + that path) instead of using the
-base64 directly.
+The original favicon was a transparent PNG — black icon, no background —
+which meant dark-themed browsers showed it against their own dark tab
+chrome, making it nearly invisible (exactly what you flagged).
 
-**New shared helper**: `lib/api.js` now exports `imageUrl(relativePath)`
-— every image-rendering spot goes through this one place rather than
-repeating the URL-prefix logic.
-
-**Files actually touched for this reason:**
-- `lib/api.js` — the new `imageUrl()` helper
-- `components/ProductCard.jsx` — Shop grid thumbnails
-- `app/shop/[id]/page.js` — product detail page image
-- `lib/CartContext.jsx` + `app/cart/page.js` — cart item images
-- `components/InstagramGrid.jsx` — homepage Instagram photos
-- `components/HomepageBanner.jsx` — the full-width takeover banner
-- `components/CategoryBrowser.jsx` — GiGwi's shop-by-category cards
-  (100+ SKUs, cover-photo matching logic)
-- `components/ProductAddButton.jsx` — the variant-picker modal used
-  across BetterBone/Lillidale/Salmoil/Puzzle Feeder/East Sea Brother.
-  Careful distinction here: `current.image` (a curated static asset from
-  `lib/brandContent.js`, e.g. `/brand-features/...`) is untouched — only
-  `current.product.image_url` (a real uploaded photo from the database)
-  gets the `imageUrl()` prefix.
-- `next.config.js` — updated the stale comment explaining the old
-  base64 reasoning. Deliberately **not** converting to `next/image` in
-  this delivery — real URLs are already the big win (no more giant
-  base64 in every page/API response); `next/image`'s automatic
-  resizing/WebP conversion needs known dimensions or a sized `fill`
-  container per usage site, and getting that wrong risks a layout bug I
-  can't verify without a running browser. Worth doing as a deliberate
-  follow-up, reviewed one usage site at a time — not rushed into this
-  same pass, especially given the recent Dashboard incident from moving
-  too fast on a UI change.
-
-## A real gap, disclosed rather than hidden
-
-Cart contents already sitting in a customer's browser (localStorage)
-from before this ships will have the old `image_data` field, not
-`image_url` — after deploy, pre-existing cart items would show a missing
-image until re-added. Minor and self-healing (carts are short-lived),
-not worth a dual-format fallback for a rare, temporary edge case.
+Replaced with the opaque version you provided (black icon on `#F8F8F8`,
+near-white) rather than the alternative (white icon on pure black).
+Reasoning: the real fix here is opacity itself — baking a solid
+background into the image means it always shows against a background
+Pawvy controls, not whatever color the browser's chrome happens to be.
+Between the two opaque options, light background is the more robust
+choice specifically for dark-mode browsers — a pure black square risks
+blending into dark chrome that's already near-black, which would
+partially reintroduce the same problem just inverted. A light square
+reliably stands out against dark chrome, and reads as a completely
+normal favicon in light-theme browsers too.
 
 ## Verification performed
 
-- Full repo grep for `image_data` after all edits — the only remaining
-  reference is a stale comment fragment in `next.config.js`, now
-  corrected; nothing live left pointing at the old field.
-- Real cold-clone build: fresh `git clone` → applied all 21 files →
+- Confirmed the source image is genuinely opaque (RGB, no alpha channel)
+  before using it — this was the actual root-cause fix, not just a color
+  swap.
+- Real cold-clone build: fresh `git clone` → applied the file →
   `npm install` → `npm run build` — passed with no errors.
-- Grepped the actual compiled build output (`.next/server`) for any
-  leftover `image_data` references — none found; confirms nothing leaked
-  into what actually ships.
-- Byte-for-byte diff confirms every file in this zip matches what was
-  cold-clone built and tested above.
+- Confirmed in the actual build output that Next.js generated the
+  favicon route from the new image, and that the correct near-white
+  background color survived the build unchanged.
+- Byte-for-byte diff confirms the file in this zip matches what was
+  cold-clone built and tested.
 
 ## To apply
 
@@ -76,15 +42,14 @@ cd /path/to/your/pawvy-website
 git checkout -- . && git clean -fd && git pull origin main
 ```
 
-Unzip this delivery's files into that folder (overwrite), then:
+Unzip this delivery's `app/icon.png` into that folder (overwrite), then:
 
 ```bash
 git add .
-git commit -m "Wire product/banner/Instagram images to the new bucket-proxied URLs"
+git commit -m "Favicon: switch to opaque background, fixes dark-browser visibility"
 git push origin main
 ```
 
-Railway auto-deploys from `main`. **Apply this together with, or after,
-the App-side "Image Bucket Migration" delivery** — this side depends on
-the backend actually returning `image_url` fields, which only happens
-once that one's live.
+Railway auto-deploys from `main`. Browsers cache favicons fairly
+aggressively — if it doesn't look updated right away, a hard refresh or
+checking in a private/incognito window will show the real result.
