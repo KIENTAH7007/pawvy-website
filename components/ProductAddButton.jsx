@@ -37,6 +37,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useCart } from '../lib/CartContext';
 import { imageUrl } from '../lib/api';
+import { findMatches } from '../lib/matching';
 import QtyStepper from './QtyStepper';
 
 const COLOR_KEYWORDS = [
@@ -50,29 +51,13 @@ function swatchFor(text) {
   return hit ? hit[1] : '#B8B2A6';
 }
 
-export function findMatches(products, { seriesIncludes, seriesExcludes = [], variationIncludes, variationIncludesAny }) {
-  const seriesTerms = Array.isArray(seriesIncludes) ? seriesIncludes : [seriesIncludes];
-  const variationTerms = variationIncludesAny || (variationIncludes ? [variationIncludes] : null);
-  const lower = s => (s || '').toLowerCase();
-  return products.filter(p => {
-    // Which field holds the descriptive fish/product name isn't
-    // consistent across brands — Puzzle Feeder/BetterBone put it in
-    // item_series (e.g. "PF-G001 Puzzle Feeder"), Eastsea Brother puts
-    // just the SKU code there ("EFDF-P125") and the real name in
-    // variation ("FD Pollack 125g") instead. Checking both combined
-    // avoids needing to know which convention a given brand uses.
-    const combined = `${lower(p.item_series)} ${lower(p.variation)}`;
-    const variation = lower(p.variation);
-    if (!seriesTerms.some(t => combined.includes(lower(t)))) return false;
-    if (seriesExcludes.some(x => combined.includes(lower(x)))) return false;
-    // variationIncludesAny: match if ANY of the given terms appear — used
-    // to hedge against a size being written slightly differently than
-    // expected in the real data (e.g. "2kg" vs "2 kg" vs "2000g") without
-    // needing a confirmed screenshot for every possible format.
-    if (variationTerms && !variationTerms.some(t => variation.includes(lower(t)))) return false;
-    return true;
-  });
-}
+// Re-exported for backward compatibility — FitCard.jsx imports
+// findMatches from this file specifically. The real implementation now
+// lives in lib/matching.js (a neutral, non-'use client' file), so it can
+// also be imported directly by Server Components like BrandDeepDive.jsx
+// without violating the Server/Client Component boundary — see the
+// comment in lib/matching.js for the full story on why this moved.
+export { findMatches };
 
 // "Soft Classic Mini" + hardness prefix "Soft" -> { flavor: "Classic", size: "Mini" }.
 // Assumes "<known prefix> <flavor...> <size>" — last word is size, everything

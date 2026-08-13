@@ -21,7 +21,8 @@
 // button never needs its own fetch — see ProductAddButton.jsx for the
 // matching logic.
 import { Fragment } from 'react';
-import ProductAddButton, { findMatches } from './ProductAddButton';
+import ProductAddButton from './ProductAddButton';
+import { findMatches } from '../lib/matching';
 import RecipeSelector from './RecipeSelector';
 import CategoryBrowser from './CategoryBrowser';
 import FitCard from './FitCard';
