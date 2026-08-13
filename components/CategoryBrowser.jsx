@@ -100,14 +100,25 @@ function GiGwiCard({ card, products }) {
 export default function CategoryBrowser({ browser, products }) {
   const [activeTab, setActiveTab] = useState(browser.tabs[0]?.id);
 
-  // New -> Featured -> Alphabetical, per KT's ask (Aug 2026). "New" means
-  // any matched variant is currently is_new_active — same flag that
-  // drives the "New" badge on the card itself (see GiGwiCard's anyNew
-  // above), so a card lands in this top tier for exactly as long as its
-  // badge shows, no separate rule to keep in sync. A card that's both New
-  // AND Featured counts as New (goes in the top tier, not duplicated) —
-  // otherwise a brand-new SKU KT also marks Featured would get buried
-  // back in the shuffled Featured group instead of leading the page.
+  // Out-of-stock sink (Aug 2026, per KT): a card only sinks to the
+  // bottom once EVERY variant inside it is out of stock — a group card
+  // like "Orange Tennis Ball" with an S and an M size stays in its
+  // normal position as long as even one size is still buyable. A
+  // variant with no matching active product at all (archived/removed)
+  // counts the same as out-of-stock here, since it's equally not
+  // purchasable — this only affects sort position, not visibility
+  // (the `visible` filter above already requires at least one real
+  // match to show the card at all).
+  //
+  // New -> Featured -> Alphabetical, per KT's ask (Aug 2026). "New"
+  // means any matched variant is currently is_new_active — same flag
+  // that drives the "New" badge on the card itself (see GiGwiCard's
+  // anyNew above), so a card lands in this top tier for exactly as long
+  // as its badge shows, no separate rule to keep in sync. A card that's
+  // both New AND Featured counts as New (goes in the top tier, not
+  // duplicated) — otherwise a brand-new SKU KT also marks Featured
+  // would get buried back in the shuffled Featured group instead of
+  // leading the page.
   //
   // Featured (non-new) keeps the existing once-per-mount shuffle so that
   // tier still feels fresh on repeat visits, same as before this change.
@@ -117,22 +128,37 @@ export default function CategoryBrowser({ browser, products }) {
   // order), which looked roughly alphabetical by coincidence for some
   // tabs but wasn't actually sorting on anything.
   //
+  // The New/Featured/Alphabetical ordering is applied identically to
+  // the in-stock group and the all-OOS group (via orderWithinGroup) —
+  // OOS status is a separate, higher-priority partition on top of that
+  // existing logic, not a replacement for it.
+  //
   // useMemo (not useEffect) so the shuffle happens exactly once per real
   // mount, in the same render pass — no flash of unshuffled order.
   const orderedByTab = useMemo(() => {
+    function orderWithinGroup(cards) {
+      const isNewCard = card => cardVariants(card).some(v => matchByPrefix(products, v.skuPrefix)?.is_new_active);
+      const newCards = cards.filter(isNewCard).sort((a, b) => a.name.localeCompare(b.name));
+      const featuredCards = shuffle(cards.filter(c => c.featured && !isNewCard(c)));
+      const restCards = cards.filter(c => !c.featured && !isNewCard(c)).sort((a, b) => a.name.localeCompare(b.name));
+      return [...newCards, ...featuredCards, ...restCards];
+    }
+
     const result = {};
     for (const tab of browser.tabs) {
       // Only cards with at least one currently-active matching product —
       // archived/removed SKUs disappear rather than sitting broken on
       // the page (see the matchByPrefix note above the component).
       const visible = tab.cards.filter(card => cardVariants(card).some(v => matchByPrefix(products, v.skuPrefix)));
-      const isNewCard = card => cardVariants(card).some(v => matchByPrefix(products, v.skuPrefix)?.is_new_active);
+      const allVariantsOOS = card => cardVariants(card).every(v => {
+        const matched = matchByPrefix(products, v.skuPrefix);
+        return !matched || matched.stock_status === 'out_of_stock';
+      });
 
-      const newCards = visible.filter(isNewCard).sort((a, b) => a.name.localeCompare(b.name));
-      const featuredCards = shuffle(visible.filter(c => c.featured && !isNewCard(c)));
-      const restCards = visible.filter(c => !c.featured && !isNewCard(c)).sort((a, b) => a.name.localeCompare(b.name));
+      const availableCards = visible.filter(c => !allVariantsOOS(c));
+      const oosCards = visible.filter(allVariantsOOS);
 
-      result[tab.id] = [...newCards, ...featuredCards, ...restCards];
+      result[tab.id] = [...orderWithinGroup(availableCards), ...orderWithinGroup(oosCards)];
     }
     return result;
   }, [browser, products]);

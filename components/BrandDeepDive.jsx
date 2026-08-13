@@ -21,10 +21,39 @@
 // button never needs its own fetch — see ProductAddButton.jsx for the
 // matching logic.
 import { Fragment } from 'react';
-import ProductAddButton from './ProductAddButton';
+import ProductAddButton, { findMatches } from './ProductAddButton';
 import RecipeSelector from './RecipeSelector';
 import CategoryBrowser from './CategoryBrowser';
 import FitCard from './FitCard';
+
+// Out-of-stock sink (Aug 2026, per KT) — same rule as GiGwi's category
+// browser (see CategoryBrowser.jsx), applied here to the fitCards /
+// fitCardGroups sections used by Puzzle Feeder, East Sea Brother,
+// Lillidale, and Salmoil: a card only sinks to the bottom of its section
+// once EVERY variant inside it is out of stock — a multi-size card with
+// even one size still buyable stays in its normal position. A variant
+// with no matching active product at all counts the same as
+// out-of-stock here (not purchasable either way), same convention as
+// CategoryBrowser. Deliberately preserves whatever order the items were
+// already in within each partition — these sections never had a New/
+// Featured/Alphabetical system the way GiGwi's does, so this only adds
+// the OOS rule KT actually asked for, not a new sort scheme nobody
+// requested.
+function itemAllVariantsOOS(item, products) {
+  return item.variants.every(v => {
+    const matches = findMatches(products, {
+      seriesIncludes: v.seriesIncludes, seriesExcludes: v.seriesExcludes,
+      variationIncludes: v.variationIncludes, variationIncludesAny: v.variationIncludesAny,
+    });
+    if (matches.length === 0) return true; // no match = not purchasable = treat as OOS for sort purposes
+    return matches.every(p => p.stock_status === 'out_of_stock');
+  });
+}
+function sortItemsByStock(items, products) {
+  const available = items.filter(item => !itemAllVariantsOOS(item, products));
+  const oos = items.filter(item => itemAllVariantsOOS(item, products));
+  return [...available, ...oos];
+}
 
 function ImageSlot({ image, alt, hint, className, style }) {
   if (image) return <img src={image} alt={alt} className={className} style={style} />;
@@ -317,7 +346,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
               <p>{fitCards.sub}</p>
             </div>
             <div className="pf-fit-grid">
-              {fitCards.items.map(item => (
+              {sortItemsByStock(fitCards.items, products).map(item => (
                 <FitCard item={item} products={products} key={item.name} />
               ))}
             </div>
@@ -342,7 +371,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
               <p>{group.sub}</p>
             </div>
             <div className="pf-fit-grid">
-              {group.items.map(item => (
+              {sortItemsByStock(group.items, products).map(item => (
                 <div className="pf-fit-card" key={item.name}>
                   <ImageSlot image={(item.variants.find(v => v.default) || item.variants[0]).image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
                   <div className="pf-fit-info">
