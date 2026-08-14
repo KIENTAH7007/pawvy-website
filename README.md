@@ -1,71 +1,37 @@
-# HOTFIX — 4 brand pages returning server error (500)
+# Custom cursor: fix the "laggy" feel — Option 4 (Magnetic hover)
 
-## This is for the Website folder (`pawvy-website`) only
+## This delivery is for the Website folder (`pawvy-website`) only
 
-3 files: `lib/matching.js` (new), `components/ProductAddButton.jsx`,
-`components/BrandDeepDive.jsx`.
+1 file changed: `components/CustomCursor.jsx`. No CSS changes needed —
+see below for why.
 
-## Root cause — confirmed with the real error, not guessed
+## What was wrong, and what changed
 
-The out-of-stock sort delivery added a helper in `BrandDeepDive.jsx`
-that imported `findMatches` from `ProductAddButton.jsx`. That file is
-marked `'use client'` (it needs React state for the interactive Add to
-Cart modal) — and React's Server/Client Component boundary explicitly
-forbids calling **any** function from a `'use client'` file inside
-server-rendered code, even a plain function with zero hooks or state.
-Confirmed via the actual thrown error, reproduced against real data
-before writing this fix:
+The ring was deliberately programmed to lag behind the mouse (a lerp/
+easing loop, chasing the dot rather than tracking it) — that's exactly
+what a customer flagged as making the site feel laggy. Removed that
+loop entirely: both the dot and the ring now update instantly, 1:1 with
+the mouse, every `mousemove` event. No more chase.
 
-```
-Error: Attempted to call findMatches() from the server but findMatches
-is on the client. It's not possible to invoke a client function from
-the server, it can only be rendered as a Component or passed to props
-of a Client Component.
-```
+The "special/obvious" feel now comes from the ring's existing expand-
+and-glow reaction when hovering over links, buttons, and cards — that
+behavior (and its color, already `#F36F4A`) was already correct in
+`globals.css` and needed no changes. It only triggers on the discrete
+hover-enter/leave state, not during ordinary mouse movement, so it
+doesn't reintroduce the original complaint.
 
-This explains exactly why 4 brands broke and 2 didn't:
+## Verification performed
 
-- **Lillidale, Puzzle Feeder, Salmoil, East Sea Brother** — all use
-  `BrandDeepDive.jsx`'s `fitCards`/`fitCardGroups` rendering path, which
-  hit the broken import directly.
-- **GiGwi** was unaffected because its `CategoryBrowser.jsx` is itself a
-  Client Component with its own local copy of the matching logic — no
-  cross-boundary import.
-- **BetterBone** was unaffected because it uses a fixed durability-level
-  selector, not `fitCards`/`fitCardGroups` — the broken code path never
-  runs for it at all.
-
-## The fix
-
-Moved `findMatches` into a new file, `lib/matching.js`, with **no**
-`'use client'` directive — a neutral, framework-agnostic module either
-kind of component can safely import. `ProductAddButton.jsx` now imports
-it from there and re-exports it (so `FitCard.jsx`'s existing import
-keeps working completely unchanged), and `BrandDeepDive.jsx` imports it
-directly from the new neutral file instead of from the client-only
-component. One real source of truth, correctly placed — not a
-workaround.
-
-## Verification performed — real reproduction, not just a build pass
-
-- Reproduced the exact failure first: started a real backend with real
-  seed data, ran the actual Next.js dev server against it, and hit all 6
-  brand pages directly — confirmed all 4 affected brands returned 500
-  with the exact error above, and GiGwi/BetterBone returned 200,
-  matching what you reported precisely.
-- Applied the fix, reran the identical test: **all 6 brand pages now
-  return 200**, zero errors in the server log.
-- Confirmed the pages aren't just returning 200 with an empty shell —
-  checked the actual rendered HTML contains real product cards with
-  real content (e.g. Lillidale's ProJoint supplement card and its FAQ
-  text).
-- Real cold-clone build: fresh `git clone` → applied all 3 files →
-  `npm install` → `npm run build` — passed with no errors.
-- Re-ran the full reproduction test a second time against the
-  cold-clone copy specifically, this time using an actual **production
-  build** (`next start`, not dev mode) — all 6 pages still 200.
-- Byte-for-byte diff confirms every file in this zip matches what was
-  cold-clone built and tested above.
+- Confirmed structurally: the lerp/chase loop and its
+  `requestAnimationFrame` call are gone; both dot and ring now update
+  directly inside the mousemove handler; the hover-expand and dynamic-
+  element-detection logic (MutationObserver, for product cards etc.
+  that load after the page's initial mount) are untouched.
+- Real cold-clone build: fresh `git clone` → applied the file →
+  `npm install` → `npm run build` — passed with no errors, confirming
+  valid JSX syntax.
+- Byte-for-byte diff confirms the file in this zip matches what was
+  cold-clone built and tested.
 
 ## To apply
 
@@ -74,13 +40,13 @@ cd /path/to/your/pawvy-website
 git checkout -- . && git clean -fd && git pull origin main
 ```
 
-Unzip this delivery's files into that folder (overwrite), then:
+Unzip this delivery's `components/CustomCursor.jsx` into that folder
+(overwrite), then:
 
 ```bash
 git add .
-git commit -m "Hotfix: 4 brand pages returning 500 — findMatches called across a Server/Client Component boundary"
+git commit -m "Cursor: remove chase lag, instant tracking with hover-expand reaction (Option 4)"
 git push origin main
 ```
 
-Railway auto-deploys from `main`. Should bring all 4 pages back up
-immediately once deployed.
+Railway auto-deploys from `main`.

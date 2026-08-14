@@ -2,10 +2,21 @@
 
 import React, { useEffect, useRef } from 'react';
 
-// Ported from the original static v3 mockup. Desktop/fine-pointer only
-// (touch devices get no custom cursor, and the real system cursor stays
-// visible for them) — checked via matchMedia, not just CSS, so the mouse
-// listeners themselves never attach on touch devices either.
+// Ported from the original static v3 mockup, revised Aug 2026 after
+// customer feedback that the ring's deliberate lag behind the mouse
+// ("chasing the dot") read as the site itself being laggy — confirmed
+// that was the actual design (a lerp/easing loop, not a real
+// performance issue) before changing anything. This is Option 4 from
+// the mockups KT reviewed ("Magnetic hover"): both dot and ring now
+// track the mouse instantly, 1:1, no interpolation loop at all — the
+// "special" feel now comes entirely from the ring's expand-and-glow
+// reaction on hover (see #cursor-ring.hover in globals.css, unchanged),
+// not from a constant chasing motion.
+//
+// Desktop/fine-pointer only (touch devices get no custom cursor, and the
+// real system cursor stays visible for them) — checked via matchMedia,
+// not just CSS, so the mouse listeners themselves never attach on touch
+// devices either.
 //
 // The ring is deliberately NOT re-queried on every render — it uses a
 // MutationObserver once on mount to catch hoverable elements added later
@@ -23,25 +34,15 @@ export default function CustomCursor() {
     document.body.classList.add('cursor-ready');
     const dot = dotRef.current;
     const ring = ringRef.current;
-    let mx = window.innerWidth / 2, my = window.innerHeight / 2;
-    let rx = mx, ry = my;
-    let raf;
 
     function onMove(e) {
-      mx = e.clientX; my = e.clientY;
-      dot.style.left = mx + 'px';
-      dot.style.top = my + 'px';
+      const x = e.clientX, y = e.clientY;
+      dot.style.left = x + 'px';
+      dot.style.top = y + 'px';
+      ring.style.left = x + 'px';
+      ring.style.top = y + 'px';
     }
     window.addEventListener('mousemove', onMove);
-
-    function loop() {
-      rx += (mx - rx) * 0.16;
-      ry += (my - ry) * 0.16;
-      ring.style.left = rx + 'px';
-      ring.style.top = ry + 'px';
-      raf = requestAnimationFrame(loop);
-    }
-    loop();
 
     const HOVER_SELECTOR = 'a, button, .tilt-card, .product-card, .stockist-card';
     function attach(el) {
@@ -69,7 +70,6 @@ export default function CustomCursor() {
 
     return () => {
       window.removeEventListener('mousemove', onMove);
-      cancelAnimationFrame(raf);
       observer.disconnect();
       document.body.classList.remove('cursor-ready');
     };
