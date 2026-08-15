@@ -1,51 +1,48 @@
-# Fix: banner width shrinking on desktop — root cause confirmed in a real browser
+# Give the banner more room — precise calculation instead of a 70% guess
 
 ## This is for the Website folder (`pawvy-website`) only, targeting
 ## `staging`.
 
 1 file changed: `app/globals.css`.
 
-## The real root cause, proven — not theorized
+## Answering your actual question
 
-Your screenshot showing a persistent right-side gap even after the
-previous "fix full width" delivery meant that delivery hadn't actually
-addressed the real mechanism. Rather than guess again, I installed a
-real Chromium browser (via Playwright) and directly measured what the
-CSS actually produces.
+The stats section (200+ Products, etc.) is **not** part of the ticker —
+it's a separate section that just happens to come right after it in the
+page. It was only visible in the first screen because the previous fix
+used a conservative `70vh` guess for the banner's max height, which left
+extra unused space that the stats section happened to peek into — not
+because anything was deliberately reserving room for it.
 
-**Confirmed the bug directly**: with `aspect-ratio: 16/9` and
-`max-height: 70vh` set together, but no *explicit* `width` on the
-element, real Chromium was deriving the width FROM the capped height —
-shrinking the container to match the aspect ratio at that reduced
-height, rather than keeping it at full width. Measured exactly:
+## The fix — measured precisely, not guessed
 
-```
-Viewport: 1920px wide, 900px tall
-Without explicit width: container = 1120px wide (58.3% — the bug)
-With explicit width:100%: container = 1920px wide (100% — correct)
-```
+Confirmed in a real browser that the nav bar is `position: fixed`,
+meaning it floats over the page rather than taking up space in the
+normal flow — so the banner doesn't actually need to leave room for it.
+The only thing genuinely competing for space in that first screen is the
+ticker. Measured its real height directly: **~60px**.
 
-1120px is exactly `630px × 16/9` (630px being 70% of the 900px
-viewport height) — direct proof the browser was computing width from
-the capped height, not the other way around.
-
-## The fix
-
-Added an explicit `width: 100%` to `.banner-carousel`. An explicit width
-always takes priority over one derived from `aspect-ratio` — this
-removes the ambiguity entirely rather than hoping the browser resolves
-it the way I expected.
+Changed the banner's height cap from a flat `70vh` guess to
+`calc(100vh - 60px)` — precisely "the full screen, minus exactly what
+the ticker needs." Confirmed directly in a real browser: the banner now
+takes up meaningfully more vertical space (on a 900px-tall test
+viewport, height went from 630px to 840px), and the stats section starts
+at almost exactly the very bottom edge of the screen — not visible until
+you scroll, and not needlessly wasting space either.
 
 ## Verification performed
 
-- Real, measured proof in an actual Chromium browser (not just a build
-  pass): reproduced the exact bug with the previous CSS, then confirmed
-  the fix resolves it, both with real pixel measurements.
+- Measured the ticker's real rendered height in an actual Chromium
+  browser rather than estimating from padding/font-size.
+- Real end-to-end render test: banner + ticker + stats section together,
+  confirmed the banner is genuinely wider/taller than before, confirmed
+  the stats section's top edge lands within a pixel of the viewport's
+  bottom edge (899.6px of 900px) — no meaningful part of it visible
+  without scrolling.
 - Real cold-clone build: fresh `git clone` → applied the file →
   `npm install` → `npm run build` — passed with no errors.
-- Byte-for-byte diff confirms the file in this zip is identical to the
-  exact CSS already measured and confirmed correct in the browser test
-  above.
+- Byte-for-byte diff (explicit absolute paths, double-checked) confirms
+  the file in this zip is identical to what was measured and tested.
 
 ## To apply
 
@@ -61,6 +58,6 @@ then:
 
 ```bash
 git add .
-git commit -m "Fix: banner width shrinking on desktop — add explicit width:100%, confirmed in real browser"
+git commit -m "Give banner more height — precise calc(100vh - ticker height) instead of a 70vh guess"
 git push origin staging
 ```
