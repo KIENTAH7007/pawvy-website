@@ -1,48 +1,50 @@
-# Give the banner more room — precise calculation instead of a 70% guess
+# TEMPORARY: diagnostic badge to find the real Fold 7 issue
 
 ## This is for the Website folder (`pawvy-website`) only, targeting
-## `staging`.
+## `staging`. Remove this once we've found the real answer — see below.
 
-1 file changed: `app/globals.css`.
+2 files changed: `app/globals.css`, `app/page.js`.
 
-## Answering your actual question
+## Why this exists
 
-The stats section (200+ Products, etc.) is **not** part of the ticker —
-it's a separate section that just happens to come right after it in the
-page. It was only visible in the first screen because the previous fix
-used a conservative `70vh` guess for the banner's max height, which left
-extra unused space that the stats section happened to peek into — not
-because anything was deliberately reserving room for it.
+Checked real specs: the Fold 7's unfolded viewport (883-984px depending
+on source) should land correctly within the tablet tier (761-1024px) —
+so on paper, your Fold 7 should already be showing the tablet image, not
+mobile. Ruled out caching too (confirmed via hard refresh/incognito).
+Since the numbers say it should work but your actual device says
+otherwise, the fastest way to find the real answer is to see exactly
+what your device reports, directly — not guess from research further.
 
-## The fix — measured precisely, not guessed
+## What this does
 
-Confirmed in a real browser that the nav bar is `position: fixed`,
-meaning it floats over the page rather than taking up space in the
-normal flow — so the banner doesn't actually need to leave room for it.
-The only thing genuinely competing for space in that first screen is the
-ticker. Measured its real height directly: **~60px**.
+A small colored badge pinned near the top of the homepage, showing
+literally which breakpoint tier the page currently thinks it's in —
+using the *exact same* media queries as the real `<picture>` element,
+so it's testing the identical mechanism, not a simplified stand-in:
 
-Changed the banner's height cap from a flat `70vh` guess to
-`calc(100vh - 60px)` — precisely "the full screen, minus exactly what
-the ticker needs." Confirmed directly in a real browser: the banner now
-takes up meaningfully more vertical space (on a 900px-tall test
-viewport, height went from 630px to 840px), and the stats section starts
-at almost exactly the very bottom edge of the screen — not visible until
-you scroll, and not needlessly wasting space either.
+- 🔵 Blue = "DESKTOP tier"
+- 🟢 Green = "TABLET tier"
+- 🔴 Red = "MOBILE tier"
+
+## What I need from you
+
+Once this is deployed to staging, open S-Web on the Fold 7, **unfolded**,
+and send me a screenshot showing the badge. Whatever color/text it shows
+is the real, ground-truth answer — from there I can fix the actual
+breakpoint value precisely, instead of continuing to guess from generic
+spec research.
 
 ## Verification performed
 
-- Measured the ticker's real rendered height in an actual Chromium
-  browser rather than estimating from padding/font-size.
-- Real end-to-end render test: banner + ticker + stats section together,
-  confirmed the banner is genuinely wider/taller than before, confirmed
-  the stats section's top edge lands within a pixel of the viewport's
-  bottom edge (899.6px of 900px) — no meaningful part of it visible
-  without scrolling.
-- Real cold-clone build: fresh `git clone` → applied the file →
+- Tested the badge itself in a real browser at the exact widths in
+  question (984px and 883px — both real numbers found for the Fold 7)
+  and confirmed it correctly shows "TABLET tier" at both, plus correctly
+  shows "MOBILE" at 700px and "DESKTOP" at 1200px as a sanity check on
+  the mechanism itself.
+- Real cold-clone build: fresh `git clone` → applied both files →
   `npm install` → `npm run build` — passed with no errors.
-- Byte-for-byte diff (explicit absolute paths, double-checked) confirms
-  the file in this zip is identical to what was measured and tested.
+- Byte-for-byte diff confirms both files in this zip match what was
+  cold-clone built and tested above.
 
 ## To apply
 
@@ -53,11 +55,13 @@ git pull origin staging
 git checkout -- . && git clean -fd
 ```
 
-Unzip this delivery's `app/globals.css` into that folder (overwrite),
-then:
+Unzip this delivery's files into that folder (overwrite), then:
 
 ```bash
 git add .
-git commit -m "Give banner more height — precise calc(100vh - ticker height) instead of a 70vh guess"
+git commit -m "TEMP: add diagnostic tier badge to find real Fold 7 breakpoint value"
 git push origin staging
 ```
+
+Once we've got the answer from your screenshot, I'll send a follow-up
+delivery that both fixes the real breakpoint AND removes this badge.

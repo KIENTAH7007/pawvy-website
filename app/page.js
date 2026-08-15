@@ -35,6 +35,7 @@ export default async function Home() {
 
   return (
     <>
+      <div className="debug-tier-badge" />
       <HomepageBanner banners={banners?.banners} />
 
       <div className="marquee">

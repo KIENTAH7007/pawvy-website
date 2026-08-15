@@ -272,6 +272,29 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
 .banner-carousel { position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: calc(100vh - 60px); background: var(--navy); overflow: hidden; }
 @media (max-width: 1024px) { .banner-carousel { aspect-ratio: 4 / 3; max-height: none; } }
 @media (max-width: 760px) { .banner-carousel { aspect-ratio: 2 / 3; } }
+
+/* TEMPORARY diagnostic badge (Aug 2026) — shows which breakpoint tier
+   the actual device currently matches, using the exact same media
+   queries as HomepageBanner.jsx's <picture> element sources. Added
+   specifically to get real ground-truth data from KT's Fold 7 rather
+   than continuing to guess from generic spec research — remove this
+   whole block once the foldable image-tier question is resolved. */
+.debug-tier-badge {
+  position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+  z-index: 999; padding: 10px 20px; border-radius: 8px;
+  font-family: Arial, sans-serif; font-size: 15px; font-weight: 700;
+  color: #fff; pointer-events: none;
+}
+.debug-tier-badge::after { content: "DESKTOP tier — over 1024px wide"; }
+.debug-tier-badge { background: #2563eb; }
+@media (max-width: 1024px) {
+  .debug-tier-badge { background: #16a34a; }
+  .debug-tier-badge::after { content: "TABLET tier — 761 to 1024px wide"; }
+}
+@media (max-width: 760px) {
+  .debug-tier-badge { background: #dc2626; }
+  .debug-tier-badge::after { content: "MOBILE tier — 760px or narrower"; }
+}
 .banner-slide {
   position: absolute; inset: 0; display: block;
   opacity: 0; z-index: 0; transition: opacity .7s ease;
