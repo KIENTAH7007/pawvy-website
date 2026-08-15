@@ -116,7 +116,15 @@ export default function Nav() {
     ? 'Free delivery unlocked!'
     : `Add $${(FREE_SHIPPING_THRESHOLD - subtotal).toFixed(2)} for free delivery`;
   const firstName = customer?.name?.split(' ')[0] || 'there';
-  const solid = scrolled || !startsOnNavy(pathname);
+  // Homepage-only exception (Aug 2026, per KT): the banner carousel can
+  // show light-colored images, and a transparent nav over a light banner
+  // makes the (light-colored) nav text unreadable — same problem the
+  // transparent-until-scrolled design was never meant to create. Forcing
+  // solid specifically on '/' sidesteps that regardless of which banner
+  // happens to be showing, without touching the scroll-based behavior
+  // every other navy-starting page (shop, stockist, account, brand
+  // pages) still correctly keeps.
+  const solid = pathname === '/' || scrolled || !startsOnNavy(pathname);
 
   return (
     <nav className={`site-nav${solid ? ' scrolled' : ''}`}>

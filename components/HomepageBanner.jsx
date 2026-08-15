@@ -90,7 +90,12 @@ export default function HomepageBanner({ banners }) {
           aria-hidden={i !== active}
           tabIndex={i === active ? 0 : -1}
         >
-          <img src={imageUrl(b.image)} alt={b.headline || 'Pawvy'} className="banner-slide-bg" />
+          <picture>
+            {b.mobileImage && b.mobileImage !== b.image && (
+              <source media="(max-width: 760px)" srcSet={imageUrl(b.mobileImage)} />
+            )}
+            <img src={imageUrl(b.image)} alt={b.headline || 'Pawvy'} className="banner-slide-bg" />
+          </picture>
           {b.headline && (
             i === 0
               ? <h1 className={`banner-caption${b.showCaption === false ? ' sr-only' : ''}`}>{b.headline}</h1>
