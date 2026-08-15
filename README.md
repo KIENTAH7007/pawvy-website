@@ -1,41 +1,51 @@
-# Fix: banner must always be full width, no side gaps — corrected approach
+# Fix: banner width shrinking on desktop — root cause confirmed in a real browser
 
 ## This is for the Website folder (`pawvy-website`) only, targeting
 ## `staging`.
 
 1 file changed: `app/globals.css`.
 
-## What was wrong with the previous delivery
+## The real root cause, proven — not theorized
 
-The last fix capped `max-width` to keep the container at a mathematically
-exact 16:9 shape, centering it once a screen was wide enough to hit that
-cap. That solved the empty-gap problem in one sense, but created a
-worse one: **symmetric empty gaps on both sides**, visible on your own
-screenshots comparing what you had vs. what you actually wanted (always
-full width, zero gaps).
+Your screenshot showing a persistent right-side gap even after the
+previous "fix full width" delivery meant that delivery hadn't actually
+addressed the real mechanism. Rather than guess again, I installed a
+real Chromium browser (via Playwright) and directly measured what the
+CSS actually produces.
 
-## The actual fix
+**Confirmed the bug directly**: with `aspect-ratio: 16/9` and
+`max-height: 70vh` set together, but no *explicit* `width` on the
+element, real Chromium was deriving the width FROM the capped height —
+shrinking the container to match the aspect ratio at that reduced
+height, rather than keeping it at full width. Measured exactly:
 
-Removed the `max-width` cap entirely — the banner is now always
-`width: 100%`, full-bleed, no exceptions. Switched `object-fit` from
-`contain` back to `cover`, so the image always completely fills the box
-rather than leaving empty space when the box's proportions don't exactly
-match the image.
+```
+Viewport: 1920px wide, 900px tall
+Without explicit width: container = 1120px wide (58.3% — the bug)
+With explicit width:100%: container = 1920px wide (100% — correct)
+```
 
-**The honest tradeoff**: on an unusually wide monitor, the box (capped
-at 70vh tall, but full width) is no longer a perfect 16:9 shape — so
-`cover` will trim a little off the left/right edges of the image to
-fill it completely. That's a normal, common pattern most hero banners
-use, and a much smaller cost than the empty gaps this replaces.
+1120px is exactly `630px × 16/9` (630px being 70% of the 900px
+viewport height) — direct proof the browser was computing width from
+the capped height, not the other way around.
+
+## The fix
+
+Added an explicit `width: 100%` to `.banner-carousel`. An explicit width
+always takes priority over one derived from `aspect-ratio` — this
+removes the ambiguity entirely rather than hoping the browser resolves
+it the way I expected.
 
 ## Verification performed
 
+- Real, measured proof in an actual Chromium browser (not just a build
+  pass): reproduced the exact bug with the previous CSS, then confirmed
+  the fix resolves it, both with real pixel measurements.
 - Real cold-clone build: fresh `git clone` → applied the file →
   `npm install` → `npm run build` — passed with no errors.
-- Confirmed the `max-width`/`margin: 0 auto` from the previous delivery
-  are completely gone, and `object-fit` is back to `cover`.
-- Byte-for-byte diff confirms the file in this zip matches what was
-  cold-clone built and tested.
+- Byte-for-byte diff confirms the file in this zip is identical to the
+  exact CSS already measured and confirmed correct in the browser test
+  above.
 
 ## To apply
 
@@ -51,6 +61,6 @@ then:
 
 ```bash
 git add .
-git commit -m "Fix: banner always full width (no side gaps), accept minor edge cropping on wide screens instead"
+git commit -m "Fix: banner width shrinking on desktop — add explicit width:100%, confirmed in real browser"
 git push origin staging
 ```
