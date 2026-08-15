@@ -94,6 +94,9 @@ export default function HomepageBanner({ banners }) {
             {b.mobileImage && b.mobileImage !== b.image && (
               <source media="(max-width: 760px)" srcSet={imageUrl(b.mobileImage)} />
             )}
+            {b.tabletImage && b.tabletImage !== b.image && (
+              <source media="(max-width: 1024px)" srcSet={imageUrl(b.tabletImage)} />
+            )}
             <img src={imageUrl(b.image)} alt={b.headline || 'Pawvy'} className="banner-slide-bg" />
           </picture>
           {b.headline && (

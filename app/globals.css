@@ -264,7 +264,8 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
    slightly off from these exact ratios, contain guarantees it's never
    cropped, at most adding a thin letterboxed edge (background matches
    the navy takeover color, so this reads as intentional, not broken). */
-.banner-carousel { position: relative; aspect-ratio: 16 / 9; background: var(--navy); overflow: hidden; }
+.banner-carousel { position: relative; aspect-ratio: 16 / 9; max-height: 70vh; background: var(--navy); overflow: hidden; }
+@media (max-width: 1024px) { .banner-carousel { aspect-ratio: 4 / 3; max-height: none; } }
 @media (max-width: 760px) { .banner-carousel { aspect-ratio: 2 / 3; } }
 .banner-slide {
   position: absolute; inset: 0; display: block;
