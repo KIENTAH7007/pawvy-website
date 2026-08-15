@@ -92,7 +92,7 @@ export default function HomepageBanner({ banners }) {
         >
           <picture>
             {b.mobileImage && b.mobileImage !== b.image && (
-              <source media="(max-width: 760px)" srcSet={imageUrl(b.mobileImage)} />
+              <source media="(max-width: 700px)" srcSet={imageUrl(b.mobileImage)} />
             )}
             {b.tabletImage && b.tabletImage !== b.image && (
               <source media="(max-width: 1024px)" srcSet={imageUrl(b.tabletImage)} />
