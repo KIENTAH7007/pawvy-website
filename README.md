@@ -1,64 +1,39 @@
-# Per-device banner images + homepage nav bar fix — Website side
+# Fix gap between banner and ticker + mobile ratio 4:5 → 2:3
 
-## This delivery is for the Website folder (`pawvy-website`) only,
-## targeting the `staging` branch.
+## This is for the Website folder (`pawvy-website`) only, targeting
+## `staging`.
 
-3 files changed: `components/Nav.jsx`, `components/HomepageBanner.jsx`,
-`app/globals.css`.
+1 file changed: `app/globals.css`.
 
-## 1. Nav bar always solid navy on the homepage
+## 1. Gap between banner and ticker — real cause found, not guessed
 
-Light-colored banner images were washing out the nav bar text, since it
-starts transparent and only turns solid navy (`#14213D`) after
-scrolling. Now forced solid specifically on the homepage (`/`) at all
-times — every other page (shop, stockist, brand pages, account) keeps
-its existing transparent-then-solid-on-scroll behavior completely
-unchanged.
+`.marquee` had `margin-top: 48px` — a leftover from when the ticker
+used to be nested *inside* the old hero section, spacing it from the
+CTAs above it. Now that the ticker is a direct sibling right after the
+banner carousel, that same margin created exactly the gap you saw.
+Removed — confirmed via a repo-wide search that `.marquee` is only used
+in this one place, so nothing else is affected.
 
-## 2. Per-device banner images (`<picture>` element)
+## 2. Mobile banner ratio: 4:5 → 2:3
 
-Each banner now serves the right image for the device automatically,
-using a native `<picture>` element — no JavaScript needed, and phones
-never even download the desktop image:
-
-- Screens ≤760px wide get the mobile image (if one was uploaded)
-- Everything else gets the desktop image
-- If no mobile image was uploaded for a banner, it just uses the
-  desktop image everywhere, exactly as before
-
-Dropped the earlier "universal 16:9 + object-fit:contain" approach
-entirely, per your decision to go with Option A instead — the container
-now sizes to `aspect-ratio: 16/9` on desktop and `4/5` on mobile,
-matching each device's actual intended image shape.
-
-## A real bug found and fixed along the way
-
-While rebuilding the CSS for this, a **production build failure**
-surfaced: an earlier delivery had used `//` (JavaScript-style) comments
-inside `app/globals.css` — invalid syntax in plain CSS, which only
-supports `/* */` block comments. This silently broke the whole
-stylesheet. Found via a real `npm run build` failure (not something
-that would show up in a normal dev-server preview), traced to the exact
-12 lines, and fixed by converting them to proper CSS comment syntax.
-Confirmed the rebuild passes cleanly afterward.
+Per your feedback that 4:5 felt too small on the mobile screen — 2:3
+gives noticeably more vertical space (2:3 ≈ 0.67 width:height vs. 4:5's
+0.8, so the banner reads taller and more prominent). Admin hint text
+updated to match (see companion App-side delivery).
 
 ## Verification performed
 
-- Real end-to-end test: started an actual backend with a banner that
-  has both a desktop and mobile image, ran the real Next.js server
-  against it, and confirmed in the literal rendered HTML that the
-  `<picture>` element correctly contains the mobile `<source>` and the
-  desktop `<img>`, and the real headline renders as the actual `<h1>`
-  — not the fallback state.
-- Real cold-clone build: fresh `git clone` → applied all 3 files →
+- Confirmed via search that `.marquee` has exactly one usage in the
+  whole codebase, so removing its margin can't have broken anything
+  elsewhere.
+- Real cold-clone build: fresh `git clone` → applied the file →
   `npm install` → `npm run build` — passed with no errors.
-- Byte-for-byte diff confirms every file in this zip matches what was
-  cold-clone built and tested above.
+- Byte-for-byte diff confirms the file in this zip matches what was
+  cold-clone built and tested.
 
 ## To apply
 
-Apply together with the companion App-side delivery — the two only work
-correctly together.
+Apply together with the companion App-side delivery.
 
 ```bash
 cd /path/to/your/pawvy-website
@@ -67,12 +42,11 @@ git pull origin staging
 git checkout -- . && git clean -fd
 ```
 
-Unzip this delivery's files into that folder (overwrite), then:
+Unzip this delivery's `app/globals.css` into that folder (overwrite),
+then:
 
 ```bash
 git add .
-git commit -m "Homepage: always-solid nav bar, per-device banner images, fix CSS comment syntax bug"
+git commit -m "Fix gap between banner and ticker (leftover margin), change mobile ratio to 2:3"
 git push origin staging
 ```
-
-Railway's staging environment auto-deploys from `staging`.
