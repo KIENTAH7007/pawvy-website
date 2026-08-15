@@ -1,51 +1,66 @@
-# Custom cursor: fix the "laggy" feel — Option 4 (Magnetic hover)
+# Homepage banner carousel — Website side (with Show/Hide caption toggle)
 
 ## This delivery is for the Website folder (`pawvy-website`) only
 
-1 file changed: `components/CustomCursor.jsx`. No CSS changes needed —
-see below for why.
+4 files changed: `components/HomepageBanner.jsx`, `app/page.js`,
+`app/globals.css`, `lib/api.js`.
 
-## What was wrong, and what changed
+This supersedes the earlier "Homepage Banner Carousel" delivery — same
+carousel, plus support for the new per-banner Show/Hide caption toggle
+(set in Pawvy App's Marketing page).
 
-The ring was deliberately programmed to lag behind the mouse (a lerp/
-easing loop, chasing the dot rather than tracking it) — that's exactly
-what a customer flagged as making the site feel laggy. Removed that
-loop entirely: both the dot and the ring now update instantly, 1:1 with
-the mouse, every `mousemove` event. No more chase.
+## What's new in this version
 
-The "special/obvious" feel now comes from the ring's existing expand-
-and-glow reaction when hovering over links, buttons, and cards — that
-behavior (and its color, already `#F36F4A`) was already correct in
-`globals.css` and needed no changes. It only triggers on the discrete
-hover-enter/leave state, not during ordinary mouse movement, so it
-doesn't reintroduce the original complaint.
+Added a standard `.sr-only` CSS utility class — visually hidden, but
+still real, readable text for screen readers and search engines (not
+`display: none`, which would hide it from those too).
+
+When a banner's caption is toggled off in the admin, its headline
+`<h1>`/`<p>` now gets this class applied — the text is still genuinely
+in the page (still the real H1 for the first banner in carousel order,
+still usable as the image's `alt` text), it's just not rendered visibly
+over the banner image. When toggled on, renders exactly as before —
+visible caption, same styling.
+
+## Everything from the original carousel delivery, unchanged
+
+- Old generic hero section fully removed; ticker relocated below the
+  carousel
+- Real auto-rotating carousel, pauses on hover and keyboard focus
+- Each banner links to its `link_url`, falling back to the brand gallery
+- Only the first banner in order ever carries the real `<h1>`
+- Zero-banner fallback keeps a real H1 on the page even with nothing
+  configured yet
 
 ## Verification performed
 
-- Confirmed structurally: the lerp/chase loop and its
-  `requestAnimationFrame` call are gone; both dot and ring now update
-  directly inside the mousemove handler; the hover-expand and dynamic-
-  element-detection logic (MutationObserver, for product cards etc.
-  that load after the page's initial mount) are untouched.
-- Real cold-clone build: fresh `git clone` → applied the file →
-  `npm install` → `npm run build` — passed with no errors, confirming
-  valid JSX syntax.
-- Byte-for-byte diff confirms the file in this zip matches what was
-  cold-clone built and tested.
+- Real end-to-end test: started an actual backend with a banner set to
+  caption-hidden, ran the real Next.js server, and confirmed in the
+  literal rendered HTML that the H1 exists with the real headline text
+  AND has the `sr-only` class applied — genuinely present for SEO,
+  genuinely invisible on screen.
+- Real cold-clone build: fresh `git clone` → applied all 4 files →
+  `npm install` → `npm run build` — passed with no errors.
+- Byte-for-byte diff confirms every file in this zip matches what was
+  cold-clone built and tested above.
 
 ## To apply
+
+Apply together with the companion App-side delivery — the two only work
+correctly together. If you already applied the earlier version of this
+delivery, just apply this one on top — it's the complete, current state
+of all 4 files, not a diff.
 
 ```bash
 cd /path/to/your/pawvy-website
 git checkout -- . && git clean -fd && git pull origin main
 ```
 
-Unzip this delivery's `components/CustomCursor.jsx` into that folder
-(overwrite), then:
+Unzip this delivery's files into that folder (overwrite), then:
 
 ```bash
 git add .
-git commit -m "Cursor: remove chase lag, instant tracking with hover-expand reaction (Option 4)"
+git commit -m "Homepage banner: support per-banner caption visibility toggle"
 git push origin main
 ```
 

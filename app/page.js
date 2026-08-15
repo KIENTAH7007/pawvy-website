@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Typewriter from '../components/Typewriter';
 import Marquee from '../components/Marquee';
 import TestimonialCarousel from '../components/TestimonialCarousel';
 import BrandGallery from '../components/BrandGallery';
@@ -32,57 +31,19 @@ export default async function Home() {
   const facts = ticker?.messages?.length ? ticker.messages : FACTS_FALLBACK;
   const igPosts = await contentApi.instagramPosts().catch(() => null);
   const igItems = igPosts?.items || [];
-  const banner = await contentApi.homepageBanner().catch(() => null);
+  const banners = await contentApi.homepageBanners().catch(() => null);
 
   return (
     <>
-      <HomepageBanner banner={banner} />
-      <section className="hero">
-        <img src="/hero-bg.jpg" alt="" className="hero-bg-photo" />
-        <div className="blob" />
-        <div className="blob b2" />
-        <div className="blob b3" />
-        <div className="blob b4" />
-        <div className="float-dot fd1" /><div className="float-dot fd2" /><div className="float-dot fd3" /><div className="float-dot fd4" />
-        <div className="paw-badge">
-          <svg viewBox="0 0 120 120">
-            <defs><path id="circlePath" d="M 60,60 m -46,0 a 46,46 0 1,1 92,0 a 46,46 0 1,1 -92,0" /></defs>
-            <circle cx="60" cy="60" r="58" fill="var(--orange)" />
-            <text fontSize="10.5" fontWeight="800" fill="var(--navy)" letterSpacing="2">
-              <textPath href="#circlePath" startOffset="0%">PET LOVERS • PAWVY • PET LOVERS •</textPath>
-            </text>
-          </svg>
-          <span className="paw-center">🐾</span>
-        </div>
+      <HomepageBanner banners={banners?.banners} />
 
-        <div className="wrap hero-inner">
-          <h1>
-            <div className="line-reveal"><span>Wellness</span></div>
-            <div className="line-reveal"><span>products that</span></div>
-            <div className="line-reveal"><Typewriter /></div>
-          </h1>
-          <Reveal as="p" className="lead">
-            Pawvy is the exclusive distributor of{' '}
-            <Link href="/brands/betterbone-nylon-free-dog-chew" className="brand-link">BetterBone</Link>,{' '}
-            <Link href="/brands/lillidale-natural-pet-supplement" className="brand-link">Lillidale</Link>,{' '}
-            <Link href="/brands/puzzle-feeder-slow-feeder-dog-bowl" className="brand-link">Puzzle Feeder</Link>,{' '}
-            <Link href="/brands/eastsea-brother-freeze-dried-dog-treats" className="brand-link">Eastsea Brother</Link> and{' '}
-            <Link href="/brands/salmoil-fish-oil-for-dogs" className="brand-link">Salmoil</Link> — curated for pawrents who want the best for their furkids.
-          </Reveal>
-          <div className="hero-actions">
-            <a href="#gallery" className="btn btn-orange"><span>Explore the brands</span></a>
-            <a href="#enquiry" className="btn btn-outline-light"><span>Get in touch</span></a>
-          </div>
-        </div>
-
-        <div className="marquee">
-          <Marquee pxPerSecond={55}>
-            {facts.map((fact, i) => (
-              <span className="marquee-item" key={i}>{fact}<span className="dot" /></span>
-            ))}
-          </Marquee>
-        </div>
-      </section>
+      <div className="marquee">
+        <Marquee pxPerSecond={55}>
+          {facts.map((fact, i) => (
+            <span className="marquee-item" key={i}>{fact}<span className="dot" /></span>
+          ))}
+        </Marquee>
+      </div>
 
       <section className="stats">
         <Reveal className="wrap stats-grid" stagger>

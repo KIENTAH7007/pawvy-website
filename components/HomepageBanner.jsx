@@ -1,39 +1,43 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { imageUrl } from '../lib/api';
 
-// The reusable full-width homepage takeover banner — built for announcing
-// a new brand (Wild Balance being the first case this was built for, see
-// the Nov 2026 discussion). Content is entirely admin-driven from the
-// Pawvy App's Marketing page (image, headline, link, active window) — a
-// real launch should just be filling in that form, not a website deploy.
+// Homepage banner CAROUSEL (Aug 2026 rewrite, per KT) — replaces both the
+// old single-banner takeover AND the separate generic-text hero section
+// that used to sit below it. Content is entirely admin-driven from the
+// Pawvy App's Marketing page (image, headline/caption, link, active
+// window, and now sort_order for carousel position) — a real update
+// should just be filling in that form, not a website deploy.
 //
-// Deliberately simple by design, per KT/Janice: no eyebrow text, no
-// headline overlay, no buttons, no close button — just the uploaded image
-// at full strength (no dimming scrim), the whole thing one big link to
-// wherever "Links to" points in the admin. The design team owns the
-// actual visual entirely through the image they hand over; this component
-// doesn't add any of its own text or chrome on top of it.
+// SEO note, since this replaced a real text-heavy hero: only the FIRST
+// banner (by sort_order — index 0 in this array, not whichever slide
+// currently happens to be showing) renders its headline as a real <h1>.
+// Google reads the server-rendered HTML once, not the live rotation, so
+// tying the H1 to "whichever slide is active right now" would be
+// meaningless — array position is what actually matters. Every other
+// slide's headline is still real, readable text on the page (not
+// invisible to Google), just not marked as the page's single most
+// important heading, since a page should only have one. Reordering
+// banners in the admin automatically moves which one carries the H1 —
+// nothing else to remember to update.
 //
-// No manual dismiss anymore — this isn't a modal (it doesn't block
-// anything below it), and the nav bar above it stays fully usable the
-// whole time, so a visitor who doesn't want to click through can just
-// scroll or use the nav like normal. The previous version's small close
-// button also visually collided with the nav bar's own icons at that
-// screen position, which was the actual "stray X in a circle" seen in
-// testing — removing it resolves that too, not just simplifies the
-// design.
-//
-// Still a client component — not for any UI state anymore, but for the
-// scroll-restoration fix below, which needs to run in the browser.
-export default function HomepageBanner({ banner }) {
+// If zero banners are currently active, falls back to a plain-text
+// heading rather than rendering nothing — a completely empty top of the
+// page would mean no H1 exists at all, not just a less specific one.
+const AUTO_ADVANCE_MS = 6000;
+
+export default function HomepageBanner({ banners }) {
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const hasBanners = banners && banners.length > 0;
+
   // Root cause of the "loads scrolled to the old hero position instead of
   // the banner" bug: browsers remember scroll position by raw pixel
   // offset across a reload (history.scrollRestoration defaults to
   // 'auto'), not by what content is actually there. Turning the banner on
   // makes the page taller by inserting content ABOVE everything else — so
-  // "the same pixel offset as before" now points to wherever the hero
+  // "the same pixel offset as before" now points to wherever old content
   // happens to sit today, not the top of the page. Two things: stop the
   // browser from trying to restore a remembered offset on this and future
   // loads, and explicitly correct THIS load if a stale offset already got
@@ -44,16 +48,72 @@ export default function HomepageBanner({ banner }) {
     if ('scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual';
     }
-    if (banner?.active && window.scrollY > 0) {
+    if (hasBanners && window.scrollY > 0) {
       window.scrollTo(0, 0);
     }
-  }, [banner?.active]);
+  }, [hasBanners]);
 
-  if (!banner?.active) return null;
+  // Auto-advance, paused on hover/focus — an auto-rotating carousel that
+  // can never be paused is a real accessibility problem (WCAG 2.2.2),
+  // not just a nicety.
+  useEffect(() => {
+    if (!hasBanners || banners.length < 2 || paused) return;
+    const timer = setInterval(() => {
+      setActive(a => (a + 1) % banners.length);
+    }, AUTO_ADVANCE_MS);
+    return () => clearInterval(timer);
+  }, [hasBanners, banners?.length, paused]);
+
+  if (!hasBanners) {
+    return (
+      <section className="banner-carousel banner-fallback">
+        <div className="wrap">
+          <h1>Wellness products that Pawvy is the exclusive distributor of.</h1>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <a href={banner.link} className="wb-takeover">
-      <img src={imageUrl(banner.image)} alt={banner.headline || 'New at Pawvy'} className="wb-takeover-bg" />
-    </a>
+    <section
+      className="banner-carousel"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+    >
+      {banners.map((b, i) => (
+        <a
+          key={i}
+          href={b.link}
+          className={`banner-slide${i === active ? ' active' : ''}`}
+          aria-hidden={i !== active}
+          tabIndex={i === active ? 0 : -1}
+        >
+          <img src={imageUrl(b.image)} alt={b.headline || 'Pawvy'} className="banner-slide-bg" />
+          {b.headline && (
+            i === 0
+              ? <h1 className={`banner-caption${b.showCaption === false ? ' sr-only' : ''}`}>{b.headline}</h1>
+              : <p className={`banner-caption${b.showCaption === false ? ' sr-only' : ''}`}>{b.headline}</p>
+          )}
+        </a>
+      ))}
+
+      {banners.length > 1 && (
+        <div className="banner-dots" role="tablist" aria-label="Banner slides">
+          {banners.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              role="tab"
+              aria-selected={i === active}
+              aria-label={`Show banner ${i + 1} of ${banners.length}`}
+              className={`banner-dot${i === active ? ' active' : ''}`}
+              onClick={(e) => { e.preventDefault(); setActive(i); }}
+            />
+          ))}
+        </div>
+      )}
+    </section>
   );
 }

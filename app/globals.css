@@ -241,9 +241,42 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
    reusable "new brand" announcement, admin-driven from Pawvy App's
    Marketing page. Sits directly above the evergreen hero; the hero
    itself is completely untouched by this. */
-.wb-takeover { position: relative; display: block; min-height: 100vh; min-height: 100dvh; background: var(--navy); overflow: hidden; }
-.wb-takeover-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
-.wb-takeover:hover .wb-takeover-bg { transform: scale(1.02); }
+/* Visually hidden but still real, readable text — for screen readers
+   and Google, not for sighted visitors. Standard accessible pattern
+   (not display:none, which would hide it from assistive tech and
+   crawlers too) — used when a banner's caption is toggled off (Aug
+   2026): the headline still exists as real text/H1 in the page, it's
+   just not shown as a visible overlay on the image. */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+.banner-carousel { position: relative; min-height: 100vh; min-height: 100dvh; background: var(--navy); overflow: hidden; }
+.banner-slide {
+  position: absolute; inset: 0; display: block;
+  opacity: 0; z-index: 0; transition: opacity .7s ease;
+}
+.banner-slide.active { opacity: 1; z-index: 1; }
+.banner-slide-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.banner-slide:hover .banner-slide-bg { transform: scale(1.02); }
+.banner-caption {
+  position: absolute; left: 40px; bottom: 64px; z-index: 2;
+  max-width: 560px; margin: 0; padding: 10px 18px;
+  background: rgba(20,33,61,.72); border-radius: 8px;
+  color: var(--cream); font-family: Fraunces, serif;
+  font-size: clamp(16px, 2.4vw, 22px); font-weight: 600; line-height: 1.35;
+}
+@media (max-width: 760px) { .banner-caption { left: 22px; right: 22px; bottom: 90px; max-width: none; } }
+.banner-dots { position: absolute; z-index: 2; right: 40px; bottom: 68px; display: flex; gap: 8px; }
+.banner-dot {
+  width: 8px; height: 8px; border-radius: 50%; padding: 0;
+  background: rgba(245,242,235,.4); border: none; cursor: pointer;
+  transition: background .2s, transform .2s;
+}
+.banner-dot.active { background: var(--orange); transform: scale(1.3); }
+.banner-fallback { display: flex; align-items: center; justify-content: center; min-height: 60vh; }
+.banner-fallback h1 { color: var(--cream); font-family: Fraunces, serif; font-size: clamp(28px, 4vw, 42px); font-weight: 700; text-align: center; max-width: 720px; }
 .hero .blob { width: 253px; height: 253px; background: var(--orange); opacity: .16; top: -10%; right: -12%; z-index: 0; }
 .hero .blob.b2 { width: 161px; height: 161px; background: var(--light-pitch); opacity: .14; bottom: -15%; left: -8%; animation-duration: 16s; }
 .hero .blob.b3 { width: 110px; height: 110px; background: var(--mid-cream); opacity: .10; top: 15%; left: 5%; animation-duration: 19s; animation-delay: -4s; }
