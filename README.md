@@ -1,49 +1,42 @@
-# TEMPORARY: diagnostic badge to find the real Fold 7 issue
+# TEMPORARY: exact pixel width diagnostic for the Fold 7
 
 ## This is for the Website folder (`pawvy-website`) only, targeting
-## `staging`. Remove this once we've found the real answer — see below.
+## `staging`. Remove alongside the previous tier badge once resolved.
 
-2 files changed: `app/globals.css`, `app/page.js`.
+3 files: `app/globals.css` (unchanged from before), `app/page.js`,
+`components/DebugWidth.jsx` (new).
 
 ## Why this exists
 
-Checked real specs: the Fold 7's unfolded viewport (883-984px depending
-on source) should land correctly within the tablet tier (761-1024px) —
-so on paper, your Fold 7 should already be showing the tablet image, not
-mobile. Ruled out caching too (confirmed via hard refresh/incognito).
-Since the numbers say it should work but your actual device says
-otherwise, the fastest way to find the real answer is to see exactly
-what your device reports, directly — not guess from research further.
+Your screenshot confirmed the tier badge shows "MOBILE tier" on the
+genuinely-unfolded Fold 7 — real, ground-truth proof that Samsung's
+actual browser reports something ≤760px, meaningfully narrower than the
+883-984px generic spec research suggested. That's useful, but "760px or
+narrower" is a range, not the exact number I need to set the real
+breakpoint correctly on the next try.
 
-## What this does
+## What this adds
 
-A small colored badge pinned near the top of the homepage, showing
-literally which breakpoint tier the page currently thinks it's in —
-using the *exact same* media queries as the real `<picture>` element,
-so it's testing the identical mechanism, not a simplified stand-in:
-
-- 🔵 Blue = "DESKTOP tier"
-- 🟢 Green = "TABLET tier"
-- 🔴 Red = "MOBILE tier"
+A second, small black badge showing the literal
+`window.innerWidth` value in pixels — the exact number, not just which
+range it falls in.
 
 ## What I need from you
 
-Once this is deployed to staging, open S-Web on the Fold 7, **unfolded**,
-and send me a screenshot showing the badge. Whatever color/text it shows
-is the real, ground-truth answer — from there I can fix the actual
-breakpoint value precisely, instead of continuing to guess from generic
-spec research.
+Same as before: apply this, open S-Web on the Fold 7 unfolded, and send
+a screenshot showing this new badge (should appear just below the
+colored tier one). That exact number lets me set the real breakpoint
+precisely, in one more delivery.
 
 ## Verification performed
 
-- Tested the badge itself in a real browser at the exact widths in
-  question (984px and 883px — both real numbers found for the Fold 7)
-  and confirmed it correctly shows "TABLET tier" at both, plus correctly
-  shows "MOBILE" at 700px and "DESKTOP" at 1200px as a sanity check on
-  the mechanism itself.
-- Real cold-clone build: fresh `git clone` → applied both files →
+- Real render test: started the actual built site, loaded it at a known
+  700px test viewport, and confirmed the badge correctly displayed
+  "window.innerWidth = 700px" — proving the live value, not a
+  placeholder.
+- Real cold-clone build: fresh `git clone` → applied all 3 files →
   `npm install` → `npm run build` — passed with no errors.
-- Byte-for-byte diff confirms both files in this zip match what was
+- Byte-for-byte diff confirms all 3 files in this zip match what was
   cold-clone built and tested above.
 
 ## To apply
@@ -59,9 +52,6 @@ Unzip this delivery's files into that folder (overwrite), then:
 
 ```bash
 git add .
-git commit -m "TEMP: add diagnostic tier badge to find real Fold 7 breakpoint value"
+git commit -m "TEMP: add exact pixel width diagnostic for Fold 7"
 git push origin staging
 ```
-
-Once we've got the answer from your screenshot, I'll send a follow-up
-delivery that both fixes the real breakpoint AND removes this badge.

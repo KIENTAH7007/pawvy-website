@@ -7,6 +7,7 @@ import EnquiryForm from '../components/EnquiryForm';
 import Reveal from '../components/Reveal';
 import InstagramGrid from '../components/InstagramGrid';
 import HomepageBanner from '../components/HomepageBanner';
+import DebugWidth from '../components/DebugWidth';
 import { contentApi } from '../lib/api';
 
 const FACTS_FALLBACK = ['Premium Pet Wellness', 'Exclusive Singapore Distributor', 'Six Brands, One Standard', '107+ Retail Partners'];
@@ -36,6 +37,7 @@ export default async function Home() {
   return (
     <>
       <div className="debug-tier-badge" />
+      <DebugWidth />
       <HomepageBanner banners={banners?.banners} />
 
       <div className="marquee">
