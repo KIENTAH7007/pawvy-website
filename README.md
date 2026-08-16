@@ -1,57 +1,75 @@
-# Fix: real Fold 7 breakpoint value, diagnostic badges removed
+# TEST: desktop-only max-width + auto-detected background color
 
 ## This is for the Website folder (`pawvy-website`) only, targeting
-## `staging`.
+## `staging`. This is explicitly a TEST per your request — see the
+## "If it doesn't work" section below for the exact one-line revert.
 
-3 files changed: `app/globals.css`, `app/page.js`,
-`components/HomepageBanner.jsx`. The temporary `DebugWidth.jsx` file is
-gone entirely (not included in this zip — it should no longer exist in
-your `staging` branch after applying this).
+2 files changed: `app/globals.css`, `components/HomepageBanner.jsx`.
 
-## What the diagnostic confirmed
+## What this does
 
-Your Fold 7, genuinely unfolded, reported exactly
-`window.innerWidth = 794px`. That's real, precise, ground-truth data —
-and interestingly, it's *higher* than the old 760px mobile breakpoint,
-which should have already put it in the tablet tier. The fact that the
-device still matched "mobile" in the first diagnostic screenshot means
-there's a real, observed inconsistency on this specific device between
-how `@media` width evaluates versus the JS `window.innerWidth` value —
-not something worth chasing down further, just something to build a
-safety margin around.
+**Desktop only** (confirmed scoped correctly — mobile and tablet tiers
+explicitly reset `max-width: none`, since they never had this problem
+in the first place): the banner no longer stretches infinitely wide on
+very wide monitors. It's capped at a genuine 16:9 shape, computed
+directly from the same height limit already in place
+(`(100vh - 60px) * 16/9`), and centered once a screen is wide enough to
+hit that cap.
 
-## The fix
+**Auto-detected background color**: whatever shows beyond that cap is no
+longer a flat navy — it's computed live, per banner, by sampling the
+actual left/right edge pixels of that banner's own desktop image via an
+in-browser canvas, averaging them into a single blended color. This
+updates automatically as the carousel rotates between banners with
+different color schemes.
 
-Lowered the banner's mobile breakpoint from 760px to **700px** — real
-margin below the confirmed 794px, so the tablet image wins unambiguously
-regardless of which measurement method the browser uses internally.
+## Why mobile/tablet never had this problem (your question)
 
-**Deliberately scoped narrowly**: 760px is used extensively across the
-rest of the site (stats grid, footer, stockist page, etc.) as the
-general mobile breakpoint — none of that was touched. Only the three
-banner-specific places that actually needed the fix were changed: the
-`<picture>` element's mobile image source, the banner's own aspect-ratio
-rule, and the caption's positioning rule.
+Both tiers use `max-height: none` — no competing height limit fighting
+the aspect-ratio at all, so the container simply grows to whatever
+height its own ratio computes, unconstrained. Desktop is the only tier
+where `aspect-ratio` and `max-height` compete for the same space, which
+is the actual mechanism behind the cropping/shrinking you saw.
 
-**Diagnostic code removed**: both temporary badges (the colored tier
-one and the black exact-pixel one) are gone — `DebugWidth.jsx` deleted
-entirely, and `page.js`/`globals.css` no longer reference either one.
+## Honest note on verification
 
-## Verification performed
+Every individual piece was tested with real, passing tests:
 
-- Real render test at exactly 794px (the confirmed real value): measured
-  the banner's actual computed aspect ratio and confirmed it's genuinely
-  4:3 (tablet), not 2:3 (mobile) — proof the fix resolves the exact
-  reported bug, not just a build pass.
-- Confirmed via search that 760px is still used for many other,
-  unrelated things across the site, so only the specific banner-related
-  instances were changed.
-- Confirmed the deleted `DebugWidth.jsx` file and both diagnostic badges
-  are fully gone from the build.
-- Real cold-clone build: fresh `git clone` → applied all files →
-  `npm install` → `npm run build` — passed with no errors.
-- Byte-for-byte diff confirms every file in this zip matches what was
-  cold-clone built and tested above.
+- The exact color-averaging algorithm — run in an actual Chromium
+  browser against a real test image with precisely known edge colors
+  (red left edge, blue right edge), and it computed the exact
+  mathematically-expected average.
+- The max-width CSS — measured in a real browser across 4 different
+  viewport widths (2560px, 1920px, 900px, 500px), confirming it
+  correctly caps and centers on wide desktop screens, and correctly
+  does NOT apply on tablet/mobile.
+- The backend's CORS headers — confirmed present via a real HTTP
+  request (required for the canvas to read pixel data from a
+  cross-origin image at all; without it, the color detection would
+  silently fail closed to the default navy, not crash).
+- A real production build — passed with no errors.
+
+**What I could not complete**: a single end-to-end test with the real
+color-detection running live end-to-end on the actual rendered page (two
+servers + a real browser navigating to it) kept hitting an environment
+limitation in my own sandbox where background processes die between
+steps — not a code problem, a testing-environment one I hit repeatedly
+throughout this whole project. Given every individual piece is proven
+correct in isolation, I'm confident in this delivery, but the one thing
+I want to be upfront about is that the very last "watch it all work
+together live" step is the one I couldn't personally complete before
+sending this. This is exactly why you're testing it directly rather
+than me just asserting it's done.
+
+## If it doesn't work — the exact revert
+
+In `app/globals.css`: remove `max-width: calc((100vh - 60px) * 16 / 9);`
+and `margin: 0 auto;` from the `.banner-carousel` rule, and remove the
+two `max-width: none;` resets in the tablet media query. In
+`components/HomepageBanner.jsx`: remove the `edgeColors` state, the
+color-detection `useEffect`, and the `style={...}` prop on the
+`<section>`. That's the complete revert — nothing else depends on any
+of this.
 
 ## To apply
 
@@ -62,21 +80,10 @@ git pull origin staging
 git checkout -- . && git clean -fd
 ```
 
-**Delete this file first** — it was committed to `staging` by the
-previous diagnostic delivery, and unzipping alone won't remove it (only
-adds/overwrites, never deletes):
-
-```
-rm components/DebugWidth.jsx
-```
-
-Then unzip this delivery's files into the folder (overwrite), and:
+Unzip this delivery's files into that folder (overwrite), then:
 
 ```bash
-git add -A
-git commit -m "Fix: real Fold 7 breakpoint (700px, confirmed via device testing), remove diagnostic badges"
+git add .
+git commit -m "TEST: desktop-only banner max-width with auto-detected blended background"
 git push origin staging
 ```
-
-(`git add -A` instead of `git add .` — specifically so the deletion
-above gets included in the commit, not just the new/changed files.)
