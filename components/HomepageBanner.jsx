@@ -130,51 +130,55 @@ export default function HomepageBanner({ banners }) {
     <section
       className="banner-carousel"
       style={edgeColors[active] ? { background: edgeColors[active] } : undefined}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocus={() => setPaused(true)}
-      onBlur={() => setPaused(false)}
     >
-      {banners.map((b, i) => (
-        <a
-          key={i}
-          href={b.link}
-          className={`banner-slide${i === active ? ' active' : ''}`}
-          aria-hidden={i !== active}
-          tabIndex={i === active ? 0 : -1}
-        >
-          <picture>
-            {b.mobileImage && b.mobileImage !== b.image && (
-              <source media="(max-width: 700px)" srcSet={imageUrl(b.mobileImage)} />
+      <div
+        className="banner-carousel-inner"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        onFocus={() => setPaused(true)}
+        onBlur={() => setPaused(false)}
+      >
+        {banners.map((b, i) => (
+          <a
+            key={i}
+            href={b.link}
+            className={`banner-slide${i === active ? ' active' : ''}`}
+            aria-hidden={i !== active}
+            tabIndex={i === active ? 0 : -1}
+          >
+            <picture>
+              {b.mobileImage && b.mobileImage !== b.image && (
+                <source media="(max-width: 700px)" srcSet={imageUrl(b.mobileImage)} />
+              )}
+              {b.tabletImage && b.tabletImage !== b.image && (
+                <source media="(max-width: 1024px)" srcSet={imageUrl(b.tabletImage)} />
+              )}
+              <img src={imageUrl(b.image)} alt={b.headline || 'Pawvy'} className="banner-slide-bg" />
+            </picture>
+            {b.headline && (
+              i === 0
+                ? <h1 className={`banner-caption${b.showCaption === false ? ' sr-only' : ''}`}>{b.headline}</h1>
+                : <p className={`banner-caption${b.showCaption === false ? ' sr-only' : ''}`}>{b.headline}</p>
             )}
-            {b.tabletImage && b.tabletImage !== b.image && (
-              <source media="(max-width: 1024px)" srcSet={imageUrl(b.tabletImage)} />
-            )}
-            <img src={imageUrl(b.image)} alt={b.headline || 'Pawvy'} className="banner-slide-bg" />
-          </picture>
-          {b.headline && (
-            i === 0
-              ? <h1 className={`banner-caption${b.showCaption === false ? ' sr-only' : ''}`}>{b.headline}</h1>
-              : <p className={`banner-caption${b.showCaption === false ? ' sr-only' : ''}`}>{b.headline}</p>
-          )}
-        </a>
-      ))}
+          </a>
+        ))}
 
-      {banners.length > 1 && (
-        <div className="banner-dots" role="tablist" aria-label="Banner slides">
-          {banners.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              role="tab"
-              aria-selected={i === active}
-              aria-label={`Show banner ${i + 1} of ${banners.length}`}
-              className={`banner-dot${i === active ? ' active' : ''}`}
-              onClick={(e) => { e.preventDefault(); setActive(i); }}
-            />
-          ))}
-        </div>
-      )}
+        {banners.length > 1 && (
+          <div className="banner-dots" role="tablist" aria-label="Banner slides">
+            {banners.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                role="tab"
+                aria-selected={i === active}
+                aria-label={`Show banner ${i + 1} of ${banners.length}`}
+                className={`banner-dot${i === active ? ' active' : ''}`}
+                onClick={(e) => { e.preventDefault(); setActive(i); }}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </section>
   );
 }
