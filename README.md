@@ -1,49 +1,43 @@
-# TEST #2: max-height:none on desktop (reverting test #1 entirely)
+# Desktop banner ratio: 16:9 → 16:7
 
 ## This is for the Website folder (`pawvy-website`) only, targeting
-## `staging`. Replaces the max-width + auto-color delivery entirely —
-## that whole approach is reverted, not layered on top of.
+## `staging`.
 
-2 files changed: `app/globals.css`, `components/HomepageBanner.jsx`.
+1 file changed: `app/globals.css`.
 
 ## What changed
 
-- **Fully reverted test #1**: no more `.banner-carousel-inner`, no more
-  `max-width`, no more the whole color-detection `useEffect` — back to a
-  single `<section className="banner-carousel">`, exactly as it was
-  before that experiment began.
-- **New test #2**: desktop now uses `max-height: none`, same as
-  mobile/tablet already had. No height cap at all — the banner is always
-  a genuine, uncropped 16:9 shape, full width, guaranteed zero cropping
-  ever (same guarantee mobile/tablet already had).
+The desktop banner's container shape is now `aspect-ratio: 16 / 7`
+instead of `16 / 9`. Only the desktop tier — mobile (2:3) and tablet
+(4:3) are untouched, unaffected by this.
 
-## Real trade-off — measured, not assumed
+## Why this actually needed a code change
 
-This brings back the original problem the height cap was built to solve.
-Measured directly in a real browser across common screen sizes:
-
-```
-1920x1080 (very common desktop resolution): needs 60px scroll for ticker
-1920x900  (browser window, not fullscreen): needs 240px scroll
-1440x900  (common laptop resolution):        fits fine, no scroll
-2560x1080 (ultra-wide monitor):              needs 420px scroll
-```
-
-Worth being direct about: 1920x1080 is one of the single most common
-desktop resolutions in general use, and it already needs some scroll
-under this approach — this isn't only an unusual-monitor problem.
+The container's shape is set in CSS, independent of whatever image gets
+uploaded — `object-fit: cover` always scales/crops any image to fill
+whatever shape the CSS defines. Uploading a 16:7 image without this
+change would have kept the container at 16:9 and just cropped the new
+image to fit that same shape; the banner's height wouldn't have changed
+at all. Now that the container itself is 16:7, a real 16:7 image will
+display close to its natural shape rather than fighting against a
+mismatched box.
 
 ## Verification performed
 
-- Real cold-clone build: fresh `git clone` → applied both files →
+- Real browser test across the same 4 common desktop viewport sizes
+  measured before, confirming the actual result matches the math
+  exactly: fits without scrolling at 1920×1080, 1920×900, and 1440×900;
+  only a small 100px scroll remains at 2560×1080 (down from 420px at
+  16:9) — real, measured improvement, not just a calculation.
+- Real cold-clone build: fresh `git clone` → applied the file →
   `npm install` → `npm run build` — passed with no errors.
-- Real browser measurement across 4 common viewport sizes, quoted above.
-- Confirmed no leftover references to the removed color-detection state
-  or the two-layer structure anywhere in either file.
-- Byte-for-byte diff confirms both files in this zip match what was
+- Byte-for-byte diff confirms the file in this zip matches what was
   cold-clone built and tested above.
 
 ## To apply
+
+Apply together with the companion App-side delivery (updates the
+Marketing page's hint text to match).
 
 ```bash
 cd /path/to/your/pawvy-website
@@ -52,11 +46,14 @@ git pull origin staging
 git checkout -- . && git clean -fd
 ```
 
-Unzip this delivery's files into that folder (overwrite — this replaces
-the max-width test entirely), then:
+Unzip this delivery's `app/globals.css` into that folder (overwrite),
+then:
 
 ```bash
 git add .
-git commit -m "TEST #2: max-height:none on desktop, revert max-width + color-blend experiment entirely"
+git commit -m "Desktop banner: change aspect ratio to 16:7, reduces height so ticker fits without scrolling on most common resolutions"
 git push origin staging
 ```
+
+Once this is live, upload a new 1920×840px (16:7) desktop image via
+S-App for each banner to see it displayed correctly.
