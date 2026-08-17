@@ -262,38 +262,32 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
    object-fit:cover (not contain) is deliberate, confirmed with KT after
    trying contain first: contain avoids ALL cropping but can leave
    visible empty gaps beside the image whenever the container's actual
-   proportions don't exactly match the image (e.g. once max-height below
-   caps the desktop container's height on a wide monitor, faithfully
-   keeping the image at a literal 16:9 shape (the cover ratio) with no
-   crop). KT confirmed empty gaps looked more broken than minor edge
-   cropping — cover always fills the box completely, full width, no
-   gaps, at the cost of trimming a little off the edges on unusually
-   wide screens. */
-/* TEST (Aug 2026, per KT) — desktop-only max-width experiment, using a
-   two-layer structure. .banner-carousel is the OUTER layer: always full
-   width, and its background is what actually shows in the side gaps on
-   a wide monitor. .banner-carousel-inner is the narrower, width-capped,
-   centered box holding the real image content.
+   proportions don't exactly match the image. */
+/* TEST #2 (Aug 2026, per KT) — max-height: none on desktop too, same as
+   mobile/tablet already had. The max-width + auto-color-blend
+   experiment (test #1) is reverted entirely — it technically worked
+   (confirmed via direct measurement) but the detected colors didn't
+   read well in practice against real banner photography, so KT asked
+   to try this instead.
 
-   This two-layer split matters — a first attempt put max-width AND
-   background on the SAME element, centered via margin:auto, and it
-   didn't work: margin is space OUTSIDE an element, background-color
-   only paints INSIDE it, so the gap beside a margin-centered box always
-   shows whatever's behind it (the page's own background) no matter what
-   color that element itself has. Splitting into two layers fixes this
-   structurally, not just cosmetically.
+   With no height cap, aspect-ratio:16/9 computes height purely from
+   width — meaning ZERO cropping ever (the container is always a true
+   16:9 shape, so object-fit:cover never needs to trim anything), the
+   same guarantee mobile/tablet already had. The real trade-off, flagged
+   before building this: on a sufficiently wide monitor, that computed
+   height can exceed the remaining screen space, potentially bringing
+   back needing to scroll to see the ticker — the exact original problem
+   the max-height cap was added to solve in the first place. This is
+   genuinely being tested to see how much that matters in practice, not
+   assumed to be fine.
 
-   Scoped to desktop only — reset to "none" in the tablet/mobile media
-   queries below, since neither ever had this cropping problem (no
-   competing max-height there to fight the aspect-ratio). To revert:
-   delete the max-width/max-height/margin lines from
-   .banner-carousel-inner and its two resets below, move
-   aspect-ratio/max-height back onto .banner-carousel directly, and
-   remove the wrapping <div className="banner-carousel-inner"> in
-   HomepageBanner.jsx. */
-.banner-carousel { position: relative; width: 100%; background: var(--navy); overflow: hidden; }
-.banner-carousel-inner { position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: calc(100vh - 60px); max-width: calc((100vh - 60px) * 16 / 9); margin: 0 auto; overflow: hidden; }
-@media (max-width: 1024px) { .banner-carousel-inner { aspect-ratio: 4 / 3; max-height: none; max-width: none; } }
+   To revert to test #1 (max-width + color-blend): see git history /
+   prior delivery for the two-layer .banner-carousel-inner structure.
+   To revert further back to the very first working version (capped
+   height, single layer, no max-width): add back
+   "max-height: calc(100vh - 60px);" to the rule below. */
+.banner-carousel { position: relative; width: 100%; aspect-ratio: 16 / 9; background: var(--navy); overflow: hidden; }
+@media (max-width: 1024px) { .banner-carousel { aspect-ratio: 4 / 3; } }
 /* 700px, not 760px like the rest of the site (per KT's confirmed Fold 7
    measurement, Aug 2026): window.innerWidth measured exactly 794px on
    the genuinely-unfolded inner screen, yet the device still matched a
@@ -302,7 +296,7 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
    JS window.innerWidth value. Lowering with real margin below 794px
    removes the ambiguity entirely, so the tablet image is guaranteed to
    win regardless of exactly which measurement the browser used. */
-@media (max-width: 700px) { .banner-carousel-inner { aspect-ratio: 2 / 3; } }
+@media (max-width: 700px) { .banner-carousel { aspect-ratio: 2 / 3; } }
 .banner-slide {
   position: absolute; inset: 0; display: block;
   opacity: 0; z-index: 0; transition: opacity .7s ease;
