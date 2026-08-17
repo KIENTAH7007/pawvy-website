@@ -286,7 +286,7 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
    To revert further back to the very first working version (capped
    height, single layer, no max-width): add back
    "max-height: calc(100vh - 60px);" to the rule below. */
-.banner-carousel { position: relative; width: 100%; aspect-ratio: 16 / 7; background: var(--navy); overflow: hidden; }
+.banner-carousel { position: relative; width: 100%; aspect-ratio: 16 / 8; background: var(--navy); overflow: hidden; }
 @media (max-width: 1024px) { .banner-carousel { aspect-ratio: 4 / 3; } }
 /* 700px, not 760px like the rest of the site (per KT's confirmed Fold 7
    measurement, Aug 2026): window.innerWidth measured exactly 794px on

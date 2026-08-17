@@ -1,4 +1,4 @@
-# Desktop banner ratio: 16:9 → 16:7
+# Desktop banner ratio: 16:7 → 16:8
 
 ## This is for the Website folder (`pawvy-website`) only, targeting
 ## `staging`.
@@ -7,28 +7,29 @@
 
 ## What changed
 
-The desktop banner's container shape is now `aspect-ratio: 16 / 7`
-instead of `16 / 9`. Only the desktop tier — mobile (2:3) and tablet
-(4:3) are untouched, unaffected by this.
+Desktop banner container is now `aspect-ratio: 16 / 8` instead of
+`16 / 7` — a bit taller, giving more room for design safe-zones (like
+clearing the fixed nav bar) while still keeping the ticker visible
+without scrolling on the most common resolutions.
 
-## Why this actually needed a code change
+## Real measured trade-off
 
-The container's shape is set in CSS, independent of whatever image gets
-uploaded — `object-fit: cover` always scales/crops any image to fill
-whatever shape the CSS defines. Uploading a 16:7 image without this
-change would have kept the container at 16:9 and just cropped the new
-image to fit that same shape; the banner's height wouldn't have changed
-at all. Now that the container itself is 16:7, a real 16:7 image will
-display close to its natural shape rather than fighting against a
-mismatched box.
+```
+1920x1080 (very common):                    fits, no scroll
+1920x900  (browser window, not fullscreen): needs 120px scroll
+1440x900  (common laptop):                  fits, no scroll
+2560x1080 (ultra-wide monitor):             needs 260px scroll
+```
+
+Fits 2 of the 4 common sizes tested — a middle ground between 16:7
+(fits 3 of 4, but tighter for design safe-zones) and the original 16:9
+(fits 1 of 4).
 
 ## Verification performed
 
-- Real browser test across the same 4 common desktop viewport sizes
-  measured before, confirming the actual result matches the math
-  exactly: fits without scrolling at 1920×1080, 1920×900, and 1440×900;
-  only a small 100px scroll remains at 2560×1080 (down from 420px at
-  16:9) — real, measured improvement, not just a calculation.
+- Real browser measurement across the same 4 viewport sizes tested
+  throughout this whole process, confirming the actual rendered result
+  matches the math exactly.
 - Real cold-clone build: fresh `git clone` → applied the file →
   `npm install` → `npm run build` — passed with no errors.
 - Byte-for-byte diff confirms the file in this zip matches what was
@@ -36,8 +37,7 @@ mismatched box.
 
 ## To apply
 
-Apply together with the companion App-side delivery (updates the
-Marketing page's hint text to match).
+Apply together with the companion App-side delivery.
 
 ```bash
 cd /path/to/your/pawvy-website
@@ -51,9 +51,10 @@ then:
 
 ```bash
 git add .
-git commit -m "Desktop banner: change aspect ratio to 16:7, reduces height so ticker fits without scrolling on most common resolutions"
+git commit -m "Desktop banner: change aspect ratio to 16:8, more room for nav-bar safe zone"
 git push origin staging
 ```
 
-Once this is live, upload a new 1920×840px (16:7) desktop image via
-S-App for each banner to see it displayed correctly.
+Once live, upload new 1920×960px (16:8) desktop images via S-App,
+keeping critical content at least 90-100px from the top edge to clear
+the nav bar.
