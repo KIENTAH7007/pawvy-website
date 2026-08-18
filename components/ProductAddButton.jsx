@@ -38,6 +38,7 @@ import { createPortal } from 'react-dom';
 import { useCart } from '../lib/CartContext';
 import { imageUrl } from '../lib/api';
 import { findMatches } from '../lib/matching';
+import { formatPrice } from '../lib/formatPrice';
 import QtyStepper from './QtyStepper';
 
 const COLOR_KEYWORDS = [
@@ -264,7 +265,7 @@ export default function ProductAddButton({ products, productLabel, variants, ser
                   disabled={!current?.product || current.product.stock_status === 'out_of_stock'}
                   onClick={handleConfirmAdd}
                 >
-                  <span>Add to Cart{current?.product ? ` — $${current.product.effective_price_rrp_sg.toFixed(2)}` : ''}</span>
+                  <span>Add to Cart{current?.product ? ` — ${formatPrice(current.product.effective_price_rrp_sg)}` : ''}</span>
                 </button>
               </div>
             </div>

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { shopApi } from '../lib/api';
 import { useCart } from '../lib/CartContext';
 import { BRAND_SLUGS, displayBrandName } from '../lib/brandSlugs';
+import { formatPrice } from '../lib/formatPrice';
 import ProductCard from './ProductCard';
 
 const FREE_SHIPPING_THRESHOLD = 60;
@@ -68,7 +69,7 @@ export default function ShopClient({ initialProducts, brands, showHero = true, b
       </div>
       {itemCount > 0 && (
         <div className={`shop-foc${unlocked ? ' unlocked' : ''}`}>
-          {unlocked ? "You've got free delivery! 🎉" : `Add $${remaining.toFixed(2)} more for free delivery`}
+          {unlocked ? "You've got free delivery! 🎉" : `Add ${formatPrice(remaining)} more for free delivery`}
         </div>
       )}
     </div>

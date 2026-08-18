@@ -9,7 +9,7 @@ import InstagramGrid from '../components/InstagramGrid';
 import HomepageBanner from '../components/HomepageBanner';
 import { contentApi } from '../lib/api';
 
-const FACTS_FALLBACK = ['Premium Pet Wellness', 'Exclusive Singapore Distributor', 'Six Brands, One Standard', '107+ Retail Partners'];
+const FACTS_FALLBACK = ['Premium Pet Wellness', 'Official Singapore Distributor', 'Six Brands, One Standard', '107+ Retail Partners'];
 
 const TESTIMONIALS = [
   { quote: 'Thank you for the recommendation! Sparky has not stopped playing since we came home.', who: 'Sparky_yipeedee_dee', image: '/testimonials/sparky.jpg' },

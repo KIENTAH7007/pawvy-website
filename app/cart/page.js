@@ -7,6 +7,7 @@ import { shopApi, checkoutApi, customerApi, getSessionToken, imageUrl } from '..
 import ProductCard from '../../components/ProductCard';
 import { displayBrandName } from '../../lib/brandSlugs';
 import { productDisplayName } from '../../lib/productDisplayName';
+import { formatPrice } from '../../lib/formatPrice';
 
 const FREE_SHIPPING_THRESHOLD = 60; // must match server/routes/checkout.js — see note there
 const SHIPPING_COST = 3;            // must match server/routes/checkout.js — see note there
@@ -129,7 +130,7 @@ export default function CartPage() {
                   <div style={{ minWidth: 0 }}>
                     <div className="cart-item-brand">{displayBrandName(item.brand_name)}</div>
                     <div className="cart-item-name">{productDisplayName(item)}</div>
-                    <div className="cart-item-price">${item.price.toFixed(2)} each</div>
+                    <div className="cart-item-price">{formatPrice(item.price)} each</div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
@@ -211,7 +212,7 @@ export default function CartPage() {
               </div>
               {previewRedemptionValue > 0 && (
                 <p style={{ fontSize: 12.5, color: 'var(--dark-gray)', marginTop: 8 }}>
-                  That's ${previewRedemptionValue.toFixed(2)} off this order.
+                  That's {formatPrice(previewRedemptionValue)} off this order.
                 </p>
               )}
             </div>
@@ -222,7 +223,7 @@ export default function CartPage() {
             <Row label={freeShipping ? 'Shipping (free!)' : 'Shipping'} value={shipping} />
             {!freeShipping && (
               <p style={{ fontSize: 12.5, color: 'var(--dark-gray)' }}>
-                Add ${(FREE_SHIPPING_THRESHOLD - subtotal).toFixed(2)} more for free shipping.
+                Add {formatPrice(FREE_SHIPPING_THRESHOLD - subtotal)} more for free shipping.
               </p>
             )}
             {previewRedemptionValue > 0 && <Row label="BUTTONS redeemed" value={-previewRedemptionValue} />}
@@ -238,7 +239,7 @@ export default function CartPage() {
             className="btn btn-orange"
             style={{ width: '100%', justifyContent: 'center', marginTop: 16, opacity: checkingOut ? 0.6 : 1, cursor: checkingOut ? 'wait' : 'pointer' }}
           >
-            <span>{checkingOut ? 'Redirecting to payment…' : `Checkout — Pay $${total.toFixed(2)}`}</span>
+            <span>{checkingOut ? 'Redirecting to payment…' : `Checkout — Pay ${formatPrice(total)}`}</span>
           </button>
           <p style={{ fontSize: 12.5, color: 'var(--dark-gray)', textAlign: 'center', marginTop: 10 }}>
             Payment by card or PayNow, securely handled by Stripe.
@@ -263,7 +264,7 @@ function Row({ label, value, bold }) {
   return (
     <div className={`cart-row-summary${bold ? ' bold' : ''}`}>
       <span>{label}</span>
-      <span>${value.toFixed(2)}</span>
+      <span>{formatPrice(value)}</span>
     </div>
   );
 }

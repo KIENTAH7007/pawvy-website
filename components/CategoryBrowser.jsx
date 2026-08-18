@@ -19,6 +19,7 @@
 // the README, needs a real click-through per category after deploy.
 import { useState, useMemo } from 'react';
 import { imageUrl } from '../lib/api';
+import { formatPrice } from '../lib/formatPrice';
 import ProductAddButton from './ProductAddButton';
 
 function matchByPrefix(products, prefix) {
@@ -87,7 +88,7 @@ function GiGwiCard({ card, products }) {
       <div className="info">
         <h3>{card.name}</h3>
         <div className="price">
-          {minPrice != null ? (variants.length > 1 ? `From $${minPrice.toFixed(2)}` : `$${minPrice.toFixed(2)}`) : ''}
+          {minPrice != null ? (variants.length > 1 ? `From ${formatPrice(minPrice)}` : formatPrice(minPrice)) : ''}
         </div>
       </div>
       <div className="info" style={{ paddingTop: 0 }}>

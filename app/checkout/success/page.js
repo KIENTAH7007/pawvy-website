@@ -7,6 +7,7 @@ import { checkoutApi } from '../../../lib/api';
 import { useCart } from '../../../lib/CartContext';
 import { displayBrandName } from '../../../lib/brandSlugs';
 import { productDisplayName } from '../../../lib/productDisplayName';
+import { formatPrice } from '../../../lib/formatPrice';
 
 export default function CheckoutSuccessPage() {
   return (
@@ -112,7 +113,7 @@ function SuccessLanding() {
           {items.map((item, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, padding: '6px 0' }}>
               <span>{item.qty}x {displayBrandName(item.brand_name)} — {productDisplayName(item)}</span>
-              <span>${(item.unit_price * item.qty).toFixed(2)}</span>
+              <span>{formatPrice(item.unit_price * item.qty)}</span>
             </div>
           ))}
           <div style={{ borderTop: '1px solid #eee', marginTop: 8, paddingTop: 8, fontSize: 14 }}>
@@ -133,7 +134,7 @@ function Row({ label, value, bold }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '2px 0', fontWeight: bold ? 700 : 400 }}>
       <span>{label}</span>
-      <span>${value.toFixed(2)}</span>
+      <span>{formatPrice(value)}</span>
     </div>
   );
 }

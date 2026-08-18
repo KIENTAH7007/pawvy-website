@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { BRAND_SLUGS, displayBrandName } from '../lib/brandSlugs';
 import { useCart } from '../lib/CartContext';
 import { customerApi, contentApi, getSessionToken, setSessionToken } from '../lib/api';
+import { formatPrice } from '../lib/formatPrice';
 
 // FREE_SHIPPING_THRESHOLD matches the $60 free-delivery rule already
 // established elsewhere on the site (ShopClient, checkout) — keep these
@@ -114,7 +115,7 @@ export default function Nav() {
   const unlocked = subtotal >= FREE_SHIPPING_THRESHOLD;
   const focText = unlocked
     ? 'Free delivery unlocked!'
-    : `Add $${(FREE_SHIPPING_THRESHOLD - subtotal).toFixed(2)} for free delivery`;
+    : `Add ${formatPrice(FREE_SHIPPING_THRESHOLD - subtotal)} for free delivery`;
   const firstName = customer?.name?.split(' ')[0] || 'there';
   // Homepage-only exception (Aug 2026, per KT): the banner carousel can
   // show light-colored images, and a transparent nav over a light banner

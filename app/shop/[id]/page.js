@@ -4,6 +4,7 @@ import { shopApi, imageUrl } from '../../../lib/api';
 import { displayBrandName, brandSlug } from '../../../lib/brandSlugs';
 import { BRAND_CONTENT, faqSlug } from '../../../lib/brandContent';
 import { productDisplayName, productTitleTag } from '../../../lib/productDisplayName';
+import { formatPrice } from '../../../lib/formatPrice';
 import { buildOgMeta, buildProductJsonLd } from '../../../lib/seo';
 import AddToCartSection from '../../../components/AddToCartSection';
 
@@ -80,8 +81,8 @@ export default async function ProductPage({ params }) {
           <h1>{name}</h1>
 
           <div className="product-detail-price">
-            {product.is_discount_active && <span className="was">${product.price_rrp_sg.toFixed(2)}</span>}
-            ${product.effective_price_rrp_sg.toFixed(2)}
+            {product.is_discount_active && <span className="was">{formatPrice(product.price_rrp_sg)}</span>}
+            {formatPrice(product.effective_price_rrp_sg)}
           </div>
 
           <AddToCartSection product={product} />

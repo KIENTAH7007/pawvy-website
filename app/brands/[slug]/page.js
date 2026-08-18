@@ -17,7 +17,10 @@ export async function generateMetadata({ params }) {
   if (!brandName) return { title: 'Brand | Pawvy' };
   const content = BRAND_CONTENT[brandName];
   const title = `${displayBrandName(brandName)} | Pawvy`;
-  const description = content?.description || `Shop ${displayBrandName(brandName)} products on Pawvy.co — Singapore's exclusive distributor.`;
+  const description = content?.description
+    || (content?.exclusive
+      ? `Shop ${displayBrandName(brandName)} products on Pawvy.co — Singapore's exclusive distributor.`
+      : `Shop ${displayBrandName(brandName)} products on Pawvy.co — Singapore's official distributor.`);
   return {
     title,
     description,
@@ -40,7 +43,7 @@ export default async function BrandPage({ params }) {
 
   const { products } = await shopApi.products({ brand_id: brand.id });
   const content = BRAND_CONTENT[brandName] || {
-    tagline: '', description: `Shop ${displayBrandName(brandName)} on Pawvy.`, exclusive: true, faqs: [],
+    tagline: '', description: `Shop ${displayBrandName(brandName)} on Pawvy.`, exclusive: false, faqs: [],
   };
   const heroPhoto = BRAND_HERO_PHOTOS[brandName];
 
@@ -57,6 +60,11 @@ export default async function BrandPage({ params }) {
           <h1>{displayBrandName(brandName)}</h1>
           {content.tagline && <p className="tag">{content.tagline}</p>}
           {content.description && <p className="desc">{content.description}</p>}
+          <p className="distributor-badge">
+            {content.exclusive
+              ? `Official & exclusive Singapore distributor of ${displayBrandName(brandName)}.`
+              : `Official Singapore distributor of ${displayBrandName(brandName)}.`}
+          </p>
           <div className="subhero-actions">
             <a href="#shop" className="btn btn-orange"><span>Shop now</span></a>
             <a href="#faq" className="btn btn-outline-light"><span>FAQ</span></a>

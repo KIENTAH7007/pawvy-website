@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { displayBrandName } from '../lib/brandSlugs';
 import { productDisplayName } from '../lib/productDisplayName';
 import { imageUrl } from '../lib/api';
+import { formatPrice } from '../lib/formatPrice';
 import Link from 'next/link';
 import QtyStepper from './QtyStepper';
 
@@ -34,8 +35,8 @@ export default function ProductCard({ product: p, onAdd }) {
         <div className="info">
           <h3>{name}</h3>
           <div className="price">
-            {p.is_discount_active && <span className="was">${p.price_rrp_sg.toFixed(2)}</span>}
-            ${p.effective_price_rrp_sg.toFixed(2)}
+            {p.is_discount_active && <span className="was">{formatPrice(p.price_rrp_sg)}</span>}
+            {formatPrice(p.effective_price_rrp_sg)}
           </div>
         </div>
       </Link>

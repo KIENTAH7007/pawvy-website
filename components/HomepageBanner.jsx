@@ -68,7 +68,7 @@ export default function HomepageBanner({ banners }) {
     return (
       <section className="banner-carousel banner-fallback">
         <div className="wrap">
-          <h1>Wellness products that Pawvy is the exclusive distributor of.</h1>
+          <h1>Official Singapore distributor. Authentic products. Local support.</h1>
         </div>
       </section>
     );
