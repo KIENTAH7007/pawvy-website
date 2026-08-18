@@ -469,6 +469,7 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 @media (max-width: 760px) { .foot-grid { grid-template-columns: 1fr; gap: 32px; } }
 .foot-brand img { height: 36px; margin-bottom: 14px; }
 .foot-brand p { color: rgba(245,242,235,.6); font-size: 14px; max-width: 280px; }
+.foot-brand p.foot-trust { font-size: 12.5px; color: rgba(245,242,235,.45); margin-top: 6px; }
 .foot-col a, .foot-col div { display: block; font-size: 14.5px; margin-bottom: 11px; color: rgba(245,242,235,.85); font-weight: 700; }
 .foot-col a:hover { color: var(--orange); }
 .foot-bottom { padding: 26px 0; font-size: 13px; color: rgba(245,242,235,.4); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
@@ -486,11 +487,6 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .subhero h1 { font-weight: 900; color: var(--cream); letter-spacing: -1.5px; font-size: clamp(45px,6vw,80px); line-height: 1.02; }
 .subhero .tag { font-size: 24px; color: var(--orange); font-weight: 600; margin-top: 18px; font-family: 'Fraunces',serif; }
 .subhero p.desc { margin-top: 26px; font-size: 19px; line-height: 1.8; color: rgba(245,242,235,.75); max-width: 640px; }
-.subhero .distributor-badge {
-  display: inline-flex; align-items: center; gap: 8px; margin-top: 16px;
-  font-size: 13px; font-weight: 600; letter-spacing: .3px; text-transform: uppercase;
-  color: var(--navy); background: var(--cream); padding: 8px 14px; border-radius: 20px;
-}
 .subhero-actions { display: flex; gap: 20px; margin-top: 36px; flex-wrap: wrap; }
 
 /* ---------- Brand deep-dive (optional, data-driven per brand — see

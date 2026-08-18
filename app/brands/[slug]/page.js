@@ -60,7 +60,7 @@ export default async function BrandPage({ params }) {
           <h1>{displayBrandName(brandName)}</h1>
           {content.tagline && <p className="tag">{content.tagline}</p>}
           {content.description && <p className="desc">{content.description}</p>}
-          <p className="distributor-badge">
+          <p className="distributor-badge sr-only">
             {content.exclusive
               ? `Official & exclusive Singapore distributor of ${displayBrandName(brandName)}.`
               : `Official Singapore distributor of ${displayBrandName(brandName)}.`}

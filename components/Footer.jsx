@@ -8,6 +8,7 @@ export default function Footer() {
           <div className="foot-brand">
             <img src="/pawvy-logo-white.png" alt="Pawvy" />
             <p>We help you make informed choices.</p>
+            <p className="foot-trust">Official distributor. Authentic products. Local support.</p>
           </div>
           <div className="foot-col">
             <div className="eyebrow" style={{ color: 'var(--light-pitch)' }}>Explore</div>
