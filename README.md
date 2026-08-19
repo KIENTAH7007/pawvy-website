@@ -1,137 +1,82 @@
-# Pawvy Website — Phase 1: Product Click-Through + Shop-by-Need
+# Pawvy Website — Homepage Cards, Testimonial Sizing, Product Naming, Variant Switcher Fix
 
 Target branch: **staging**
 Repo: `pawvy-website`
 
-**Apply the separate "Pawvy App" zip first** — this website patch
-calls its new `?item_series=` filter.
+**Apply the separate "Pawvy App" zip first** — this patch's variant
+switcher fix depends on its new `?ids=` filter.
 
-This is the big one: product card click-through (your customer feedback
-item) plus the full Phase 1 Shop-by-Need build — homepage, Shop page
-redesign, and the product detail page enhancements that came out of the
-Option 1 vs Option 2 discussion.
+Addressing your 5 points from testing, in order:
 
-## 1. Product card click-through (your customer feedback)
+## 1. Homepage Need cards — bigger, 2 rows of 4 on desktop, "Joint" rename
 
-Clicking anywhere on a product card *except* Add to Cart now goes to
-that product's real page. Done across every card style on the site:
+- Desktop (≥900px): forced exactly 4 columns / 2 rows, with bigger
+  padding, icon size, and label text.
+- Mobile: **completely untouched** — you confirmed that already looks
+  right, so the original flexible layout stays exactly as it was below
+  that breakpoint.
+- "Joints" → "Joint" (`lib/needTags.js`) — label only, the slug is
+  unchanged so nothing you've already tagged needs redoing.
 
-- `ProductCard.jsx` (Shop page, Pawvy's Picks) — already had this from
-  before, untouched.
-- `BrandDeepDive.jsx` — BetterBone's durability cards, and the generic
-  fit-card pattern (Puzzle Feeder, Salmoil, Eastsea Brother).
-- `FitCard.jsx` — Lillidale's hover-preview cards. Clicking after
-  hovering a colour swatch takes you to *that* colour's page specifically.
-- `CategoryBrowser.jsx` — GiGwi's category grid.
+## 2. Testimonial image sizing — fixed the cropping, sizes below
 
-For a single-variant card, this is unambiguous. For a card representing
-several real variants (different sizes/colours), I added a small shared
-helper (`pickPrimaryMatch` in `lib/matching.js`) that always prefers an
-in-stock variant, falling back to the first match if none are in stock
-— deliberately kept separate from `ProductAddButton`'s own internal
-default-selection logic (already tested, in production) rather than
-sharing it, so this change can't accidentally alter what Add to Cart
-itself does.
+**What was wrong:** the image area had a fixed 170px height regardless
+of photo shape, which is why things looked cropped/cut off — a portrait
+photo squeezed into a short band loses a lot.
 
-## 2. Product detail page — Option 1 (your confirmed choice)
+**The fix:** switched to `aspect-ratio: 3/4` per photo (matches the
+homepage's existing "Customer reviews" carousel exactly — same
+proportion, so photos read consistently site-wide), applied to each
+image individually rather than the card as a whole.
 
-- **Sibling variant switcher**: real navigation between each size's own
-  URL (not a single-page live-swap) — so every variant keeps its own
-  shareable, indexable link, and reuses the description you've already
-  written once rather than duplicating it. Uses the new `?item_series=`
-  exact-match filter from the pawvy-app patch.
-- **"Best for" line**, pulling from the field you can now set in
-  Pawvy App.
-- **Breadcrumbs** (Home / Shop / Brand / Product).
-- **OOS "Notify me"** — added directly into `AddToCartSection.jsx`,
-  wired to the waitlist endpoint from the earlier delivery.
+**Recommended sizes** (also now shown directly in the Pawvy App upload
+fields, so you don't need to remember this):
+- **1 image only**: 900×1200px (3:4 portrait).
+- **2 images (before/after)**: same 900×1200px for each — they sit side
+  by side on the card, each keeping its own portrait shape rather than
+  being squashed into a shorter slice.
 
-## 3. Homepage restructure
+## 3. Testimonial product naming — now uses the same cleanup as everywhere else
 
-- Removed the "200+ Products / 100% Vetted Quality" stats strip and the
-  "Why Pawvy" section, per you and Janice's confirmed direction.
-- Added **"What does your pet need help with?"** — 8 need cards in the
-  confirmed order (Skin & Coat → Chew → Enrichment → Gut → Food →
-  Dental → Grooming → Joints), each linking to `/shop?need=<slug>`.
-- Added **Pawvy's Picks** — pulls from the `is_pawvy_pick` flag you can
-  already set in Products & Pricing. Only renders if there's at least
-  one pick set, so it won't show an empty section if nothing's flagged
-  yet.
-- The "Six Brands, One Standard" section is completely untouched, as
-  agreed — not redesigned.
-- `StatCounter.jsx` is no longer used anywhere on the site (that trust-
-  metrics-showing-0 bug is now moot since the section itself is gone) —
-  left the file in place rather than deleting it, in case it's wanted
-  again later; it just doesn't affect the build either way since nothing
-  imports it now.
+Was showing the raw internal text (e.g. "L0101 Lillidale Supplement").
+Now runs through `productDisplayName()` — the exact same helper that
+already cleans up names on the Shop grid and product pages (strips the
+SKU code, strips redundant brand name, formats consistently). Same
+"Lillidale — Supplement" style naming you're used to seeing elsewhere.
 
-## 4. Shop page — sidebar filters replace the dropdown entirely
+## 4. Variant switcher not showing — found the real bug, not just a miss
 
-Per your confirmation that it's fine to fully discard the dropdown:
+You were right to ask why — I didn't skip it, but the original approach
+had a real gap. Full explanation and fix are in the pawvy-app zip's
+README (the `?ids=` addition) — short version: GiGwi's colors are
+different `item_series` values in the database (matched by SKU prefix,
+not a shared series), so my original "find siblings by matching
+item_series" approach silently returned nothing for exactly the product
+you tested with.
 
-- **Sidebar** with three real, functional filters: **Need** (chips),
-  **Brand** (radio list), **Availability** (in-stock-only checkbox).
-  Deliberately did *not* include Pet or Product Type filters from the
-  original mockup — there's no real data behind those yet, and a filter
-  that doesn't actually filter anything would be worse than not having
-  it. Worth a conversation later if you want those built out for real.
-- **`/shop?need=dental`** now works as its own real, shareable,
-  server-rendered URL — clicking a homepage need card lands here,
-  pre-filtered, with the Need chip already active.
-- **Testimonials-first layout**: when a need is active, testimonials for
-  that need render above the product grid (image-first, before/after
-  split if a testimonial has two photos, single photo with no label if
-  it only has one — matches what you set up in Marketing). Each
-  testimonial's linked product shows a shoppable "Add to cart" row.
-- **Active-need banner** with a one-click "clear" back to the full catalogue.
-- **Breadcrumbs**, showing the active need's name when one is selected.
-- The Need filter also syncs into the URL as you click chips (without a
-  full page reload), so the page stays bookmarkable/shareable even after
-  interacting with it client-side, not just on first load.
+**The fix**: every card that resolves multiple real variants
+(`BrandDeepDive.jsx`'s durability and fit cards, `FitCard.jsx`'s
+hover-preview cards, `CategoryBrowser.jsx`'s GiGwi cards) now passes the
+*exact* set of product IDs it already resolved directly in the link
+(`?siblings=12,45,88`), instead of asking the product page to re-guess.
+This works correctly regardless of how any given brand's catalog happens
+to be structured — no more relying on an assumption that doesn't hold
+for every brand.
 
-## 5. Nav bar
+## 5. Need card icons — 3 alternative sets to choose from
 
-- Added **"Shop by Need"** between Home and Shop, linking to the
-  homepage's need-cards section (`/#need-cards`) — same destination as
-  the "Shop by Need" hero button from the earlier mockup, so this
-  matches what you already approved rather than introducing a new
-  pattern. **This is my own call, not something we explicitly discussed**
-  — if you'd rather it go straight to `/shop` (letting the sidebar be
-  the entry point instead of the homepage cards), easy to change, just
-  let me know.
-- Removed **Blog** (per the original UX review's recommendation to pull
-  it from nav until there's real content behind it) — the `/blog` route
-  itself is untouched, just no longer linked from the nav.
-- Done in both the desktop nav and the mobile drawer.
+See my message for the actual icon options — didn't want to guess and
+ship a set you might not like, so nothing's changed in the code for
+this one yet. Once you pick, it's a one-line change per icon.
 
 ## Verification performed
 
-- **Real production build** (`npm run build`) at every stage of this
-  patch — after card click-through, after the PDP changes, after the
-  homepage restructure, after the Shop page redesign, and after the nav
-  changes — confirming no syntax errors, no broken imports, and no
-  Server/Client Component boundary violations (this codebase has hit
-  that exact class of bug before — see the comment at the top of
-  `lib/matching.js` for the story — so I was specifically watching for
-  it given how much of this patch touches Server Components).
-- **Real logic tests** (not just build-passing) for the pieces most
-  likely to have a subtle bug: confirmed `NEED_CATEGORIES`' order
-  exactly matches the backend's canonical sequence; confirmed
-  `pickPrimaryMatch` actually prefers an in-stock variant over an
-  out-of-stock one, correctly falls back to the first match when
-  *nothing's* in stock, and returns `null` (not a crash) for an empty
-  match list.
-- Every file in this zip byte-diffed against what was actually
-  build-tested — identical, and the same true for the separate pawvy-app zip.
-
-## What's NOT in this patch
-
-- The waitlist admin-side (counts badge, email list) — already delivered
-  and applied earlier; this patch only adds the *public-facing* trigger
-  (the "Notify me" form) that calls it.
-- Automatic restock emails — still flagged as a separate, unconfirmed
-  follow-up.
-- Pet / Product Type filters — no real data yet, deliberately not faked.
+- Full production build (`npm run build`) after all 5 changes — clean,
+  no errors.
+- Confirmed the variant-switcher fix against real seed data (see the
+  pawvy-app README) — not just "should work in theory."
+- All 7 changed files byte-diffed against what was actually build-tested
+  — identical.
 
 ## How to apply
 
@@ -139,40 +84,27 @@ Per your confirmation that it's fine to fully discard the dropdown:
 git checkout staging
 git pull origin staging
 
-# then copy/overwrite these files from this zip into your local
-# pawvy-website folder, preserving the same paths:
+# copy/overwrite these files, preserving the same paths:
 #   app/globals.css
-#   app/page.js
 #   app/shop/[id]/page.js
-#   app/shop/page.js
-#   components/AddToCartSection.jsx
 #   components/BrandDeepDive.jsx
 #   components/CategoryBrowser.jsx
 #   components/FitCard.jsx
-#   components/Nav.jsx
 #   components/ShopClient.jsx
-#   lib/api.js
-#   lib/matching.js
-#   components/PawvyPicksGrid.jsx   <-- NEW FILE
-#   lib/needTags.js                 <-- NEW FILE
+#   lib/needTags.js
 
 git add .
-git commit -m "Phase 1: product card click-through, homepage need cards + Pawvy's Picks, Shop-by-Need sidebar filters + testimonials, PDP variant switcher + Best For + breadcrumbs, nav update"
+git commit -m "Homepage need cards bigger + 4/row desktop, fix testimonial image cropping, clean up testimonial product naming, fix variant switcher via explicit sibling IDs, rename Joints to Joint"
 git push origin staging
 ```
 
-## Worth testing specifically on S-Web once it's live
+## Worth checking specifically on S-Web once live
 
-- Click a product card anywhere except Add to Cart, on each brand page
-  (BetterBone, Lillidale, GiGwi, Puzzle Feeder/Salmoil/Eastsea Brother)
-  and on the Shop page — should land on that product's real page.
-- Homepage need cards — click one, confirm it lands on `/shop?need=...`
-  pre-filtered with the right Need chip active.
-- A product with real variants — confirm the switcher shows all
-  siblings and correctly marks the current one active.
-- An out-of-stock product — confirm the "Notify me" form appears and
-  actually submits (check the waitlist badge in Products & Pricing
-  afterward).
-- Pawvy's Picks — flag a product as a pick in Products & Pricing, refresh
-  the homepage, confirm it shows up (and that the section stays hidden
-  if nothing's flagged).
+- Homepage need cards on a real PC-width browser — should be exactly 4
+  per row, noticeably bigger than before.
+- A GiGwi product page (the one you originally tested) — the variant
+  switcher should now actually appear.
+- A testimonial with 2 photos — should look like a proper before/after,
+  not cropped.
+- Testimonial product names — should read cleanly, not show raw
+  SKU-prefixed text.

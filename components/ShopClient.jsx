@@ -7,6 +7,7 @@ import { useCart } from '../lib/CartContext';
 import { BRAND_SLUGS, displayBrandName } from '../lib/brandSlugs';
 import { formatPrice } from '../lib/formatPrice';
 import { NEED_CATEGORIES, needLabel } from '../lib/needTags';
+import { productDisplayName } from '../lib/productDisplayName';
 import ProductCard from './ProductCard';
 
 const FREE_SHIPPING_THRESHOLD = 60;
@@ -55,7 +56,9 @@ function TestimonialCard({ t }) {
         {t.customer_handle && <div className="testi-who">— {t.customer_handle}</div>}
         {t.product_id && (
           <div className="testi-shop-row">
-            <span className="testi-product-name">{t.product_brand_name ? `${displayBrandName(t.product_brand_name)} — ` : ''}{t.product_name}</span>
+            <span className="testi-product-name">
+              {displayBrandName(t.product_brand_name)} — {productDisplayName({ item_series: t.product_name, variation: t.product_variation, brand_name: t.product_brand_name })}
+            </span>
             <button type="button" className="testi-add-btn" onClick={handleAdd}>
               {adding ? 'Added ✓' : 'Add to cart'}
             </button>

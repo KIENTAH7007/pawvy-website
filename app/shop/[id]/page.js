@@ -39,8 +39,9 @@ export async function generateMetadata({ params }) {
   }
 }
 
-export default async function ProductPage({ params }) {
+export default async function ProductPage({ params, searchParams }) {
   const { id } = await params;
+  const { siblings: siblingsParam } = await searchParams;
   let product;
   try {
     ({ product } = await shopApi.product(id));
@@ -53,11 +54,26 @@ export default async function ProductPage({ params }) {
   // switcher" from the click-through discussion) — same item_series,
   // different size/flavor. Real navigation between each variant's own
   // page/URL rather than a single-page live-swap: simpler, and every
-  // variant still gets its own real, indexable, shareable URL. Only
-  // fetched/shown when the product actually has an item_series to match
-  // on and turns out to have more than one real sibling.
+  // variant still gets its own real, indexable, shareable URL.
+  //
+  // Prefers the explicit ?siblings=id,id,id from the card that linked
+  // here (the card already resolved its own exact match set correctly,
+  // however that brand's data happens to be organized — GiGwi's colors
+  // are genuinely different item_series values, matched by SKU prefix,
+  // not a shared series — see CategoryBrowser.jsx). Falls back to an
+  // item_series exact-match lookup only for direct/bookmarked URLs that
+  // arrive with no siblings context at all.
   let siblings = [];
-  if (product.item_series) {
+  const explicitIds = (siblingsParam || '').split(',').map(s => s.trim()).filter(Boolean);
+  if (explicitIds.length > 1) {
+    try {
+      const { products: bulk } = await shopApi.products({ ids: explicitIds.join(',') });
+      siblings = bulk;
+    } catch {
+      // fall through to item_series below
+    }
+  }
+  if (siblings.length <= 1 && product.item_series) {
     try {
       const { products: sameSeriesProducts } = await shopApi.products({ item_series: product.item_series });
       siblings = sameSeriesProducts;

@@ -80,11 +80,18 @@ function GiGwiCard({ card, products }) {
   // pages' cards, applied to whichever real SKUs this card's variants
   // actually resolved to.
   const primary = pickPrimaryMatch(matches.filter(Boolean));
+  // Explicit sibling IDs (Aug 2026 fix) — this is exactly the case that
+  // needed it: GiGwi's colors are matched by distinct SKU prefixes
+  // (matchByPrefix above), meaning each color is genuinely a different
+  // item_series in the database, not a shared series with a different
+  // variation. The PDP can't correctly re-derive "siblings" from
+  // item_series here, so pass the real resolved set explicitly instead.
+  const siblingIds = matches.filter(Boolean).map(m => m.id).join(',');
 
   return (
     <div className="product-card">
       {primary ? (
-        <Link href={`/shop/${primary.id}`}>
+        <Link href={`/shop/${primary.id}?siblings=${siblingIds}`}>
           <div className="card-tags">
             <span className="brand-tag">GiGwi</span>
           </div>

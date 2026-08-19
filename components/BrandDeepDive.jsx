@@ -190,10 +190,17 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                   variationIncludes: lvl.variationIncludes,
                 });
                 const primary = pickPrimaryMatch(cardMatches);
+                // Explicit sibling ID list (Aug 2026 fix) — the PDP's
+                // variant switcher trusts this over re-deriving via
+                // item_series, since that doesn't hold for every brand's
+                // data shape (see the comment on ?ids= in pawvy-app's
+                // shop.js). cardMatches is exactly the same set this
+                // card's own Add to Cart button already resolved.
+                const siblingIds = cardMatches.map(m => m.id).join(',');
                 return (
                 <div className="durability-card" key={lvl.label}>
                   {primary ? (
-                    <Link href={`/shop/${primary.id}`} className="durability-card-link">
+                    <Link href={`/shop/${primary.id}?siblings=${siblingIds}`} className="durability-card-link">
                       <div className="durability-image-wrap">
                         <ImageSlot image={lvl.image} alt={lvl.label} hint={lvl.imageHint} className="durability-image" />
                         <div className="durability-product-badge">
@@ -432,10 +439,11 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                 }));
                 const inStockVariants = resolvedVariants.filter(v => v.product && v.product.stock_status !== 'out_of_stock');
                 const primary = (resolvedVariants.find(v => v.default && v.product && v.product.stock_status !== 'out_of_stock') || inStockVariants[0] || resolvedVariants.find(v => v.product))?.product || null;
+                const siblingIds = resolvedVariants.filter(v => v.product).map(v => v.product.id).join(',');
                 return (
                 <div className="pf-fit-card" key={item.name}>
                   {primary ? (
-                    <Link href={`/shop/${primary.id}`} className="pf-fit-card-link">
+                    <Link href={`/shop/${primary.id}?siblings=${siblingIds}`} className="pf-fit-card-link">
                       <ImageSlot image={(item.variants.find(v => v.default) || item.variants[0]).image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
                       <div className="pf-fit-info">
                         <h3>{item.name}</h3>

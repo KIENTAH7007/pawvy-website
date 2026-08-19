@@ -71,12 +71,27 @@ export default function FitCard({ item, products }) {
     variationIncludesAny: active.variationIncludesAny,
   });
   const primary = pickPrimaryMatch(activeMatches);
+  // Full sibling set across ALL colors/variants for the PDP switcher —
+  // not just the currently-hovered one. Same reasoning as BrandDeepDive's
+  // fit cards: pass the already-resolved IDs explicitly rather than
+  // making the PDP re-derive them via item_series, which doesn't hold
+  // for every brand's data shape.
+  const siblingIds = item.variants
+    .map(v => findMatches(products, {
+      seriesIncludes: v.seriesIncludesAny || v.seriesIncludes,
+      seriesExcludes: v.seriesExcludes,
+      variationIncludes: v.variationIncludes,
+      variationIncludesAny: v.variationIncludesAny,
+    })[0])
+    .filter(Boolean)
+    .map(p => p.id)
+    .join(',');
 
   return (
     <div className="pf-fit-card">
       {isNew && <span className="new-tag">New</span>}
       {primary ? (
-        <Link href={`/shop/${primary.id}`} className="pf-fit-card-link">
+        <Link href={`/shop/${primary.id}?siblings=${siblingIds}`} className="pf-fit-card-link">
           <ImageSlot image={active.image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
           <div className="pf-fit-info" style={{ paddingBottom: 0 }}>
             <h3>{item.name}</h3>
