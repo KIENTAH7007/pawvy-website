@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import ProductAddButton, { findMatches } from './ProductAddButton';
+import { pickPrimaryMatch } from '../lib/matching';
 
 // Local copy of the same tiny helper used in BrandDeepDive.jsx and
 // RecipeSelector.jsx — not worth importing across files for six lines,
@@ -56,13 +58,41 @@ export default function FitCard({ item, products }) {
     return matches.some(m => m.is_new_active);
   });
 
+  // Click-through target (Aug 2026, per customer feedback) — whichever
+  // variant is currently shown (default, or hovered swatch), so clicking
+  // right after previewing a color takes the customer to that specific
+  // variant's page. Falls back through the same matches array
+  // ProductAddButton itself would use, same pickPrimaryMatch helper as
+  // BrandDeepDive.jsx's other card types.
+  const activeMatches = findMatches(products, {
+    seriesIncludes: active.seriesIncludesAny || active.seriesIncludes,
+    seriesExcludes: active.seriesExcludes,
+    variationIncludes: active.variationIncludes,
+    variationIncludesAny: active.variationIncludesAny,
+  });
+  const primary = pickPrimaryMatch(activeMatches);
+
   return (
     <div className="pf-fit-card">
       {isNew && <span className="new-tag">New</span>}
-      <ImageSlot image={active.image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
-      <div className="pf-fit-info">
-        <h3>{item.name}</h3>
-        <div className="fit-for">{item.fitFor}</div>
+      {primary ? (
+        <Link href={`/shop/${primary.id}`} className="pf-fit-card-link">
+          <ImageSlot image={active.image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
+          <div className="pf-fit-info" style={{ paddingBottom: 0 }}>
+            <h3>{item.name}</h3>
+            <div className="fit-for">{item.fitFor}</div>
+          </div>
+        </Link>
+      ) : (
+        <>
+          <ImageSlot image={active.image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
+          <div className="pf-fit-info" style={{ paddingBottom: 0 }}>
+            <h3>{item.name}</h3>
+            <div className="fit-for">{item.fitFor}</div>
+          </div>
+        </>
+      )}
+      <div className="pf-fit-info" style={{ paddingTop: 0 }}>
         <div className="pf-swatches">
           {item.variants.map((v, i) => (
             <span

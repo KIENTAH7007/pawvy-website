@@ -137,6 +137,7 @@ export default function Nav() {
         <div className="nav-right">
           <div className="nav-links">
             <Link href="/">Home</Link>
+            <Link href="/#need-cards">Shop by Need</Link>
 
             <div
               className={`nav-item${shopOpen ? ' open' : ''}`}
@@ -156,7 +157,6 @@ export default function Nav() {
 
             <Link href="/stockist">Stockist</Link>
             <Link href="/#enquiry">Contact</Link>
-            <Link href="/blog">Blog</Link>
           </div>
 
           {promoBadge && (
@@ -206,6 +206,7 @@ export default function Nav() {
 
         <div className={`mobile-drawer${mobileOpen ? ' open' : ''}`}>
           <Link href="/" className="mobile-link" onClick={() => setMobileOpen(false)}>Home</Link>
+          <Link href="/#need-cards" className="mobile-link" onClick={() => setMobileOpen(false)}>Shop by Need</Link>
 
           <div className={`mobile-shop${mobileShopOpen ? ' open' : ''}`}>
             <button type="button" className="mobile-link mobile-shop-toggle" onClick={() => setMobileShopOpen((o) => !o)}>
@@ -222,7 +223,6 @@ export default function Nav() {
 
           <Link href="/stockist" className="mobile-link" onClick={() => setMobileOpen(false)}>Stockist</Link>
           <Link href="/#enquiry" className="mobile-link" onClick={() => setMobileOpen(false)}>Contact</Link>
-          <Link href="/blog" className="mobile-link" onClick={() => setMobileOpen(false)}>Blog</Link>
 
           <div className="mobile-drawer-divider" />
 

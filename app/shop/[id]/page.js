@@ -48,6 +48,26 @@ export default async function ProductPage({ params }) {
     notFound();
   }
   const name = productDisplayName(product);
+
+  // Sibling variants (Aug 2026, per KT — "Option 1: default variant +
+  // switcher" from the click-through discussion) — same item_series,
+  // different size/flavor. Real navigation between each variant's own
+  // page/URL rather than a single-page live-swap: simpler, and every
+  // variant still gets its own real, indexable, shareable URL. Only
+  // fetched/shown when the product actually has an item_series to match
+  // on and turns out to have more than one real sibling.
+  let siblings = [];
+  if (product.item_series) {
+    try {
+      const { products: sameSeriesProducts } = await shopApi.products({ item_series: product.item_series });
+      siblings = sameSeriesProducts;
+    } catch {
+      // Non-fatal — page still works fine with just the current variant,
+      // just without the switcher row.
+    }
+  }
+  const showSwitcher = siblings.length > 1;
+
   const jsonLd = buildProductJsonLd({
     name,
     description: product.description || `${name} by ${displayBrandName(product.brand_name)}`,
@@ -62,6 +82,13 @@ export default async function ProductPage({ params }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <nav className="breadcrumb" aria-label="Breadcrumb">
+        <Link href="/">Home</Link><span className="sep">/</span>
+        <Link href="/shop">Shop</Link><span className="sep">/</span>
+        <Link href={`/brands/${brandSlug(product.brand_name)}`}>{displayBrandName(product.brand_name)}</Link><span className="sep">/</span>
+        <span className="current">{name}</span>
+      </nav>
+
       <Link href="/shop" className="back">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
         Back to shop
@@ -80,10 +107,32 @@ export default async function ProductPage({ params }) {
           <div className="product-detail-brand" style={{ color: product.brand_color || 'var(--orange)' }}>{displayBrandName(product.brand_name)}</div>
           <h1>{name}</h1>
 
+          {product.best_for && (
+            <div className="product-detail-bestfor">Best for: {product.best_for}</div>
+          )}
+
           <div className="product-detail-price">
             {product.is_discount_active && <span className="was">{formatPrice(product.price_rrp_sg)}</span>}
             {formatPrice(product.effective_price_rrp_sg)}
           </div>
+
+          {showSwitcher && (
+            <div className="product-detail-variants">
+              <div className="label">Choose your size</div>
+              <div className="variant-switcher">
+                {siblings.map(sib => (
+                  <Link
+                    key={sib.id}
+                    href={`/shop/${sib.id}`}
+                    className={`variant-btn${sib.id === product.id ? ' active' : ''}${sib.stock_status === 'out_of_stock' ? ' oos' : ''}`}
+                  >
+                    {sib.variation || productDisplayName(sib)}
+                    {sib.stock_status === 'out_of_stock' && <span className="variant-oos-tag">Out of stock</span>}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
 
           <AddToCartSection product={product} />
 

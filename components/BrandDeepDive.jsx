@@ -21,8 +21,9 @@
 // button never needs its own fetch — see ProductAddButton.jsx for the
 // matching logic.
 import { Fragment } from 'react';
+import Link from 'next/link';
 import ProductAddButton from './ProductAddButton';
-import { findMatches } from '../lib/matching';
+import { findMatches, pickPrimaryMatch } from '../lib/matching';
 import RecipeSelector from './RecipeSelector';
 import CategoryBrowser from './CategoryBrowser';
 import FitCard from './FitCard';
@@ -176,25 +177,65 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
               <p>{durability.sub}</p>
             </div>
             <div className="durability-grid">
-              {durability.levels.map(lvl => (
+              {durability.levels.map(lvl => {
+                // Click-through target (Aug 2026, per customer feedback via
+                // KT): same real products this card's Add to Cart button
+                // would resolve to — see pickPrimaryMatch's comment in
+                // lib/matching.js for why this is a separate, small
+                // resolution rather than sharing ProductAddButton's
+                // internal logic.
+                const cardMatches = findMatches(products, {
+                  seriesIncludes: lvl.seriesIncludes,
+                  seriesExcludes: lvl.seriesExcludes,
+                  variationIncludes: lvl.variationIncludes,
+                });
+                const primary = pickPrimaryMatch(cardMatches);
+                return (
                 <div className="durability-card" key={lvl.label}>
-                  <div className="durability-image-wrap">
-                    <ImageSlot image={lvl.image} alt={lvl.label} hint={lvl.imageHint} className="durability-image" />
-                    <div className="durability-product-badge">
-                      <ImageSlot image={lvl.productImage} alt={lvl.productName} hint={lvl.productImageHint || `${lvl.label} pack`} className="durability-product-badge-img" />
-                    </div>
-                  </div>
-                  <div className="durability-info">
-                    <div className="durability-label-row">
-                      <span className="durability-label">{lvl.label}</span>
-                      <BiteMeter level={lvl.level} />
-                    </div>
-                    <p className="durability-caption">{lvl.caption}</p>
-                    {lvl.productName && (
-                      <div className="product-divider">
-                        <p className="product-name">{lvl.productName}</p>
+                  {primary ? (
+                    <Link href={`/shop/${primary.id}`} className="durability-card-link">
+                      <div className="durability-image-wrap">
+                        <ImageSlot image={lvl.image} alt={lvl.label} hint={lvl.imageHint} className="durability-image" />
+                        <div className="durability-product-badge">
+                          <ImageSlot image={lvl.productImage} alt={lvl.productName} hint={lvl.productImageHint || `${lvl.label} pack`} className="durability-product-badge-img" />
+                        </div>
                       </div>
-                    )}
+                      <div className="durability-info">
+                        <div className="durability-label-row">
+                          <span className="durability-label">{lvl.label}</span>
+                          <BiteMeter level={lvl.level} />
+                        </div>
+                        <p className="durability-caption">{lvl.caption}</p>
+                        {lvl.productName && (
+                          <div className="product-divider">
+                            <p className="product-name">{lvl.productName}</p>
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                  ) : (
+                    <>
+                      <div className="durability-image-wrap">
+                        <ImageSlot image={lvl.image} alt={lvl.label} hint={lvl.imageHint} className="durability-image" />
+                        <div className="durability-product-badge">
+                          <ImageSlot image={lvl.productImage} alt={lvl.productName} hint={lvl.productImageHint || `${lvl.label} pack`} className="durability-product-badge-img" />
+                        </div>
+                      </div>
+                      <div className="durability-info">
+                        <div className="durability-label-row">
+                          <span className="durability-label">{lvl.label}</span>
+                          <BiteMeter level={lvl.level} />
+                        </div>
+                        <p className="durability-caption">{lvl.caption}</p>
+                        {lvl.productName && (
+                          <div className="product-divider">
+                            <p className="product-name">{lvl.productName}</p>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                  <div className="durability-info" style={{ paddingTop: 0 }}>
                     <ProductAddButton
                       products={products}
                       productLabel={`BetterBone ${lvl.label}`}
@@ -203,7 +244,8 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                     />
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
@@ -372,16 +414,49 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
               <p>{group.sub}</p>
             </div>
             <div className="pf-fit-grid">
-              {sortItemsByStock(group.items, products).map(item => (
+              {sortItemsByStock(group.items, products).map(item => {
+                // Same click-through resolution as durability cards above —
+                // each variant in item.variants resolves to a real product
+                // via findMatches; prefer the one flagged default:true if
+                // it's actually in stock, matching ProductAddButton's own
+                // default-selection preference (but computed separately —
+                // see pickPrimaryMatch's comment in lib/matching.js).
+                const resolvedVariants = item.variants.map(v => ({
+                  ...v,
+                  product: findMatches(products, {
+                    seriesIncludes: v.seriesIncludesAny || v.seriesIncludes,
+                    seriesExcludes: v.seriesExcludes,
+                    variationIncludes: v.variationIncludes,
+                    variationIncludesAny: v.variationIncludesAny,
+                  })[0] || null,
+                }));
+                const inStockVariants = resolvedVariants.filter(v => v.product && v.product.stock_status !== 'out_of_stock');
+                const primary = (resolvedVariants.find(v => v.default && v.product && v.product.stock_status !== 'out_of_stock') || inStockVariants[0] || resolvedVariants.find(v => v.product))?.product || null;
+                return (
                 <div className="pf-fit-card" key={item.name}>
-                  <ImageSlot image={(item.variants.find(v => v.default) || item.variants[0]).image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
-                  <div className="pf-fit-info">
-                    <h3>{item.name}</h3>
-                    <div className="fit-for">{item.fitFor}</div>
+                  {primary ? (
+                    <Link href={`/shop/${primary.id}`} className="pf-fit-card-link">
+                      <ImageSlot image={(item.variants.find(v => v.default) || item.variants[0]).image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
+                      <div className="pf-fit-info">
+                        <h3>{item.name}</h3>
+                        <div className="fit-for">{item.fitFor}</div>
+                      </div>
+                    </Link>
+                  ) : (
+                    <>
+                      <ImageSlot image={(item.variants.find(v => v.default) || item.variants[0]).image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
+                      <div className="pf-fit-info">
+                        <h3>{item.name}</h3>
+                        <div className="fit-for">{item.fitFor}</div>
+                      </div>
+                    </>
+                  )}
+                  <div className="pf-fit-info" style={{ paddingTop: 0 }}>
                     <ProductAddButton products={products} productLabel={item.name} variants={item.variants} />
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>

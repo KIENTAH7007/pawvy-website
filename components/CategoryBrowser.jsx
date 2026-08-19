@@ -20,7 +20,9 @@
 import { useState, useMemo } from 'react';
 import { imageUrl } from '../lib/api';
 import { formatPrice } from '../lib/formatPrice';
+import { pickPrimaryMatch } from '../lib/matching';
 import ProductAddButton from './ProductAddButton';
+import Link from 'next/link';
 
 function matchByPrefix(products, prefix) {
   const p = String(prefix).toLowerCase();
@@ -73,24 +75,51 @@ function GiGwiCard({ card, products }) {
   // customer would still discover that SKU by opening the card and picking
   // a variant, even if the "cover" photo variant itself isn't the new one.
   const anyNew = matches.some(m => m?.is_new_active);
+  // Click-through target (Aug 2026, per customer feedback) — same
+  // pickPrimaryMatch preference (in-stock first) as the other brand
+  // pages' cards, applied to whichever real SKUs this card's variants
+  // actually resolved to.
+  const primary = pickPrimaryMatch(matches.filter(Boolean));
 
   return (
     <div className="product-card">
-      <div className="card-tags">
-        <span className="brand-tag">GiGwi</span>
-      </div>
-      <div className="thumb">
-        {anyNew && <span className="new-tag">New</span>}
-        {coverMatch?.image_url
-          ? <img src={imageUrl(coverMatch.image_url)} alt={card.name} />
-          : <span className="no-img">No image</span>}
-      </div>
-      <div className="info">
-        <h3>{card.name}</h3>
-        <div className="price">
-          {minPrice != null ? (variants.length > 1 ? `From ${formatPrice(minPrice)}` : formatPrice(minPrice)) : ''}
-        </div>
-      </div>
+      {primary ? (
+        <Link href={`/shop/${primary.id}`}>
+          <div className="card-tags">
+            <span className="brand-tag">GiGwi</span>
+          </div>
+          <div className="thumb">
+            {anyNew && <span className="new-tag">New</span>}
+            {coverMatch?.image_url
+              ? <img src={imageUrl(coverMatch.image_url)} alt={card.name} />
+              : <span className="no-img">No image</span>}
+          </div>
+          <div className="info">
+            <h3>{card.name}</h3>
+            <div className="price">
+              {minPrice != null ? (variants.length > 1 ? `From ${formatPrice(minPrice)}` : formatPrice(minPrice)) : ''}
+            </div>
+          </div>
+        </Link>
+      ) : (
+        <>
+          <div className="card-tags">
+            <span className="brand-tag">GiGwi</span>
+          </div>
+          <div className="thumb">
+            {anyNew && <span className="new-tag">New</span>}
+            {coverMatch?.image_url
+              ? <img src={imageUrl(coverMatch.image_url)} alt={card.name} />
+              : <span className="no-img">No image</span>}
+          </div>
+          <div className="info">
+            <h3>{card.name}</h3>
+            <div className="price">
+              {minPrice != null ? (variants.length > 1 ? `From ${formatPrice(minPrice)}` : formatPrice(minPrice)) : ''}
+            </div>
+          </div>
+        </>
+      )}
       <div className="info" style={{ paddingTop: 0 }}>
         <ProductAddButton products={products} productLabel={card.name} variants={variants.map(v => ({ label: v.label, seriesIncludes: v.skuPrefix }))} />
       </div>

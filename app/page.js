@@ -2,12 +2,13 @@ import Link from 'next/link';
 import Marquee from '../components/Marquee';
 import TestimonialCarousel from '../components/TestimonialCarousel';
 import BrandGallery from '../components/BrandGallery';
-import StatCounter from '../components/StatCounter';
 import EnquiryForm from '../components/EnquiryForm';
 import Reveal from '../components/Reveal';
 import InstagramGrid from '../components/InstagramGrid';
 import HomepageBanner from '../components/HomepageBanner';
-import { contentApi } from '../lib/api';
+import PawvyPicksGrid from '../components/PawvyPicksGrid';
+import { contentApi, shopApi } from '../lib/api';
+import { NEED_CATEGORIES } from '../lib/needTags';
 
 const FACTS_FALLBACK = ['Premium Pet Wellness', 'Official Singapore Distributor', 'Six Brands, One Standard', '107+ Retail Partners'];
 
@@ -32,6 +33,8 @@ export default async function Home() {
   const igPosts = await contentApi.instagramPosts().catch(() => null);
   const igItems = igPosts?.items || [];
   const banners = await contentApi.homepageBanners().catch(() => null);
+  const picks = await shopApi.pawvyPicks().catch(() => null);
+  const pickProducts = picks?.products || [];
 
   return (
     <>
@@ -45,14 +48,38 @@ export default async function Home() {
         </Marquee>
       </div>
 
-      <section className="stats">
-        <Reveal className="wrap stats-grid" stagger>
-          <div><div className="stat-num"><StatCounter target={200} suffix="+" /></div><div className="stat-label">Products</div></div>
-          <div><div className="stat-num"><StatCounter target={100} suffix="%" /></div><div className="stat-label">Vetted Quality</div></div>
-          <div><div className="stat-num"><StatCounter target={5} suffix="⭐" /></div><div className="stat-label">Reviews</div></div>
-          <div><div className="stat-num"><StatCounter target={5} suffix="+" /></div><div className="stat-label">Years in Singapore</div></div>
-        </Reveal>
+      {/* Need cards + Pawvy's Picks (Aug 2026) — replaces the old "200+
+          Products / 100% Vetted Quality" stats strip at KT & Janice's
+          request, freeing up room for these without the homepage getting
+          longer overall. */}
+      <section id="need-cards" className="need-cards-section">
+        <div className="wrap">
+          <Reveal as="div" className="need-cards-head">
+            <div className="eyebrow center">Start here</div>
+            <h2>What does your pet need help with?</h2>
+          </Reveal>
+          <Reveal as="div" className="need-cards-grid" stagger>
+            {NEED_CATEGORIES.map(n => (
+              <Link href={`/shop?need=${n.slug}`} className="need-card" key={n.slug}>
+                <span className="need-card-icon">{n.icon}</span>
+                <span className="need-card-label">{n.label}</span>
+              </Link>
+            ))}
+          </Reveal>
+        </div>
       </section>
+
+      {pickProducts.length > 0 && (
+        <section className="pawvy-picks-section">
+          <div className="wrap">
+            <Reveal as="div" className="need-cards-head">
+              <div className="eyebrow center">Curated by Pawvy</div>
+              <h2>Pawvy's Picks</h2>
+            </Reveal>
+            <PawvyPicksGrid products={pickProducts} />
+          </div>
+        </section>
+      )}
 
       <div className="section-curve" style={{ background: 'var(--cream)' }}>
         <svg viewBox="0 0 1440 90" preserveAspectRatio="none"><path fill="var(--ivory)" d="M0,40 C300,90 600,0 900,35 C1150,63 1300,20 1440,45 L1440,90 L0,90 Z" /></svg>
@@ -72,32 +99,6 @@ export default async function Home() {
           <p>Know what you're after? Skip the browsing.</p>
           <Link href="/shop" className="btn btn-outline-dark"><span>Go straight to Shop</span></Link>
         </Reveal>
-      </section>
-
-      <section className="why">
-        <div className="wrap why-grid">
-          <Reveal as="div" className="why-visual">
-            <img src="/why-pawvy.jpg" alt="Pawvy team sourcing products at a pet trade show" className="why-visual-photo" />
-          </Reveal>
-          <div>
-            <Reveal as="div" className="eyebrow">Why Pawvy</Reveal>
-            <Reveal as="div" className="why-item">
-              <span className="num">01</span>
-              <h3>The one that works</h3>
-              <p>Beyond design and claims, what matters most is function — only what truly works earns its place on our shelf.</p>
-            </Reveal>
-            <Reveal as="div" className="why-item">
-              <span className="num">02</span>
-              <h3>The one that resonates</h3>
-              <p>Every product should have a clear purpose and real value in everyday use — fitting naturally into your pet's life.</p>
-            </Reveal>
-            <Reveal as="div" className="why-item">
-              <span className="num">03</span>
-              <h3>The one we stand behind</h3>
-              <p>We vet every brand before it reaches you — no marketplace guesswork.</p>
-            </Reveal>
-          </div>
-        </div>
       </section>
 
       <section className="testimonials">
