@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BRAND_SLUGS, displayBrandName } from '../lib/brandSlugs';
+import { NEED_CATEGORIES } from '../lib/needTags';
 import { useCart } from '../lib/CartContext';
 import { customerApi, contentApi, getSessionToken, setSessionToken } from '../lib/api';
 import { formatPrice } from '../lib/formatPrice';
@@ -48,11 +49,13 @@ function startsOnNavy(pathname) {
 export default function Nav() {
   const pathname = usePathname();
   const [shopOpen, setShopOpen] = useState(false);
+  const [needOpen, setNeedOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [customer, setCustomer] = useState(null);
   const [balance, setBalance] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileShopOpen, setMobileShopOpen] = useState(false);
+  const [mobileNeedOpen, setMobileNeedOpen] = useState(false);
   const [promoBadge, setPromoBadge] = useState(null); // { emoji, multiplier, tooltip } | null
   const { itemCount, subtotal } = useCart();
 
@@ -103,7 +106,7 @@ export default function Nav() {
 
   // Close the mobile menu whenever navigation actually happens, and don't
   // carry the Shop submenu's open state across a fresh open.
-  useEffect(() => { setMobileOpen(false); setMobileShopOpen(false); }, [pathname]);
+  useEffect(() => { setMobileOpen(false); setMobileShopOpen(false); setMobileNeedOpen(false); }, [pathname]);
 
   // Lock background scroll while the mobile drawer is open, same pattern
   // any modal/drawer needs so the page underneath doesn't scroll with it.
@@ -137,7 +140,22 @@ export default function Nav() {
         <div className="nav-right">
           <div className="nav-links">
             <Link href="/">Home</Link>
-            <Link href="/#need-cards">Shop by Need</Link>
+
+            <div
+              className={`nav-item${needOpen ? ' open' : ''}`}
+              onMouseEnter={() => setNeedOpen(true)}
+              onMouseLeave={() => setNeedOpen(false)}
+            >
+              <Link href="/#need-cards">
+                Shop by Need
+                <svg className="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6"><path d="M6 9l6 6 6-6" /></svg>
+              </Link>
+              <div className="dropdown">
+                {NEED_CATEGORIES.map(n => (
+                  <Link key={n.slug} href={`/shop?need=${n.slug}`}>{n.label}</Link>
+                ))}
+              </div>
+            </div>
 
             <div
               className={`nav-item${shopOpen ? ' open' : ''}`}
@@ -206,7 +224,18 @@ export default function Nav() {
 
         <div className={`mobile-drawer${mobileOpen ? ' open' : ''}`}>
           <Link href="/" className="mobile-link" onClick={() => setMobileOpen(false)}>Home</Link>
-          <Link href="/#need-cards" className="mobile-link" onClick={() => setMobileOpen(false)}>Shop by Need</Link>
+
+          <div className={`mobile-shop${mobileNeedOpen ? ' open' : ''}`}>
+            <button type="button" className="mobile-link mobile-shop-toggle" onClick={() => setMobileNeedOpen((o) => !o)}>
+              Shop by Need
+              <svg className="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6"><path d="M6 9l6 6 6-6" /></svg>
+            </button>
+            <div className="mobile-shop-list">
+              {NEED_CATEGORIES.map(n => (
+                <Link key={n.slug} href={`/shop?need=${n.slug}`} className="mobile-sublink" onClick={() => setMobileOpen(false)}>{n.label}</Link>
+              ))}
+            </div>
+          </div>
 
           <div className={`mobile-shop${mobileShopOpen ? ' open' : ''}`}>
             <button type="button" className="mobile-link mobile-shop-toggle" onClick={() => setMobileShopOpen((o) => !o)}>

@@ -1,82 +1,70 @@
-# Pawvy Website — Homepage Cards, Testimonial Sizing, Product Naming, Variant Switcher Fix
+# Pawvy Website — Need Card Icons Enlarged, Nav Dropdown, Custom Icon Set
 
 Target branch: **staging**
 Repo: `pawvy-website`
 
-**Apply the separate "Pawvy App" zip first** — this patch's variant
-switcher fix depends on its new `?ids=` filter.
+Covers points 1, 3, 4, 5 from your feedback (#2 intentionally skipped
+per your note).
 
-Addressing your 5 points from testing, in order:
+## 1. (Sizing question — answered in chat, no code change needed here)
 
-## 1. Homepage Need cards — bigger, 2 rows of 4 on desktop, "Joint" rename
+Homepage testimonial cards display at **340×453px** (3:4 portrait) on
+screen. Recommended upload size reduced to 700×930px (see the separate
+pawvy-app zip) — 900×1200 was larger than necessary.
 
-- Desktop (≥900px): forced exactly 4 columns / 2 rows, with bigger
-  padding, icon size, and label text.
-- Mobile: **completely untouched** — you confirmed that already looks
-  right, so the original flexible layout stays exactly as it was below
-  that breakpoint.
-- "Joints" → "Joint" (`lib/needTags.js`) — label only, the slug is
-  unchanged so nothing you've already tagged needs redoing.
+## 3. Need card icons enlarged 15%
 
-## 2. Testimonial image sizing — fixed the cropping, sizes below
+Desktop icon size: 44px → 50px, card size unchanged as asked
+(`app/globals.css`).
 
-**What was wrong:** the image area had a fixed 170px height regardless
-of photo shape, which is why things looked cropped/cut off — a portrait
-photo squeezed into a short band loses a lot.
+## 4. Nav "Shop by Need" now has a hover dropdown
 
-**The fix:** switched to `aspect-ratio: 3/4` per photo (matches the
-homepage's existing "Customer reviews" carousel exactly — same
-proportion, so photos read consistently site-wide), applied to each
-image individually rather than the card as a whole.
+Same pattern as the existing "Shop" brand dropdown — hover to see all 8
+categories, click any to go straight to that filtered Shop-by-Need page.
+Done for both desktop hover and the mobile drawer (collapsible submenu,
+same as the existing mobile Shop submenu). `components/Nav.jsx`.
 
-**Recommended sizes** (also now shown directly in the Pawvy App upload
-fields, so you don't need to remember this):
-- **1 image only**: 900×1200px (3:4 portrait).
-- **2 images (before/after)**: same 900×1200px for each — they sit side
-  by side on the card, each keeping its own portrait shape rather than
-  being squashed into a shorter slice.
+## 5. Custom icon set (Chew, Enrichment, Gut, Food, Grooming, Joint)
 
-## 3. Testimonial product naming — now uses the same cleanup as everywhere else
+Built as real SVG icons rather than emoji — `components/NeedIcon.jsx`.
+Emoji couldn't reliably represent what you asked for (there's no
+"two bones joined" or "bathtub with bubbles" emoji, and rendering
+varies by device/OS anyway), so this is a proper small custom icon
+component instead:
 
-Was showing the raw internal text (e.g. "L0101 Lillidale Supplement").
-Now runs through `productDisplayName()` — the exact same helper that
-already cleans up names on the Shop grid and product pages (strips the
-SKU code, strips redundant brand name, formats consistently). Same
-"Lillidale — Supplement" style naming you're used to seeing elsewhere.
+- **Chew** → single bone silhouette.
+- **Enrichment** → puzzle piece (kept the shape, per your note that it's
+  the color you wanted changed, not the concept) — now blue-to-yellow
+  gradient fill instead of the previous emoji's default coloring.
+- **Gut** → rounded stomach-organ silhouette.
+- **Food** → bowl with a small mound of food/kibble inside.
+- **Dental** → tooth (unchanged concept, now same SVG style as the rest).
+- **Grooming** → bathtub outline with bubbles above.
+- **Joint** → two bone shapes crossing at an angle, visually distinct
+  from the single Chew bone.
+- **Skin & Coat** → kept the sparkle concept (not flagged for change),
+  same SVG treatment for visual consistency with the other seven.
 
-## 4. Variant switcher not showing — found the real bug, not just a miss
+Icons render in the site's orange accent color, matching the rest of
+the design system. Used on both the homepage need cards and the Shop
+sidebar's Need filter chips — one component, two places, so they can
+never drift apart from each other.
 
-You were right to ask why — I didn't skip it, but the original approach
-had a real gap. Full explanation and fix are in the pawvy-app zip's
-README (the `?ids=` addition) — short version: GiGwi's colors are
-different `item_series` values in the database (matched by SKU prefix,
-not a shared series), so my original "find siblings by matching
-item_series" approach silently returned nothing for exactly the product
-you tested with.
-
-**The fix**: every card that resolves multiple real variants
-(`BrandDeepDive.jsx`'s durability and fit cards, `FitCard.jsx`'s
-hover-preview cards, `CategoryBrowser.jsx`'s GiGwi cards) now passes the
-*exact* set of product IDs it already resolved directly in the link
-(`?siblings=12,45,88`), instead of asking the product page to re-guess.
-This works correctly regardless of how any given brand's catalog happens
-to be structured — no more relying on an assumption that doesn't hold
-for every brand.
-
-## 5. Need card icons — 3 alternative sets to choose from
-
-See my message for the actual icon options — didn't want to guess and
-ship a set you might not like, so nothing's changed in the code for
-this one yet. Once you pick, it's a one-line change per icon.
+**Worth knowing:** these are a first pass at the shapes you described,
+hand-built as simple geometric SVGs rather than professionally
+illustrated icons. If anything doesn't read clearly at actual size once
+you see it live, easy to adjust — just let me know which one and what's
+off.
 
 ## Verification performed
 
-- Full production build (`npm run build`) after all 5 changes — clean,
-  no errors.
-- Confirmed the variant-switcher fix against real seed data (see the
-  pawvy-app README) — not just "should work in theory."
-- All 7 changed files byte-diffed against what was actually build-tested
-  — identical.
+- Full production build (`npm run build`) — clean, no errors.
+- Confirmed every file changed this round against the real current
+  `origin/staging` (fetched fresh) — exactly 6 files: `globals.css`,
+  `page.js`, `Nav.jsx`, `ShopClient.jsx`, `needTags.js`, and the new
+  `NeedIcon.jsx`. Nothing else was touched.
+- All 6 files byte-diffed against what was actually build-tested —
+  identical.
 
 ## How to apply
 
@@ -86,25 +74,23 @@ git pull origin staging
 
 # copy/overwrite these files, preserving the same paths:
 #   app/globals.css
-#   app/shop/[id]/page.js
-#   components/BrandDeepDive.jsx
-#   components/CategoryBrowser.jsx
-#   components/FitCard.jsx
+#   app/page.js
+#   components/Nav.jsx
 #   components/ShopClient.jsx
+#   components/NeedIcon.jsx   <-- NEW FILE
 #   lib/needTags.js
 
 git add .
-git commit -m "Homepage need cards bigger + 4/row desktop, fix testimonial image cropping, clean up testimonial product naming, fix variant switcher via explicit sibling IDs, rename Joints to Joint"
+git commit -m "Enlarge need card icons 15% on desktop, add Shop by Need nav dropdown, replace emoji with custom SVG icon set"
 git push origin staging
 ```
 
-## Worth checking specifically on S-Web once live
+## Worth checking on S-Web once live
 
-- Homepage need cards on a real PC-width browser — should be exactly 4
-  per row, noticeably bigger than before.
-- A GiGwi product page (the one you originally tested) — the variant
-  switcher should now actually appear.
-- A testimonial with 2 photos — should look like a proper before/after,
-  not cropped.
-- Testimonial product names — should read cleanly, not show raw
-  SKU-prefixed text.
+- Hover "Shop by Need" in the nav — dropdown with all 8 categories
+  should appear, same feel as hovering "Shop".
+- Homepage need cards — icons should look noticeably bigger than
+  before, cards themselves the same size.
+- Take a look at all 8 icons at actual size, especially Joint (two
+  crossing bones) and Grooming (bathtub + bubbles) since those are the
+  most custom shapes — flag anything that doesn't read clearly.
