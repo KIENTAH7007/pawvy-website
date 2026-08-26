@@ -7,7 +7,6 @@ import { useCart } from '../lib/CartContext';
 import { BRAND_SLUGS, displayBrandName } from '../lib/brandSlugs';
 import { formatPrice } from '../lib/formatPrice';
 import { NEED_CATEGORIES, needLabel } from '../lib/needTags';
-import NeedIcon from './NeedIcon';
 import { productDisplayName } from '../lib/productDisplayName';
 import ProductCard from './ProductCard';
 
@@ -146,7 +145,7 @@ export default function ShopClient({ initialProducts, brands, showHero = true, b
               className={`shop-chip${needFilter === n.slug ? ' active' : ''}`}
               onClick={() => setNeedFilter(needFilter === n.slug ? '' : n.slug)}
             >
-              <span style={{display:'inline-flex',alignItems:'center',gap:5}}><NeedIcon slug={n.slug} size={0.85} /> {n.label}{needFilter === n.slug ? ' ✕' : ''}</span>
+              <span style={{display:'inline-flex',alignItems:'center',gap:5}}>{n.icon} {n.label}{needFilter === n.slug ? ' ✕' : ''}</span>
             </button>
           ))}
         </div>

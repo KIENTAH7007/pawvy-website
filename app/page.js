@@ -9,7 +9,6 @@ import HomepageBanner from '../components/HomepageBanner';
 import PawvyPicksGrid from '../components/PawvyPicksGrid';
 import { contentApi, shopApi } from '../lib/api';
 import { NEED_CATEGORIES } from '../lib/needTags';
-import NeedIcon from '../components/NeedIcon';
 
 const FACTS_FALLBACK = ['Premium Pet Wellness', 'Official Singapore Distributor', 'Six Brands, One Standard', '107+ Retail Partners'];
 
@@ -62,7 +61,7 @@ export default async function Home() {
           <Reveal as="div" className="need-cards-grid" stagger>
             {NEED_CATEGORIES.map(n => (
               <Link href={`/shop?need=${n.slug}`} className="need-card" key={n.slug}>
-                <span className="need-card-icon"><NeedIcon slug={n.slug} /></span>
+                <span className="need-card-icon">{n.icon}</span>
                 <span className="need-card-label">{n.label}</span>
               </Link>
             ))}

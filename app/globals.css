@@ -92,13 +92,13 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
 .brand-mark { display: inline-flex; flex-shrink: 0; }
 .brand-mark img { height: 38px; width: auto; }
 .nav-right { display: flex; align-items: center; gap: 32px; }
-.nav-links { display: flex; gap: 34px; font-size: 17.5px; font-weight: 600; }
-.nav-links a { position: relative; padding: 6px 0; color: var(--cream); }
+.nav-links { display: flex; gap: 26px; font-size: 17.5px; font-weight: 600; }
+.nav-links a { position: relative; padding: 6px 0; color: var(--cream); white-space: nowrap; }
 .nav-links a::after { content: ''; position: absolute; left: 0; bottom: 0; width: 0; height: 2px; background: var(--orange); transition: width .3s ease; }
 .nav-links a:hover::after { width: 100%; }
 .nav-item { position: relative; }
-.nav-links .nav-item > a { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
-.nav-links .chev { width: 11px; height: 11px; transition: transform .25s ease; }
+.nav-links .nav-item > a { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.nav-links .chev { width: 11px; height: 11px; flex-shrink: 0; transition: transform .25s ease; }
 .nav-item.open .chev { transform: rotate(180deg); }
 .dropdown {
   position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(-6px);
@@ -408,7 +408,7 @@ nav.site-nav.scrolled { background: rgba(20,33,61,.92); backdrop-filter: blur(10
   padding: 26px 14px; text-decoration: none; transition: border-color .2s ease, transform .2s ease;
 }
 .need-card:hover { border-color: var(--orange); transform: translateY(-3px); }
-.need-card-icon { font-size: 30px; color: var(--orange); }
+.need-card-icon { font-size: 30px; }
 .need-card-label { font-size: 13.5px; font-weight: 700; color: var(--navy); text-align: center; }
 
 /* Desktop (Aug 2026, per KT feedback): exactly 4 cards per row / 2 rows,
@@ -868,9 +868,16 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
    the wrap) so a before/after split gives two properly-proportioned
    portrait photos side by side, rather than squashing one 3/4 box into
    two overly-short slices. */
-.testi-img-wrap { display: flex; gap: 2px; position: relative; }
-.testi-img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; display: block; background: rgba(245,242,235,.08); }
-.testi-img-wrap.split .testi-img { width: 50%; }
+/* Single image: matches the homepage's "Customer reviews" card exactly
+   (.test-photo — aspect-ratio 3/4 at a 340px card width). Before/after
+   split: matches Lillidale's existing before/after cards exactly
+   (.lil-ba-split — fixed 340px total height, halves split by width, not
+   aspect-ratio-per-image) rather than inventing new sizing, per KT's
+   direct request to reuse both existing patterns as-is. */
+.testi-img-wrap { position: relative; }
+.testi-img-wrap:not(.split) .testi-img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; display: block; background: rgba(245,242,235,.08); }
+.testi-img-wrap.split { display: grid; grid-template-columns: 1fr 1fr; height: 340px; }
+.testi-img-wrap.split .testi-img { width: 100%; height: 100%; object-fit: cover; display: block; background: rgba(245,242,235,.08); }
 .testi-img-label {
   position: absolute; bottom: 8px; font-size: 9.5px; font-weight: 700; letter-spacing: .4px;
   text-transform: uppercase; background: rgba(0,0,0,.5); color: #fff; padding: 3px 8px; border-radius: 20px;

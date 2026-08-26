@@ -1,69 +1,84 @@
-# Pawvy Website — Need Card Icons Enlarged, Nav Dropdown, Custom Icon Set
+# Pawvy Website — Testimonial Sizing Fix, Nav Wrap Fix, Icon Revert
 
 Target branch: **staging**
 Repo: `pawvy-website`
 
-Covers points 1, 3, 4, 5 from your feedback (#2 intentionally skipped
-per your note).
+**Important — one file must be deleted, not just overwritten:**
 
-## 1. (Sizing question — answered in chat, no code change needed here)
+```
+rm components/NeedIcon.jsx
+```
 
-Homepage testimonial cards display at **340×453px** (3:4 portrait) on
-screen. Recommended upload size reduced to 700×930px (see the separate
-pawvy-app zip) — 900×1200 was larger than necessary.
+The SVG icon set is reverted in this patch (see item 3 below), so that
+file is no longer used by anything. A zip can only add/overwrite files,
+not delete them — if you don't remove it manually, it'll sit there
+unused (harmless, but worth cleaning up).
 
-## 3. Need card icons enlarged 15%
+## 1. Testimonial image sizing — now matches your two real reference cards exactly
 
-Desktop icon size: 44px → 50px, card size unchanged as asked
-(`app/globals.css`).
+700×930 was still bigger than it needed to be. Rather than guess again,
+I pulled the actual real dimensions from the two cards you pointed to:
 
-## 4. Nav "Shop by Need" now has a hover dropdown
+- **Single image** (homepage "Customer reviews" card): displays at
+  **340×453px** on screen. `.testi-img-wrap` (single) now uses the exact
+  same `aspect-ratio: 3/4` as that card, not a separate invented value.
+- **Before/after** (Lillidale's existing before/after cards): these
+  don't use aspect-ratio at all — they're a **fixed 340px height**, with
+  the two photos splitting the width 50/50 (`.lil-ba-split`). Your
+  Shop-by-Need testimonial split now uses that exact same pattern
+  instead of my earlier "two 3:4 portraits side by side" approach,
+  which is why it read as too tall/big before.
 
-Same pattern as the existing "Shop" brand dropdown — hover to see all 8
-categories, click any to go straight to that filtered Shop-by-Need page.
-Done for both desktop hover and the mobile drawer (collapsible submenu,
-same as the existing mobile Shop submenu). `components/Nav.jsx`.
+**Updated recommended upload sizes** (also reflected in the Pawvy App
+hint text — see the separate pawvy-app zip):
+- Single image only: **~500×667px**
+- Before/after, each photo: **~350×640px** (tall and narrow — matches
+  Lillidale's real proportions, not a portrait 3:4 shape)
 
-## 5. Custom icon set (Chew, Enrichment, Gut, Food, Grooming, Joint)
+## 2. "Shop by Need" nav wrapping into 2 lines — fixed
 
-Built as real SVG icons rather than emoji — `components/NeedIcon.jsx`.
-Emoji couldn't reliably represent what you asked for (there's no
-"two bones joined" or "bathtub with bubbles" emoji, and rendering
-varies by device/OS anyway), so this is a proper small custom icon
-component instead:
+Real cause: the link's text had no `white-space: nowrap`, so once the
+nav row got tight (adding a 3-word item pushed it over), the text
+wrapped inside its own link instead of the row simply getting snug.
+Added `white-space: nowrap` to all nav links (good practice generally,
+not just this one) and trimmed the gap between items slightly
+(34px → 26px) to give the new item room without anything else feeling
+cramped.
 
-- **Chew** → single bone silhouette.
-- **Enrichment** → puzzle piece (kept the shape, per your note that it's
-  the color you wanted changed, not the concept) — now blue-to-yellow
-  gradient fill instead of the previous emoji's default coloring.
-- **Gut** → rounded stomach-organ silhouette.
-- **Food** → bowl with a small mound of food/kibble inside.
-- **Dental** → tooth (unchanged concept, now same SVG style as the rest).
-- **Grooming** → bathtub outline with bubbles above.
-- **Joint** → two bone shapes crossing at an angle, visually distinct
-  from the single Chew bone.
-- **Skin & Coat** → kept the sparkle concept (not flagged for change),
-  same SVG treatment for visual consistency with the other seven.
+## 3. SVG icons reverted, 3 new style options for you to review first
 
-Icons render in the site's orange accent color, matching the rest of
-the design system. Used on both the homepage need cards and the Shop
-sidebar's Need filter chips — one component, two places, so they can
-never drift apart from each other.
+Reverted `lib/needTags.js`, `app/page.js`, and `components/ShopClient.jsx`
+back to the emoji icons from before — same as they were prior to that
+delivery. **Don't forget to also delete `components/NeedIcon.jsx`** (see
+the note at the top of this README).
 
-**Worth knowing:** these are a first pass at the shapes you described,
-hand-built as simple geometric SVGs rather than professionally
-illustrated icons. If anything doesn't read clearly at actual size once
-you see it live, easy to adjust — just let me know which one and what's
-off.
+Attached a new mockup (`pawvy-icon-options-v2.html`) with **3 genuinely
+different style directions**, not just tweaked shapes — same 8 concepts
+throughout (bone, blue/yellow puzzle piece, stomach, bowl-with-food,
+tooth, bathtub-with-bubbles, two crossing bones), rendered three ways:
+
+1. **Filled solid** — bold single-color silhouettes, classic app-icon feel.
+2. **Outlined line** — 2px stroke outlines, more minimal/modern.
+3. **Duotone** — soft tinted circle background + solid accent icon on
+   top, more dimensional, common on premium wellness brand sites.
+
+No code changes for this yet — take a look, tell me a direction (or
+mix-and-match specific icons across options if something in particular
+stands out), and I'll refine and implement from there.
 
 ## Verification performed
 
-- Full production build (`npm run build`) — clean, no errors.
+- Full production build (`npm run build`) after every change — clean,
+  no errors.
+- Confirmed the real pixel dimensions of both reference cards directly
+  from the actual CSS/computed values (340×453 for the homepage card,
+  185×340 per half for the Lillidale card, computed from the site's
+  real 1240px `.wrap` container width) rather than estimating from the
+  screenshots alone.
 - Confirmed every file changed this round against the real current
-  `origin/staging` (fetched fresh) — exactly 6 files: `globals.css`,
-  `page.js`, `Nav.jsx`, `ShopClient.jsx`, `needTags.js`, and the new
-  `NeedIcon.jsx`. Nothing else was touched.
-- All 6 files byte-diffed against what was actually build-tested —
+  `origin/staging` (fetched fresh) — exactly 4 files:
+  `globals.css`, `page.js`, `ShopClient.jsx`, `needTags.js`.
+- All 4 files byte-diffed against what was actually build-tested —
   identical.
 
 ## How to apply
@@ -72,25 +87,27 @@ off.
 git checkout staging
 git pull origin staging
 
-# copy/overwrite these files, preserving the same paths:
+# delete this file (see note at top):
+rm components/NeedIcon.jsx
+
+# then copy/overwrite these files, preserving the same paths:
 #   app/globals.css
 #   app/page.js
-#   components/Nav.jsx
 #   components/ShopClient.jsx
-#   components/NeedIcon.jsx   <-- NEW FILE
 #   lib/needTags.js
 
 git add .
-git commit -m "Enlarge need card icons 15% on desktop, add Shop by Need nav dropdown, replace emoji with custom SVG icon set"
+git commit -m "Fix testimonial image sizing to match real reference cards exactly, fix nav wrap on Shop by Need, revert SVG icons pending style decision"
 git push origin staging
 ```
 
 ## Worth checking on S-Web once live
 
-- Hover "Shop by Need" in the nav — dropdown with all 8 categories
-  should appear, same feel as hovering "Shop".
-- Homepage need cards — icons should look noticeably bigger than
-  before, cards themselves the same size.
-- Take a look at all 8 icons at actual size, especially Joint (two
-  crossing bones) and Grooming (bathtub + bubbles) since those are the
-  most custom shapes — flag anything that doesn't read clearly.
+- A testimonial with 1 photo — should look proportioned like the
+  homepage's customer-review cards.
+- A testimonial with 2 photos — should look like Lillidale's existing
+  before/after cards (shorter, wider halves, not tall portraits).
+- Hover "Shop by Need" in the nav at your normal browser width — should
+  stay on one line now.
+- Icons back to the original emoji set — open the attached mockup file
+  and let me know which style direction to build next.
