@@ -40,7 +40,7 @@ function TestimonialCard({ t }) {
   }
 
   return (
-    <div className="testi-card">
+    <div className={`testi-card${t.image_url_after ? ' has-split' : ''}`}>
       <div className={`testi-img-wrap${t.image_url_after ? ' split' : ''}`}>
         {t.image_url && <img src={imageUrl(t.image_url)} alt="" className="testi-img" />}
         {t.image_url_after && (

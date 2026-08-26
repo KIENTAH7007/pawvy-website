@@ -857,10 +857,19 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .shop-testimonials-head { text-align: center; max-width: 640px; margin: 0 auto 30px; }
 .shop-testimonials-head h2 { font-weight: 900; font-size: clamp(22px,3vw,30px); color: var(--navy); }
 .testi-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(270px,1fr)); gap: 20px;
+  /* Aug 2026 fix: auto-fit grid columns stretch to fill 1fr when there
+     are few items — with just ONE testimonial on a need page, that
+     meant the card stretched to the full 1100px container width
+     instead of staying its natural reference size. Fixed-width
+     flex-wrap keeps every card exactly the size of the real pattern it
+     matches (340px single-image, or the split card's own natural
+     width), never stretching, wrapping to a new row once there are
+     enough to need it. */
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;
   max-width: 1100px; margin: 0 auto; padding: 0 20px;
 }
-.testi-card { background: var(--navy); border-radius: 16px; overflow: hidden; color: #fff; }
+.testi-card { background: var(--navy); border-radius: 16px; overflow: hidden; color: #fff; flex-shrink: 0; width: 340px; }
+.testi-card.has-split { width: 370px; }
 /* Aug 2026 fix: was a fixed 170px height causing aggressive cropping —
    now aspect-ratio 3/4 per image, same portrait proportion as the
    homepage's existing "Customer reviews" carousel (.test-photo), so

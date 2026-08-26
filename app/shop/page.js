@@ -45,6 +45,16 @@ export default async function ShopPage({ searchParams }) {
 
   return (
     <ShopClient
+      // key forces a genuinely fresh component instance per need — without
+      // this, navigating client-side from /shop?need=chew to
+      // /shop?need=skin-coat via the nav dropdown updates this page's
+      // props correctly (new server-fetched products/testimonials), but
+      // ShopClient's internal useState(initialNeed) only reads that value
+      // on first mount, so needFilter (and everything else) stayed stale
+      // — the URL changed but nothing on screen did. Remounting resets
+      // every piece of local state (needFilter, brandFilter, search,
+      // testimonials, products) to match the newly fetched data.
+      key={validNeed || 'all'}
       initialProducts={products}
       brands={brands}
       initialNeed={validNeed}
