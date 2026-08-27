@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { displayBrandName } from '../lib/brandSlugs';
-import { productDisplayName } from '../lib/productDisplayName';
+import { productDisplayName, productUrl } from '../lib/productDisplayName';
 import { imageUrl } from '../lib/api';
 import { formatPrice } from '../lib/formatPrice';
 import Link from 'next/link';
@@ -17,7 +17,7 @@ export default function ProductCard({ product: p, onAdd }) {
 
   return (
     <div className="product-card" style={{ opacity: outOfStock ? 0.6 : 1 }}>
-      <Link href={`/shop/${p.id}`}>
+      <Link href={productUrl(p)}>
         <div className="card-tags">
           <span className="brand-tag" style={{ color: p.brand_color || 'var(--navy)' }}>{displayBrandName(p.brand_name)}</span>
           {(p.stock_status === 'low_stock' || outOfStock) && (

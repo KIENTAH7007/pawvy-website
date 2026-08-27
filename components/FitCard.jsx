@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import ProductAddButton, { findMatches } from './ProductAddButton';
 import { pickPrimaryMatch } from '../lib/matching';
+import { productUrl } from '../lib/productDisplayName';
 
 // Local copy of the same tiny helper used in BrandDeepDive.jsx and
 // RecipeSelector.jsx — not worth importing across files for six lines,
@@ -91,7 +92,7 @@ export default function FitCard({ item, products }) {
     <div className="pf-fit-card">
       {isNew && <span className="new-tag">New</span>}
       {primary ? (
-        <Link href={`/shop/${primary.id}?siblings=${siblingIds}`} className="pf-fit-card-link">
+        <Link href={`${productUrl(primary)}?siblings=${siblingIds}`} className="pf-fit-card-link">
           <ImageSlot image={active.image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
           <div className="pf-fit-info" style={{ paddingBottom: 0 }}>
             <h3>{item.name}</h3>

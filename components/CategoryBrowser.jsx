@@ -21,6 +21,7 @@ import { useState, useMemo } from 'react';
 import { imageUrl } from '../lib/api';
 import { formatPrice } from '../lib/formatPrice';
 import { pickPrimaryMatch } from '../lib/matching';
+import { productUrl } from '../lib/productDisplayName';
 import ProductAddButton from './ProductAddButton';
 import Link from 'next/link';
 
@@ -91,7 +92,7 @@ function GiGwiCard({ card, products }) {
   return (
     <div className="product-card">
       {primary ? (
-        <Link href={`/shop/${primary.id}?siblings=${siblingIds}`}>
+        <Link href={`${productUrl(primary)}?siblings=${siblingIds}`}>
           <div className="card-tags">
             <span className="brand-tag">GiGwi</span>
           </div>

@@ -24,9 +24,11 @@ import { Fragment } from 'react';
 import Link from 'next/link';
 import ProductAddButton from './ProductAddButton';
 import { findMatches, pickPrimaryMatch } from '../lib/matching';
+import { productUrl } from '../lib/productDisplayName';
 import RecipeSelector from './RecipeSelector';
 import CategoryBrowser from './CategoryBrowser';
 import FitCard from './FitCard';
+import HardnessSelector from './HardnessSelector';
 
 // Out-of-stock sink (Aug 2026, per KT) — same rule as GiGwi's category
 // browser (see CategoryBrowser.jsx), applied here to the fitCards /
@@ -176,6 +178,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
               <h2>{durability.heading}</h2>
               <p>{durability.sub}</p>
             </div>
+            <HardnessSelector levels={durability.levels} />
             <div className="durability-grid">
               {durability.levels.map(lvl => {
                 // Click-through target (Aug 2026, per customer feedback via
@@ -198,9 +201,9 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                 // card's own Add to Cart button already resolved.
                 const siblingIds = cardMatches.map(m => m.id).join(',');
                 return (
-                <div className="durability-card" key={lvl.label}>
+                <div className="durability-card" id={`durability-card-${lvl.label.toLowerCase()}`} key={lvl.label}>
                   {primary ? (
-                    <Link href={`/shop/${primary.id}?siblings=${siblingIds}`} className="durability-card-link">
+                    <Link href={`${productUrl(primary)}?siblings=${siblingIds}`} className="durability-card-link">
                       <div className="durability-image-wrap">
                         <ImageSlot image={lvl.image} alt={lvl.label} hint={lvl.imageHint} className="durability-image" />
                         <div className="durability-product-badge">
@@ -443,7 +446,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                 return (
                 <div className="pf-fit-card" key={item.name}>
                   {primary ? (
-                    <Link href={`/shop/${primary.id}?siblings=${siblingIds}`} className="pf-fit-card-link">
+                    <Link href={`${productUrl(primary)}?siblings=${siblingIds}`} className="pf-fit-card-link">
                       <ImageSlot image={(item.variants.find(v => v.default) || item.variants[0]).image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
                       <div className="pf-fit-info">
                         <h3>{item.name}</h3>

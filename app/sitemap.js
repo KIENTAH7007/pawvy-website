@@ -1,5 +1,6 @@
 import { shopApi } from '../lib/api';
 import { BRAND_SLUGS } from '../lib/brandSlugs';
+import { productUrl } from '../lib/productDisplayName';
 
 // Next.js generates a real /sitemap.xml from this — includes every real
 // product page and all 6 brand pages, not just the static top-level ones,
@@ -23,7 +24,7 @@ export default async function sitemap() {
   try {
     const { products } = await shopApi.products({});
     productPages = products.map(p => ({
-      url: `${base}/shop/${p.id}`,
+      url: `${base}${productUrl(p)}`,
       changeFrequency: 'weekly',
       priority: 0.7,
     }));

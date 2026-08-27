@@ -3,17 +3,31 @@ import { notFound } from 'next/navigation';
 import { shopApi, imageUrl } from '../../../lib/api';
 import { displayBrandName, brandSlug } from '../../../lib/brandSlugs';
 import { BRAND_CONTENT, faqSlug } from '../../../lib/brandContent';
-import { productDisplayName, productTitleTag } from '../../../lib/productDisplayName';
+import { productDisplayName, productTitleTag, productUrl } from '../../../lib/productDisplayName';
 import { formatPrice } from '../../../lib/formatPrice';
 import { buildOgMeta, buildProductJsonLd } from '../../../lib/seo';
 import AddToCartSection from '../../../components/AddToCartSection';
+
+// Descriptive URLs (Aug 2026, per KT — SEO) route as `/shop/{id}-{slug}`,
+// but only the leading numeric ID is ever actually used to look the
+// product up — everything after the first hyphen is purely cosmetic. This
+// means a bare old-style `/shop/142` link (no slug) still resolves fine
+// too, and a stale slug (from a product renamed after the link was first
+// shared) never breaks the page — it just shows outdated text in the
+// address bar, same trade-off every major e-commerce site accepts for
+// this exact pattern.
+function parseProductId(param) {
+  const match = /^\d+/.exec(param);
+  return match ? match[0] : param;
+}
 
 // generateMetadata runs server-side per request — this is what actually
 // gives each product its own real <title>/<meta description> for Google
 // and link previews, instead of every product sharing one generic title
 // (the actual thing the old client-only site could never do).
 export async function generateMetadata({ params }) {
-  const { id } = await params;
+  const { id: rawId } = await params;
+  const id = parseProductId(rawId);
   try {
     const { product } = await shopApi.product(id);
     // <title> keeps the brand name (productTitleTag) since search
@@ -25,14 +39,15 @@ export async function generateMetadata({ params }) {
     const description = product.description
       ? product.description.slice(0, 155)
       : `${cleanName} by ${displayBrandName(product.brand_name)} — available now on Pawvy.co.`;
+    const canonicalPath = productUrl(product);
     return {
       title,
       description,
-      alternates: { canonical: `/shop/${id}` },
+      alternates: { canonical: canonicalPath },
       // Each product's own photo for the share preview — falls back to
       // the site default (buildOgMeta's own default) for the rare
       // product that hasn't had a photo uploaded yet.
-      ...buildOgMeta({ title, description, path: `/shop/${id}`, image: product.image_url ? imageUrl(product.image_url) : undefined }),
+      ...buildOgMeta({ title, description, path: canonicalPath, image: product.image_url ? imageUrl(product.image_url) : undefined }),
     };
   } catch {
     return { title: 'Product | Pawvy' };
@@ -40,7 +55,8 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function ProductPage({ params, searchParams }) {
-  const { id } = await params;
+  const { id: rawId } = await params;
+  const id = parseProductId(rawId);
   const { siblings: siblingsParam } = await searchParams;
   let product;
   try {
@@ -89,7 +105,7 @@ export default async function ProductPage({ params, searchParams }) {
     description: product.description || `${name} by ${displayBrandName(product.brand_name)}`,
     image: product.image_url ? imageUrl(product.image_url) : 'https://pawvy.co/og-default.jpg',
     brandName: displayBrandName(product.brand_name),
-    url: `https://pawvy.co/shop/${id}`,
+    url: `https://pawvy.co${productUrl(product)}`,
   });
 
   return (
@@ -136,16 +152,25 @@ export default async function ProductPage({ params, searchParams }) {
             <div className="product-detail-variants">
               <div className="label">Choose your size</div>
               <div className="variant-switcher">
-                {siblings.map(sib => (
-                  <Link
-                    key={sib.id}
-                    href={`/shop/${sib.id}`}
-                    className={`variant-btn${sib.id === product.id ? ' active' : ''}${sib.stock_status === 'out_of_stock' ? ' oos' : ''}`}
-                  >
-                    {sib.variation || productDisplayName(sib)}
-                    {sib.stock_status === 'out_of_stock' && <span className="variant-oos-tag">Out of stock</span>}
-                  </Link>
-                ))}
+                {(() => {
+                  // Carry the full sibling set forward on every switcher
+                  // link — without this, clicking from A to B would lose
+                  // the switcher on B's page for any brand where the
+                  // item_series fallback can't rediscover siblings on its
+                  // own (e.g. GiGwi's per-color item_series — see the
+                  // comment above where `siblings` is first resolved).
+                  const siblingIdsQuery = siblings.map(s => s.id).join(',');
+                  return siblings.map(sib => (
+                    <Link
+                      key={sib.id}
+                      href={`${productUrl(sib)}?siblings=${siblingIdsQuery}`}
+                      className={`variant-btn${sib.id === product.id ? ' active' : ''}${sib.stock_status === 'out_of_stock' ? ' oos' : ''}`}
+                    >
+                      {sib.variation || productDisplayName(sib)}
+                      {sib.stock_status === 'out_of_stock' && <span className="variant-oos-tag">Out of stock</span>}
+                    </Link>
+                  ));
+                })()}
               </div>
             </div>
           )}
