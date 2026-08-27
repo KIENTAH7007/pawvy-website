@@ -22,7 +22,13 @@ export default function HardnessSelector({ levels }) {
 
   return (
     <div className="hardness-selector">
-      <div className="hardness-selector-label">How does your dog chew?</div>
+      <div className="hardness-selector-q">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F36F4A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M8 4a3 3 0 100 6 3 3 0 000-6zM16 4a3 3 0 100 6 3 3 0 000-6zM4 12a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM20 12a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM12 13c-3 0-5.5 2-5.5 4.5S9 21 12 21s5.5-1 5.5-3.5S15 13 12 13z" />
+        </svg>
+        How does your dog chew?
+      </div>
+      <div className="hardness-selector-sub">Tap an option to jump to the right pick</div>
       <div className="hardness-selector-options">
         {levels.map(lvl => (
           <button
