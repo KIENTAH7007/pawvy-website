@@ -567,6 +567,21 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .hardness-selector-result { margin-top: 16px; font-size: 14.5px; color: var(--dark-gray); }
 .hardness-selector-result strong { color: var(--orange); }
 
+/* Aug 2026, per KT: widen so all 3 pills fit on one row instead of the
+   third wrapping to its own line — but only on screens wide enough to
+   actually fit it. 700px is deliberately below the real measured width
+   of an unfolded Samsung Fold 7 (794px, per earlier on-device testing
+   this project already did) — the 900px breakpoint used elsewhere on
+   this site for "desktop" would wrongly exclude that exact device.
+   Regular phones keep the original narrower card, pills still allowed
+   to wrap to a second row there — that layout was already confirmed
+   fine. */
+@media (min-width: 700px) {
+  .hardness-selector { max-width: 880px; }
+  .hardness-selector-options { flex-wrap: nowrap; }
+  .hardness-selector-btn { white-space: nowrap; }
+}
+
 .durability-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 26px; }
 @media (max-width: 760px) { .durability-grid { grid-template-columns: 1fr; } }
 .durability-card { display: block; background: var(--cream); border: 2px solid rgba(20,33,61,.08); border-radius: 24px; overflow: hidden; transition: border-color .3s ease, transform .3s ease, box-shadow .3s ease; text-decoration: none; color: inherit; cursor: pointer; scroll-margin-top: 100px; }
