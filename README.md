@@ -1,58 +1,56 @@
-# Pawvy Website — Bundle Card & Detail Page Refinements
+# Pawvy Website — Bundle Card Restructured to Match ProductCard
 
 Target branch: **staging**
 Repo: `pawvy-website`
 
-**Apply the separate "Pawvy App" zip first** — this depends on its new
-`image_url` field in the bundle response.
+## What changed
 
-Addresses points 1, 3, 4, and the website half of 5 from your feedback.
+The bundle card's layout is now a vertical stack, mirroring
+`ProductCard.jsx`'s own structure exactly, instead of the previous
+side-by-side (image left, info right) layout:
 
-## 1. Description now shows on the card
+1. Tag row (Bundle badge, + an "unavailable" tag if applicable)
+2. Full-width square image
+3. Bundle name (kept prominent — see note below)
+4. Description (if filled in) + the bulleted includes list
+5. Price
+6. Add bundle to cart
 
-If a bundle has a description filled in, it now shows right on the
-grid card (between the title and the includes list) — not just on the
-detail page like before. Still fully optional; a bundle with no
-description just skips this line, same as before.
+## The actual fix for the cropping issue
 
-## 3. "Includes" is now a real list, not a joined string
+The hero image now uses `object-fit: contain` inside a full-width
+square box — the exact same treatment `ProductCard.jsx` already uses
+for every regular product photo, which is why those never look
+cropped. The old side-by-side layout squeezed the image into a narrow
+42%-width column with `object-fit: cover`, which is what was cutting
+photos off. That's gone now — the image always shows in full,
+letterboxed if its proportions don't match the square box rather than
+cropped to fill it.
 
-Was rendering as one run-on line — `Includes: Supplement — Plaque
-Guard 60g + HOCl — Dental Care 250ml`. Now each product gets its own
-row with a bullet point, genuinely easier to scan at a glance.
+## One judgment call worth flagging
 
-## 4. Bundle title made bigger and bolder
-
-Was 16px, same weight as a regular product name — didn't read as a
-card title at all. Now 20px and bold, clearly distinct from the body
-text around it.
-
-## 5. Optional single hero image — website side
-
-Both the grid card and the detail page now check for the bundle's own
-`image_url` first. If you've uploaded one in Pawvy App, that single
-photo shows instead of the auto-tiled grid of component product
-photos. If you haven't, both places fall back to exactly the tiled
-display that was already there — nothing breaks or looks different for
-a bundle without a custom photo.
-
-Also updated the bundle detail page's share-preview image (what shows
-up if someone shares a bundle link on WhatsApp/social) to prefer the
-bundle's own photo when set, falling back to the first component's
-photo otherwise.
+Your mapping put the bundle name where "BETTERBONE" sits on a regular
+product card — I read that as describing **position/order**, not
+literally asking to shrink the name down to small-pill size, since
+that would undo the "make the title bigger and bolder" fix from a
+couple of rounds ago. So the name is now positioned like a product
+card's title (above the price, below the image) but kept at the same
+large, bold size as before. Let me know if you actually wanted it
+shrunk to match the tiny brand-tag styling instead — easy to adjust
+either way.
 
 ## Verification performed
 
 - Full production build (`npm run build`) — clean, no errors.
-- **Real test of the hero-image-vs-tiled-fallback branching logic**,
-  covering every real falsy state a value could actually be in
-  JavaScript (`null`, `undefined`, empty string) — confirmed all three
-  correctly fall back to the tiled display, and only a real populated
-  `image_url` triggers the single-hero-image path.
-- Confirmed every changed file against the real current
-  `origin/staging` (fetched fresh) — exactly 3 files:
-  `globals.css`, `ShopClient.jsx`, and the bundle detail page.
-- All 3 byte-diffed against what was actually build-tested — identical.
+- Grepped the whole codebase for any leftover reference to the classes
+  this removed (`.bundle-card-hero`, `.bundle-card-price-row`,
+  `.bundle-card-info`) — none found, nothing orphaned.
+- Confirmed the exact CSS line responsible for fixing the cropping
+  (`object-fit: contain` inside the square `.thumb` box) is present and
+  matches `ProductCard`'s own image treatment.
+- Confirmed both changed files against the real current
+  `origin/staging` (fetched fresh) — exactly the 2 expected.
+- Both byte-diffed against what was actually build-tested — identical.
 
 ## How to apply
 
@@ -60,25 +58,15 @@ photo otherwise.
 git checkout staging
 git pull origin staging
 
-# copy/overwrite these files, preserving the same paths:
+# copy/overwrite:
 #   app/globals.css
 #   components/ShopClient.jsx
-#   app/bundles/[id]/page.js
 
 git add .
-git commit -m "Bundle card/detail refinements: show description, list-style includes, bigger title, optional single hero image with tiled fallback"
+git commit -m "Restructure bundle card to match ProductCard's vertical layout, fixing hero image cropping"
 git push origin staging
 ```
 
-## Worth checking on S-Web once live
-
-- A bundle with a description filled in — should now show on the grid
-  card, not just the detail page.
-- The includes list — should read as separate bulleted lines, not one
-  run-on sentence.
-- The bundle title on the card — should look noticeably more like a
-  real title now.
-- Upload a hero photo to one bundle in Pawvy App, leave another
-  without — confirm the first shows the single photo and the second
-  still shows the tiled component photos, on both the grid card and
-  the detail page.
+Worth a fresh look on S-Web at the same Dental Care Kit bundle from
+your screenshot — the image should now show in full, and the whole
+card should read much closer to a regular product card.

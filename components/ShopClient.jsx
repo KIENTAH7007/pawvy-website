@@ -91,39 +91,48 @@ function BundleCard({ bundle }) {
 
   return (
     <div className="bundle-card">
-      <span className="bundle-tag">Bundle</span>
-      {bundle.image_url ? (
-        // Single curated hero photo (Aug 2026, per KT) — takes priority
-        // over the auto-tiled component grid when one's been uploaded,
-        // since a real photographed/composed shot reads as more
-        // professional than several individual product photos stitched
-        // together automatically.
-        <div className="bundle-card-hero">
-          <img src={imageUrl(bundle.image_url)} alt="" />
+      <Link href={`/bundles/${bundle.id}`}>
+        <div className="bundle-card-tags">
+          <span className="bundle-tag">Bundle</span>
+          {!bundle.in_stock && <span className="bundle-card-stock-tag">One or more unavailable</span>}
         </div>
-      ) : (
-        <div className={`bundle-card-imgs bundle-card-imgs-${Math.min(bundle.products.length, 4)}`}>
-          {bundle.products.slice(0, 4).map(p => (
-            <div key={p.id} className="bundle-card-img-cell">
-              {p.image_url
-                ? <img src={imageUrl(p.image_url)} alt="" />
-                : <span className="bundle-card-img-fallback">{displayBrandName(p.brand_name)}</span>}
+
+        {/* Aug 2026 (per KT) — restructured to match ProductCard's own
+            layout exactly: a square, object-fit:contain image (this is
+            specifically what fixes the cropping complaint — the single
+            hero photo previously sat in a narrow 42%-width side column
+            with object-fit:cover, which is what was cutting it off) —
+            full width here instead, letterboxed rather than cropped. */}
+        <div className="thumb">
+          {bundle.image_url ? (
+            <img src={imageUrl(bundle.image_url)} alt={bundle.name} />
+          ) : (
+            <div className={`bundle-card-imgs bundle-card-imgs-${Math.min(bundle.products.length, 4)}`}>
+              {bundle.products.slice(0, 4).map(p => (
+                <div key={p.id} className="bundle-card-img-cell">
+                  {p.image_url
+                    ? <img src={imageUrl(p.image_url)} alt="" />
+                    : <span className="bundle-card-img-fallback">{displayBrandName(p.brand_name)}</span>}
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
-      )}
-      <div className="bundle-card-info">
-        <Link href={`/bundles/${bundle.id}`} className="bundle-card-name">{bundle.name}</Link>
-        {bundle.description && <p className="bundle-card-desc">{bundle.description}</p>}
-        <ul className="bundle-card-includes">
-          {bundle.products.map(p => (
-            <li key={p.id}>{productDisplayName(p)}{p.qty > 1 ? ` ×${p.qty}` : ''}</li>
-          ))}
-        </ul>
-        <div className="bundle-card-price-row">
-          <span className="bundle-card-price">{formatPrice(bundle.total_price)}</span>
+
+        <div className="info">
+          <h3 className="bundle-card-name">{bundle.name}</h3>
+          {bundle.description && <p className="bundle-card-desc">{bundle.description}</p>}
+          <ul className="bundle-card-includes">
+            {bundle.products.map(p => (
+              <li key={p.id}>{productDisplayName(p)}{p.qty > 1 ? ` ×${p.qty}` : ''}</li>
+            ))}
+          </ul>
+          <div className="price">{formatPrice(bundle.total_price)}</div>
+          <div className="bundle-card-note">{bundle.products.length} products, {brandCount} brand{brandCount > 1 ? 's' : ''}</div>
         </div>
-        <div className="bundle-card-note">{bundle.products.length} products, {brandCount} brand{brandCount > 1 ? 's' : ''}</div>
+      </Link>
+
+      <div className="info" style={{ paddingTop: 0 }}>
         {bundle.in_stock ? (
           <button type="button" className="bundle-card-add-btn" onClick={handleAddAll}>
             {adding ? 'Added ✓' : 'Add bundle to cart'}

@@ -945,40 +945,40 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 
 /* Problem-based bundle card (Aug 2026) — sits in the same .product-grid
    as regular ProductCards, spanning 2 columns, marked out with an orange
-   border + "Bundle" tag per the approved mockup. */
+   border + "Bundle" tag. Restructured (Aug 2026, per KT) to mirror
+   .product-card's own vertical layout exactly — tag row, then a square
+   object-fit:contain image, then title/description/price/cart — rather
+   than the original side-by-side image+info layout, which is what was
+   causing the hero image to look cropped (a narrow 42%-width column
+   with object-fit:cover). Still spans 2 grid columns for width/prominence,
+   just stacks vertically like every other card now instead of sideways. */
 .bundle-card {
-  grid-column: span 2; background: #fff; border: 2px solid var(--orange); border-radius: 14px;
-  overflow: hidden; display: flex; position: relative;
+  grid-column: span 2; background: #fff; border: 2px solid var(--orange); border-radius: 22px;
+  overflow: hidden; display: flex; flex-direction: column; transition: transform .3s ease;
 }
+.bundle-card:hover { transform: translateY(-3px); }
+.bundle-card-tags { display: flex; align-items: center; gap: 8px; padding: 12px 12px 10px; }
 .bundle-tag {
-  position: absolute; top: 12px; left: 12px; z-index: 2; background: var(--orange); color: #fff;
-  font-size: 10.5px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; padding: 4px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase;
+  background: var(--orange); color: #fff; padding: 5px 11px; border-radius: 100px;
 }
-.bundle-card-imgs { width: 42%; display: grid; flex-shrink: 0; }
+.bundle-card-stock-tag { font-size: 10.5px; font-weight: 600; background: #fde2e2; color: #a12525; padding: 5px 11px; border-radius: 100px; }
+.bundle-card .thumb { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; position: relative; background: var(--ivory); overflow: hidden; }
+.bundle-card .thumb > img { width: 100%; height: 100%; object-fit: contain; padding: 10px; }
+.bundle-card-imgs { width: 100%; height: 100%; display: grid; }
 .bundle-card-imgs-2 { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
 .bundle-card-imgs-3, .bundle-card-imgs-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
 .bundle-card-img-cell { background: var(--cream); display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.bundle-card-img-cell img { width: 100%; height: 100%; object-fit: cover; }
+.bundle-card-img-cell img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
 .bundle-card-img-fallback { font-size: 10px; color: var(--dark-gray); text-align: center; padding: 4px; }
-/* Single curated hero photo (Aug 2026) — same slot/sizing as the tiled
-   grid it replaces, just one image instead of several. */
-.bundle-card-hero { width: 42%; flex-shrink: 0; background: var(--cream); overflow: hidden; }
-.bundle-card-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.bundle-card-info { flex: 1; padding: 16px 18px; display: flex; flex-direction: column; min-width: 0; }
-.bundle-card-name {
-  font-family: 'Fraunces', serif; font-weight: 700; font-size: 20px; color: var(--navy);
-  text-decoration: none; margin-bottom: 6px; display: block; line-height: 1.2;
-}
-.bundle-card-name:hover { color: var(--orange); }
+.bundle-card-name { font-family: 'Fraunces', serif; font-weight: 700; font-size: 20px; color: var(--navy); line-height: 1.25; margin-bottom: 8px; }
 .bundle-card-desc { font-size: 12.5px; color: var(--dark-gray); line-height: 1.5; margin: 0 0 10px; }
-.bundle-card-includes { list-style: none; margin: 0 0 10px; padding: 0; font-size: 12px; color: var(--dark-gray); line-height: 1.6; }
+.bundle-card-includes { list-style: none; margin: 0 0 12px; padding: 0; font-size: 12px; color: var(--dark-gray); line-height: 1.6; }
 .bundle-card-includes li { position: relative; padding-left: 14px; }
 .bundle-card-includes li::before { content: '•'; position: absolute; left: 0; color: var(--orange); font-weight: 700; }
-.bundle-card-price-row { margin-top: auto; }
-.bundle-card-price { font-weight: 700; font-size: 17px; color: var(--navy); }
-.bundle-card-note { font-size: 10.5px; color: var(--dark-gray); margin-top: 2px; margin-bottom: 10px; }
-.bundle-card-add-btn { background: var(--orange); color: #fff; border: none; padding: 9px 0; border-radius: 8px; font-weight: 700; font-size: 12.5px; cursor: pointer; }
-.bundle-card-oos { font-size: 11.5px; color: #9A5A22; background: #FBEFD9; padding: 7px 10px; border-radius: 7px; text-align: center; }
+.bundle-card-note { font-size: 10.5px; color: var(--dark-gray); margin-top: 4px; margin-bottom: 10px; }
+.bundle-card-add-btn { width: 100%; background: var(--orange); color: #fff; border: none; padding: 12px 0; border-radius: 8px; font-weight: 700; font-size: 13.5px; cursor: pointer; }
+.bundle-card-oos { font-size: 11.5px; color: #9A5A22; background: #FBEFD9; padding: 9px 10px; border-radius: 7px; text-align: center; }
 
 /* Bundle detail page (Aug 2026) — matches the approved mockup, minus the
    third "together" image tile KT decided against (per-component images
@@ -1014,11 +1014,6 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .bd-cart-btn { width: 100%; margin-top: 16px; background: var(--orange); color: #fff; border: none; padding: 15px; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; }
 .bd-oos { margin-top: 16px; font-size: 13px; color: #9A5A22; background: #FBEFD9; padding: 14px 16px; border-radius: 10px; line-height: 1.6; }
 .bd-note { font-size: 12px; color: var(--dark-gray); margin-top: 14px; text-align: center; }
-
-@media (max-width: 760px) {
-  .bundle-card { flex-direction: column; }
-  .bundle-card-imgs, .bundle-card-hero { width: 100%; height: 140px; }
-}
 
 @media (max-width: 900px) {
   .shop-layout { grid-template-columns: 1fr; }
