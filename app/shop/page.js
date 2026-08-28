@@ -37,10 +37,11 @@ export default async function ShopPage({ searchParams }) {
   const { need } = await searchParams;
   const validNeed = NEED_CATEGORIES.some(n => n.slug === need) ? need : null;
 
-  const [{ products }, { brands }, testimonialsResult] = await Promise.all([
+  const [{ products }, { brands }, testimonialsResult, bundlesResult] = await Promise.all([
     shopApi.products(validNeed ? { need: validNeed } : {}),
     shopApi.brands(),
     validNeed ? shopApi.testimonials(validNeed).catch(() => ({ testimonials: [] })) : Promise.resolve({ testimonials: [] }),
+    validNeed ? shopApi.bundles(validNeed).catch(() => ({ bundles: [] })) : Promise.resolve({ bundles: [] }),
   ]);
 
   return (
@@ -59,6 +60,7 @@ export default async function ShopPage({ searchParams }) {
       brands={brands}
       initialNeed={validNeed}
       initialTestimonials={testimonialsResult.testimonials}
+      initialBundles={bundlesResult.bundles}
     />
   );
 }

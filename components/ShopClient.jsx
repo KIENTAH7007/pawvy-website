@@ -69,6 +69,59 @@ function TestimonialCard({ t }) {
   );
 }
 
+// Problem-based bundle card — sits in the same product grid as regular
+// products (spans 2 columns), visually marked out with an orange border
+// and a "Bundle" tag. "Add bundle to cart" adds each real component
+// individually via the same addItem() every other Add to Cart button on
+// the site uses — a bundle is a curated shortcut, not a special cart
+// concept, so this needs no new cart logic at all. total_price and
+// in_stock are computed live server-side (see pawvy-app's shop.js) from
+// each component's real current price/stock, never stored/cached.
+function BundleCard({ bundle }) {
+  const { addItem } = useCart();
+  const [adding, setAdding] = useState(false);
+
+  function handleAddAll() {
+    bundle.products.forEach(p => addItem(p, p.qty));
+    setAdding(true);
+    setTimeout(() => setAdding(false), 1500);
+  }
+
+  const brandCount = new Set(bundle.products.map(p => p.brand_name)).size;
+
+  return (
+    <div className="bundle-card">
+      <span className="bundle-tag">Bundle</span>
+      <div className={`bundle-card-imgs bundle-card-imgs-${Math.min(bundle.products.length, 4)}`}>
+        {bundle.products.slice(0, 4).map(p => (
+          <div key={p.id} className="bundle-card-img-cell">
+            {p.image_url
+              ? <img src={imageUrl(p.image_url)} alt="" />
+              : <span className="bundle-card-img-fallback">{displayBrandName(p.brand_name)}</span>}
+          </div>
+        ))}
+      </div>
+      <div className="bundle-card-info">
+        <Link href={`/bundles/${bundle.id}`} className="bundle-card-name">{bundle.name}</Link>
+        <div className="bundle-card-includes">
+          Includes: {bundle.products.map(p => productDisplayName(p)).join(' + ')}
+        </div>
+        <div className="bundle-card-price-row">
+          <span className="bundle-card-price">{formatPrice(bundle.total_price)}</span>
+        </div>
+        <div className="bundle-card-note">{bundle.products.length} products, {brandCount} brand{brandCount > 1 ? 's' : ''}</div>
+        {bundle.in_stock ? (
+          <button type="button" className="bundle-card-add-btn" onClick={handleAddAll}>
+            {adding ? 'Added ✓' : 'Add bundle to cart'}
+          </button>
+        ) : (
+          <div className="bundle-card-oos">One or more items currently unavailable</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // Receives server-fetched initial products/brands/testimonials as props —
 // the page's first paint (what Google/social previews see) already has
 // real content, including for a /shop?need=dental link someone shared.
@@ -81,7 +134,7 @@ function TestimonialCard({ t }) {
 // Product Type filters from the original mockup aren't wired up because
 // there's no real data backing them yet; better to ship filters that
 // actually filter something than fake ones that don't.
-export default function ShopClient({ initialProducts, brands, showHero = true, brandId = null, initialNeed = null, initialTestimonials = [] }) {
+export default function ShopClient({ initialProducts, brands, showHero = true, brandId = null, initialNeed = null, initialTestimonials = [], initialBundles = [] }) {
   const [products, setProducts] = useState(initialProducts);
   const [brandFilter, setBrandFilter] = useState(brandId || '');
   const [needFilter, setNeedFilter] = useState(initialNeed || '');
@@ -89,6 +142,7 @@ export default function ShopClient({ initialProducts, brands, showHero = true, b
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [testimonials, setTestimonials] = useState(initialTestimonials);
+  const [bundles, setBundles] = useState(initialBundles);
   const sortedBrands = sortBrands(brands);
   const [loading, setLoading] = useState(false);
   const [firstRun, setFirstRun] = useState(true);
@@ -111,6 +165,14 @@ export default function ShopClient({ initialProducts, brands, showHero = true, b
     if (firstRun) return;
     if (!needFilter) { setTestimonials([]); return; }
     shopApi.testimonials(needFilter).then(d => setTestimonials(d.testimonials)).catch(() => setTestimonials([]));
+  }, [needFilter]);
+
+  // Same reasoning as testimonials above — bundles are tied to the need
+  // itself, not the brand/search filters narrowing the grid below.
+  useEffect(() => {
+    if (firstRun) return;
+    if (!needFilter) { setBundles([]); return; }
+    shopApi.bundles(needFilter).then(d => setBundles(d.bundles)).catch(() => setBundles([]));
   }, [needFilter]);
 
   useEffect(() => {
@@ -197,10 +259,11 @@ export default function ShopClient({ initialProducts, brands, showHero = true, b
     <>
       {loading ? (
         <p style={{ color: 'var(--dark-gray)' }}>Loading…</p>
-      ) : visibleProducts.length === 0 ? (
+      ) : visibleProducts.length === 0 && bundles.length === 0 ? (
         <p style={{ color: 'var(--dark-gray)' }}>No products found.</p>
       ) : (
         <div className="product-grid">
+          {bundles.map(b => <BundleCard key={`bundle-${b.id}`} bundle={b} />)}
           {visibleProducts.map(p => <ProductCard key={p.id} product={p} onAdd={addItem} />)}
         </div>
       )}

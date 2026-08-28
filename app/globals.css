@@ -943,6 +943,71 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .testi-product-name { font-size: 12px; font-weight: 600; flex: 1; color: rgba(245,242,235,.9); }
 .testi-add-btn { font-size: 11.5px; background: var(--orange); color: #fff; border: none; padding: 7px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; }
 
+/* Problem-based bundle card (Aug 2026) — sits in the same .product-grid
+   as regular ProductCards, spanning 2 columns, marked out with an orange
+   border + "Bundle" tag per the approved mockup. */
+.bundle-card {
+  grid-column: span 2; background: #fff; border: 2px solid var(--orange); border-radius: 14px;
+  overflow: hidden; display: flex; position: relative;
+}
+.bundle-tag {
+  position: absolute; top: 12px; left: 12px; z-index: 2; background: var(--orange); color: #fff;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; padding: 4px 10px; border-radius: 20px;
+}
+.bundle-card-imgs { width: 42%; display: grid; flex-shrink: 0; }
+.bundle-card-imgs-2 { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+.bundle-card-imgs-3, .bundle-card-imgs-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.bundle-card-img-cell { background: var(--cream); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.bundle-card-img-cell img { width: 100%; height: 100%; object-fit: cover; }
+.bundle-card-img-fallback { font-size: 10px; color: var(--dark-gray); text-align: center; padding: 4px; }
+.bundle-card-info { flex: 1; padding: 16px 18px; display: flex; flex-direction: column; min-width: 0; }
+.bundle-card-name { font-family: 'Fraunces', serif; font-size: 16px; color: var(--navy); text-decoration: none; margin-bottom: 6px; display: block; }
+.bundle-card-name:hover { color: var(--orange); }
+.bundle-card-includes { font-size: 11.5px; color: var(--dark-gray); margin-bottom: 10px; line-height: 1.5; }
+.bundle-card-price-row { margin-top: auto; }
+.bundle-card-price { font-weight: 700; font-size: 17px; color: var(--navy); }
+.bundle-card-note { font-size: 10.5px; color: var(--dark-gray); margin-top: 2px; margin-bottom: 10px; }
+.bundle-card-add-btn { background: var(--orange); color: #fff; border: none; padding: 9px 0; border-radius: 8px; font-weight: 700; font-size: 12.5px; cursor: pointer; }
+.bundle-card-oos { font-size: 11.5px; color: #9A5A22; background: #FBEFD9; padding: 7px 10px; border-radius: 7px; text-align: center; }
+
+/* Bundle detail page (Aug 2026) — matches the approved mockup, minus the
+   third "together" image tile KT decided against (per-component images
+   only, however many there are, since bundles can have 3-4+ products
+   and a fixed 3rd composite slot didn't scale). */
+.bundle-detail-page { max-width: 820px; margin: 0 auto; padding: 160px 20px 100px; }
+.bundle-detail-page .breadcrumb { max-width: 820px; margin: 0 auto 20px; padding: 0 20px; }
+.bd-tag { display: inline-block; background: #FBEAE3; color: var(--orange); font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; padding: 5px 12px; border-radius: 20px; margin-bottom: 14px; }
+.bd-title { font-size: 32px; margin-bottom: 10px; }
+.bd-desc { font-size: 15px; color: var(--dark-gray); line-height: 1.7; max-width: 600px; margin-bottom: 28px; }
+.bd-images { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 30px; }
+.bd-image-cell { height: 140px; border-radius: 12px; overflow: hidden; background: var(--cream); display: flex; align-items: center; justify-content: center; }
+.bd-image-cell img { width: 100%; height: 100%; object-fit: cover; }
+.bd-image-fallback { font-size: 12px; color: var(--dark-gray); font-weight: 600; }
+
+.bd-components { background: #fff; border: 1px solid rgba(20,33,61,.1); border-radius: 14px; overflow: hidden; margin-bottom: 24px; }
+.bd-row { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-bottom: 1px solid rgba(20,33,61,.08); }
+.bd-row:last-child { border-bottom: none; }
+.bd-row .thumb { width: 44px; height: 44px; border-radius: 8px; flex-shrink: 0; overflow: hidden; background: var(--cream); }
+.bd-row .thumb img { width: 100%; height: 100%; object-fit: cover; }
+.bd-row .thumb-fallback { width: 100%; height: 100%; background: var(--cream); }
+.bd-row .info { flex: 1; min-width: 0; }
+.bd-row .brand { font-size: 10px; text-transform: uppercase; letter-spacing: .4px; color: var(--orange); font-weight: 700; }
+.bd-row .name { font-size: 13.5px; font-weight: 600; color: var(--navy); }
+.bd-row .price { font-size: 13.5px; font-weight: 700; color: var(--navy); text-align: right; flex-shrink: 0; }
+.bd-row .price .was { display: block; font-size: 11.5px; font-weight: 400; color: var(--dark-gray); text-decoration: line-through; }
+
+.bd-total-row { display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; background: var(--navy); border-radius: 14px; color: #fff; }
+.bd-total-row .label { font-size: 14px; color: rgba(245,242,235,.7); }
+.bd-total-row .amount { font-size: 24px; font-weight: 700; }
+.bd-cart-btn { width: 100%; margin-top: 16px; background: var(--orange); color: #fff; border: none; padding: 15px; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; }
+.bd-oos { margin-top: 16px; font-size: 13px; color: #9A5A22; background: #FBEFD9; padding: 14px 16px; border-radius: 10px; line-height: 1.6; }
+.bd-note { font-size: 12px; color: var(--dark-gray); margin-top: 14px; text-align: center; }
+
+@media (max-width: 760px) {
+  .bundle-card { flex-direction: column; }
+  .bundle-card-imgs { width: 100%; height: 140px; }
+}
+
 @media (max-width: 900px) {
   .shop-layout { grid-template-columns: 1fr; }
   .shop-sidebar { position: static; }
