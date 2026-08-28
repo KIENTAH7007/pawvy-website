@@ -1,55 +1,54 @@
-# Pawvy Website — Bundle Card Restructured to Match ProductCard
+# Pawvy Website — Bundle Card Polish (Image Size, Padding, Price Match, Brand Labels)
 
 Target branch: **staging**
 Repo: `pawvy-website`
 
-## What changed
+## 1. Image sized down
 
-The bundle card's layout is now a vertical stack, mirroring
-`ProductCard.jsx`'s own structure exactly, instead of the previous
-side-by-side (image left, info right) layout:
+Was scaling to a full square matching the card's own width (which,
+since a bundle card spans 2 grid columns, made it roughly 2x the size
+of a regular product card's image). Capped to `max-height: 260px` now
+— closer to a single product card's image size, still `object-fit:
+contain` so nothing gets cropped, just doesn't blow up as large.
 
-1. Tag row (Bundle badge, + an "unavailable" tag if applicable)
-2. Full-width square image
-3. Bundle name (kept prominent — see note below)
-4. Description (if filled in) + the bulleted includes list
-5. Price
-6. Add bundle to cart
+## 2. More breathing room from the border
 
-## The actual fix for the cropping issue
+Text was using the same padding value as a regular single-width
+product card, which read as too tight once spread across a card twice
+as wide. Added extra horizontal padding specifically for the bundle
+card (title, description, includes list, price, note, and the tag row
+at the top all now sit further from the edge).
 
-The hero image now uses `object-fit: contain` inside a full-width
-square box — the exact same treatment `ProductCard.jsx` already uses
-for every regular product photo, which is why those never look
-cropped. The old side-by-side layout squeezed the image into a narrow
-42%-width column with `object-fit: cover`, which is what was cutting
-photos off. That's gone now — the image always shows in full,
-letterboxed if its proportions don't match the square box rather than
-cropped to fill it.
+## 3. Price styling — found and fixed the actual bug
 
-## One judgment call worth flagging
+**This wasn't just a style mismatch, it was a real CSS bug.** The
+existing price styling is written as `.product-card .price` — a rule
+that only applies to a `.price` element *inside* something with the
+class `.product-card`. The bundle card's outer element is `.bundle-card`,
+not `.product-card`, so that rule never matched at all — the bundle's
+price was rendering with zero special styling, not just "different"
+styling. Added a proper `.bundle-card .price` rule with the exact same
+values (weight 900, 19px, Fraunces, navy), so it now genuinely matches
+instead of just resembling.
 
-Your mapping put the bundle name where "BETTERBONE" sits on a regular
-product card — I read that as describing **position/order**, not
-literally asking to shrink the name down to small-pill size, since
-that would undo the "make the title bigger and bolder" fix from a
-couple of rounds ago. So the name is now positioned like a product
-card's title (above the price, below the image) but kept at the same
-large, bold size as before. Let me know if you actually wanted it
-shrunk to match the tiny brand-tag styling instead — easy to adjust
-either way.
+## 4. Includes list now shows the brand per item
+
+Was just the product name — "Plaque Guard 60g". Now prefixed with the
+brand, e.g. "Lillidale Plaque Guard 60g", "BetterBone Soft Classic
+Large ×2" — exactly the format you asked for.
 
 ## Verification performed
 
 - Full production build (`npm run build`) — clean, no errors.
-- Grepped the whole codebase for any leftover reference to the classes
-  this removed (`.bundle-card-hero`, `.bundle-card-price-row`,
-  `.bundle-card-info`) — none found, nothing orphaned.
-- Confirmed the exact CSS line responsible for fixing the cropping
-  (`object-fit: contain` inside the square `.thumb` box) is present and
-  matches `ProductCard`'s own image treatment.
+- Confirmed both `.bundle-card .price` and `.product-card .price` now
+  exist as independent rules with identical values, proving the
+  scoping bug is actually fixed rather than just papered over.
+- Real test of the brand-prefixed includes format against realistic
+  product data — confirmed it produces exactly "Lillidale Plaque Guard
+  60g" / "BetterBone Soft Classic Large ×2" style output.
 - Confirmed both changed files against the real current
-  `origin/staging` (fetched fresh) — exactly the 2 expected.
+  `origin/staging` (fetched fresh) — same 2 files as the last few
+  bundle rounds, nothing else touched.
 - Both byte-diffed against what was actually build-tested — identical.
 
 ## How to apply
@@ -63,10 +62,11 @@ git pull origin staging
 #   components/ShopClient.jsx
 
 git add .
-git commit -m "Restructure bundle card to match ProductCard's vertical layout, fixing hero image cropping"
+git commit -m "Bundle card polish: smaller image, more padding from border, fix price styling scope bug, show brand per item in includes list"
 git push origin staging
 ```
 
-Worth a fresh look on S-Web at the same Dental Care Kit bundle from
-your screenshot — the image should now show in full, and the whole
-card should read much closer to a regular product card.
+Worth a look at the same Dental Care Kit bundle again — the price
+should now visually match "S$38.00" on a regular card exactly (same
+size, weight, and font), the image should be noticeably smaller, and
+each includes line should show its brand.

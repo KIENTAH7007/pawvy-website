@@ -124,7 +124,7 @@ function BundleCard({ bundle }) {
           {bundle.description && <p className="bundle-card-desc">{bundle.description}</p>}
           <ul className="bundle-card-includes">
             {bundle.products.map(p => (
-              <li key={p.id}>{productDisplayName(p)}{p.qty > 1 ? ` ×${p.qty}` : ''}</li>
+              <li key={p.id}>{displayBrandName(p.brand_name)} {productDisplayName(p)}{p.qty > 1 ? ` ×${p.qty}` : ''}</li>
             ))}
           </ul>
           <div className="price">{formatPrice(bundle.total_price)}</div>
