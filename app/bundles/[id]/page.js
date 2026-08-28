@@ -27,7 +27,7 @@ export async function generateMetadata({ params }) {
       title,
       description,
       alternates: { canonical: canonicalPath },
-      ...buildOgMeta({ title, description, path: canonicalPath, image: bundle.products[0]?.image_url ? imageUrl(bundle.products[0].image_url) : undefined }),
+      ...buildOgMeta({ title, description, path: canonicalPath, image: bundle.image_url ? imageUrl(bundle.image_url) : (bundle.products[0]?.image_url ? imageUrl(bundle.products[0].image_url) : undefined) }),
     };
   } catch {
     return { title: 'Bundle | Pawvy' };
@@ -56,15 +56,21 @@ export default async function BundlePage({ params }) {
         <h1 className="bd-title">{bundle.name}</h1>
         {bundle.description && <p className="bd-desc">{bundle.description}</p>}
 
-        <div className="bd-images">
-          {bundle.products.map(p => (
-            <div key={p.id} className="bd-image-cell">
-              {p.image_url
-                ? <img src={imageUrl(p.image_url)} alt={productDisplayName(p)} />
-                : <span className="bd-image-fallback">{displayBrandName(p.brand_name)}</span>}
-            </div>
-          ))}
-        </div>
+        {bundle.image_url ? (
+          <div className="bd-hero">
+            <img src={imageUrl(bundle.image_url)} alt={bundle.name} />
+          </div>
+        ) : (
+          <div className="bd-images">
+            {bundle.products.map(p => (
+              <div key={p.id} className="bd-image-cell">
+                {p.image_url
+                  ? <img src={imageUrl(p.image_url)} alt={productDisplayName(p)} />
+                  : <span className="bd-image-fallback">{displayBrandName(p.brand_name)}</span>}
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="bd-components">
           {bundle.products.map(p => (

@@ -92,20 +92,34 @@ function BundleCard({ bundle }) {
   return (
     <div className="bundle-card">
       <span className="bundle-tag">Bundle</span>
-      <div className={`bundle-card-imgs bundle-card-imgs-${Math.min(bundle.products.length, 4)}`}>
-        {bundle.products.slice(0, 4).map(p => (
-          <div key={p.id} className="bundle-card-img-cell">
-            {p.image_url
-              ? <img src={imageUrl(p.image_url)} alt="" />
-              : <span className="bundle-card-img-fallback">{displayBrandName(p.brand_name)}</span>}
-          </div>
-        ))}
-      </div>
+      {bundle.image_url ? (
+        // Single curated hero photo (Aug 2026, per KT) — takes priority
+        // over the auto-tiled component grid when one's been uploaded,
+        // since a real photographed/composed shot reads as more
+        // professional than several individual product photos stitched
+        // together automatically.
+        <div className="bundle-card-hero">
+          <img src={imageUrl(bundle.image_url)} alt="" />
+        </div>
+      ) : (
+        <div className={`bundle-card-imgs bundle-card-imgs-${Math.min(bundle.products.length, 4)}`}>
+          {bundle.products.slice(0, 4).map(p => (
+            <div key={p.id} className="bundle-card-img-cell">
+              {p.image_url
+                ? <img src={imageUrl(p.image_url)} alt="" />
+                : <span className="bundle-card-img-fallback">{displayBrandName(p.brand_name)}</span>}
+            </div>
+          ))}
+        </div>
+      )}
       <div className="bundle-card-info">
         <Link href={`/bundles/${bundle.id}`} className="bundle-card-name">{bundle.name}</Link>
-        <div className="bundle-card-includes">
-          Includes: {bundle.products.map(p => productDisplayName(p)).join(' + ')}
-        </div>
+        {bundle.description && <p className="bundle-card-desc">{bundle.description}</p>}
+        <ul className="bundle-card-includes">
+          {bundle.products.map(p => (
+            <li key={p.id}>{productDisplayName(p)}{p.qty > 1 ? ` ×${p.qty}` : ''}</li>
+          ))}
+        </ul>
         <div className="bundle-card-price-row">
           <span className="bundle-card-price">{formatPrice(bundle.total_price)}</span>
         </div>

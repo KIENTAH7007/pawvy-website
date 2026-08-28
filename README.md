@@ -1,62 +1,58 @@
-# Pawvy Website — Problem-Based Bundles (Stage 1)
+# Pawvy Website — Bundle Card & Detail Page Refinements
 
 Target branch: **staging**
 Repo: `pawvy-website`
 
 **Apply the separate "Pawvy App" zip first** — this depends on its new
-`/api/shop/bundles` endpoints.
+`image_url` field in the bundle response.
 
-Builds exactly the design from the approved mockup (minus the "together"
-image tile, per your call to drop it).
+Addresses points 1, 3, 4, and the website half of 5 from your feedback.
 
-## What's in this patch
+## 1. Description now shows on the card
 
-### Bundle card, in the Shop-by-Need grid (`components/ShopClient.jsx`)
+If a bundle has a description filled in, it now shows right on the
+grid card (between the title and the includes list) — not just on the
+detail page like before. Still fully optional; a bundle with no
+description just skips this line, same as before.
 
-When a need has an active bundle, it now shows right in the product
-grid alongside the individual products it's made from — spans 2 grid
-columns, marked out with an orange border and a "Bundle" tag. Shows the
-tiled component images, what's included, the real total price, and an
-"Add bundle to cart" button. If any component is out of stock, the
-button is replaced with a clear "currently unavailable" note instead.
+## 3. "Includes" is now a real list, not a joined string
 
-Fetched server-side (`app/shop/page.js`) alongside testimonials, so a
-shared `/shop?need=dental` link shows the bundle in the very first
-server-rendered HTML too, not just after client JS runs.
+Was rendering as one run-on line — `Includes: Supplement — Plaque
+Guard 60g + HOCl — Dental Care 250ml`. Now each product gets its own
+row with a bullet point, genuinely easier to scan at a glance.
 
-### Bundle detail page (`app/bundles/[id]/page.js`, new)
+## 4. Bundle title made bigger and bolder
 
-Click into a bundle and see the full breakdown: each real component
-with its own image, brand, name, and price, a real total, and one "Add
-all to cart" button. Per your decision, this only shows each
-component's own image — no separate "together" composite shot, since
-bundles can have 3-4+ products and a fixed extra slot didn't scale, and
-the Shop-by-Need page already has testimonials doing the trust-building
-work above.
+Was 16px, same weight as a regular product name — didn't read as a
+card title at all. Now 20px and bold, clearly distinct from the body
+text around it.
 
-### "Add bundle to cart" (`components/AddBundleSection.jsx`, new)
+## 5. Optional single hero image — website side
 
-Loops over the bundle's real components and adds each one to the cart
-individually via the exact same `addItem()` every other Add to Cart
-button on the site already uses — genuinely no new cart logic. Verified
-this handles the edge case of adding the same bundle twice correctly
-(merges quantities into the existing 2 cart lines rather than creating
-4 duplicate lines).
+Both the grid card and the detail page now check for the bundle's own
+`image_url` first. If you've uploaded one in Pawvy App, that single
+photo shows instead of the auto-tiled grid of component product
+photos. If you haven't, both places fall back to exactly the tiled
+display that was already there — nothing breaks or looks different for
+a bundle without a custom photo.
+
+Also updated the bundle detail page's share-preview image (what shows
+up if someone shares a bundle link on WhatsApp/social) to prefer the
+bundle's own photo when set, falling back to the first component's
+photo otherwise.
 
 ## Verification performed
 
-- Full production build (`npm run build`) — clean, no errors, and
-  `/bundles/[id]` shows up correctly as a new route.
-- **Real logic test of the cart-merging behavior**, using the actual
-  `addItem` reducer logic from `CartContext.jsx`: confirmed adding a
-  bundle's components produces the correct cart lines with correct
-  quantities; confirmed the resulting cart total exactly matches the
-  bundle's `total_price`; confirmed adding the *same* bundle a second
-  time correctly doubles the existing quantities rather than creating
-  duplicate lines.
-- Confirmed every changed/new file against the real current
-  `origin/staging` (fetched fresh) — exactly 6 files.
-- All 6 byte-diffed against what was actually build-tested — identical.
+- Full production build (`npm run build`) — clean, no errors.
+- **Real test of the hero-image-vs-tiled-fallback branching logic**,
+  covering every real falsy state a value could actually be in
+  JavaScript (`null`, `undefined`, empty string) — confirmed all three
+  correctly fall back to the tiled display, and only a real populated
+  `image_url` triggers the single-hero-image path.
+- Confirmed every changed file against the real current
+  `origin/staging` (fetched fresh) — exactly 3 files:
+  `globals.css`, `ShopClient.jsx`, and the bundle detail page.
+- All 3 byte-diffed against what was actually build-tested — identical.
 
 ## How to apply
 
@@ -66,26 +62,23 @@ git pull origin staging
 
 # copy/overwrite these files, preserving the same paths:
 #   app/globals.css
-#   app/shop/page.js
 #   components/ShopClient.jsx
-#   lib/api.js
-#   app/bundles/[id]/page.js        <-- NEW FILE
-#   components/AddBundleSection.jsx <-- NEW FILE
+#   app/bundles/[id]/page.js
 
 git add .
-git commit -m "Problem-based bundles (Stage 1): bundle card in Shop-by-Need grid, detail page, add-to-cart via existing cart"
+git commit -m "Bundle card/detail refinements: show description, list-style includes, bigger title, optional single hero image with tiled fallback"
 git push origin staging
 ```
 
 ## Worth checking on S-Web once live
 
-- Create a bundle in Pawvy App tagged to a need you're actively
-  testing, then visit that need's Shop page — the bundle card should
-  appear in the grid.
-- Click into the bundle, confirm the detail page shows every component
-  with the correct real price and a correct total.
-- Click "Add bundle to cart" (from either the grid card or the detail
-  page) and confirm the cart ends up with the right products and
-  quantities, totalling the bundle's shown price.
-- Try a bundle where one component is out of stock — confirm it shows
-  as unavailable rather than a broken/incorrect Add to Cart.
+- A bundle with a description filled in — should now show on the grid
+  card, not just the detail page.
+- The includes list — should read as separate bulleted lines, not one
+  run-on sentence.
+- The bundle title on the card — should look noticeably more like a
+  real title now.
+- Upload a hero photo to one bundle in Pawvy App, leave another
+  without — confirm the first shows the single photo and the second
+  still shows the tiled component photos, on both the grid card and
+  the detail page.

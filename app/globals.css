@@ -960,10 +960,20 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .bundle-card-img-cell { background: var(--cream); display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .bundle-card-img-cell img { width: 100%; height: 100%; object-fit: cover; }
 .bundle-card-img-fallback { font-size: 10px; color: var(--dark-gray); text-align: center; padding: 4px; }
+/* Single curated hero photo (Aug 2026) — same slot/sizing as the tiled
+   grid it replaces, just one image instead of several. */
+.bundle-card-hero { width: 42%; flex-shrink: 0; background: var(--cream); overflow: hidden; }
+.bundle-card-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .bundle-card-info { flex: 1; padding: 16px 18px; display: flex; flex-direction: column; min-width: 0; }
-.bundle-card-name { font-family: 'Fraunces', serif; font-size: 16px; color: var(--navy); text-decoration: none; margin-bottom: 6px; display: block; }
+.bundle-card-name {
+  font-family: 'Fraunces', serif; font-weight: 700; font-size: 20px; color: var(--navy);
+  text-decoration: none; margin-bottom: 6px; display: block; line-height: 1.2;
+}
 .bundle-card-name:hover { color: var(--orange); }
-.bundle-card-includes { font-size: 11.5px; color: var(--dark-gray); margin-bottom: 10px; line-height: 1.5; }
+.bundle-card-desc { font-size: 12.5px; color: var(--dark-gray); line-height: 1.5; margin: 0 0 10px; }
+.bundle-card-includes { list-style: none; margin: 0 0 10px; padding: 0; font-size: 12px; color: var(--dark-gray); line-height: 1.6; }
+.bundle-card-includes li { position: relative; padding-left: 14px; }
+.bundle-card-includes li::before { content: '•'; position: absolute; left: 0; color: var(--orange); font-weight: 700; }
 .bundle-card-price-row { margin-top: auto; }
 .bundle-card-price { font-weight: 700; font-size: 17px; color: var(--navy); }
 .bundle-card-note { font-size: 10.5px; color: var(--dark-gray); margin-top: 2px; margin-bottom: 10px; }
@@ -980,6 +990,8 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .bd-title { font-size: 32px; margin-bottom: 10px; }
 .bd-desc { font-size: 15px; color: var(--dark-gray); line-height: 1.7; max-width: 600px; margin-bottom: 28px; }
 .bd-images { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 30px; }
+.bd-hero { height: 320px; border-radius: 14px; overflow: hidden; margin-bottom: 30px; background: var(--cream); }
+.bd-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .bd-image-cell { height: 140px; border-radius: 12px; overflow: hidden; background: var(--cream); display: flex; align-items: center; justify-content: center; }
 .bd-image-cell img { width: 100%; height: 100%; object-fit: cover; }
 .bd-image-fallback { font-size: 12px; color: var(--dark-gray); font-weight: 600; }
@@ -1005,7 +1017,7 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 
 @media (max-width: 760px) {
   .bundle-card { flex-direction: column; }
-  .bundle-card-imgs { width: 100%; height: 140px; }
+  .bundle-card-imgs, .bundle-card-hero { width: 100%; height: 140px; }
 }
 
 @media (max-width: 900px) {
