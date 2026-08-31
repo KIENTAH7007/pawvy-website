@@ -28,6 +28,7 @@ import { productUrl } from '../lib/productDisplayName';
 import RecipeSelector from './RecipeSelector';
 import CategoryBrowser from './CategoryBrowser';
 import FitCard from './FitCard';
+import WildBalanceDeepDive from './WildBalanceDeepDive';
 import HardnessSelector from './HardnessSelector';
 
 // Out-of-stock sink (Aug 2026, per KT) — same rule as GiGwi's category
@@ -87,10 +88,11 @@ const VetIcon = () => (
 
 export default function BrandDeepDive({ deepDive, brandDisplayName, products }) {
   if (!deepDive) return null;
-  const { chew, durability, intro, featureSplit, stats, checklist, fishGroups, fitCards, pillars, beforeAfter, fitCardGroups, selector, categoryIntro, browser } = deepDive;
+  const { chew, durability, intro, featureSplit, stats, checklist, fishGroups, fitCards, pillars, beforeAfter, fitCardGroups, selector, categoryIntro, browser, wildBalanceSections } = deepDive;
 
   return (
     <>
+      {wildBalanceSections && <WildBalanceDeepDive products={products} />}
       {pillars && (
         <section className="lil-pillars">
           <div className="wrap">

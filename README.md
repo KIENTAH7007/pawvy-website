@@ -1,72 +1,68 @@
-# Pawvy Website — Bundle Card Polish (Image Size, Padding, Price Match, Brand Labels)
+# Pawvy Website — Wild Balance Grouping Logic, Verified Against Real Data
 
 Target branch: **staging**
 Repo: `pawvy-website`
 
-## 1. Image sized down
+**This replaces just one file** in the "Wild Balance Dedicated Brand
+Page" zip you haven't applied yet — everything else in that zip is
+unchanged, confirmed byte-identical against what's already there. Only
+`lib/wildBalanceGrouping.js` is different. Apply this after that zip
+(or just swap this one file in before you patch either).
 
-Was scaling to a full square matching the card's own width (which,
-since a bundle card spans 2 grid columns, made it roughly 2x the size
-of a regular product card's image). Capped to `max-height: 260px` now
-— closer to a single product card's image size, still `object-fit:
-contain` so nothing gets cropped, just doesn't blow up as large.
+## What changed, and why
 
-## 2. More breathing room from the border
+Your Products & Pricing screenshot showed something genuinely useful:
+the real `item_series` values consistently include the category name —
+`"WCAT280 Wild Balance Casseroles"`, `"WFCH200 Wild Balance Freshly
+Cooked"`, `"WICY110 Wild Balance Ice Cream"`, `"WSBT100 Wild Balance
+Natural Snacks"`. That's a more reliable signal than the original
+version's description-text matching, which was only ever a safe
+fallback for when nobody had confirmed real field values yet. Rewrote
+the grouping to match on this confirmed real pattern first, keeping
+description matching as a secondary check rather than dropping it
+entirely.
 
-Text was using the same padding value as a regular single-width
-product card, which read as too tight once spread across a card twice
-as wide. Added extra horizontal padding specifically for the bundle
-card (title, description, includes list, price, note, and the tag row
-at the top all now sit further from the edge).
+## Verification performed — against your actual real data, not mock data
 
-## 3. Price styling — found and fixed the actual bug
-
-**This wasn't just a style mismatch, it was a real CSS bug.** The
-existing price styling is written as `.product-card .price` — a rule
-that only applies to a `.price` element *inside* something with the
-class `.product-card`. The bundle card's outer element is `.bundle-card`,
-not `.product-card`, so that rule never matched at all — the bundle's
-price was rendering with zero special styling, not just "different"
-styling. Added a proper `.bundle-card .price` rule with the exact same
-values (weight 900, 19px, Fraunces, navy), so it now genuinely matches
-instead of just resembling.
-
-## 4. Includes list now shows the brand per item
-
-Was just the product name — "Plaque Guard 60g". Now prefixed with the
-brand, e.g. "Lillidale Plaque Guard 60g", "BetterBone Soft Classic
-Large ×2" — exactly the format you asked for.
-
-## Verification performed
-
+- **Typed in the exact 18 item_series/variation strings from your
+  screenshot**, with description and need_tags left blank on purpose,
+  to prove the new logic doesn't depend on either. All 18 real SKUs
+  sorted correctly into their 4 sections. Correctly noticed Freshly
+  Cooked Beef 400g doesn't exist in your real data yet (7 Freshly
+  Cooked SKUs, not 8) — matches your real "18 active SKUs" counter
+  exactly, no bug there.
+- **Then went further and got a full, clean, real end-to-end test
+  working** — ran the actual backend and actual Next.js frontend
+  together against this exact real data, and fetched the real rendered
+  page (took a few tries; hit some sandbox environment flakiness along
+  the way, not code issues, and pushed through rather than settling for
+  a partial result):
+  - All 4 sections render correctly
+  - Every real casserole flavour name appears exactly as in your
+    screenshot
+  - All 6 real chew names appear
+  - **Every single real RRP price from your screenshot matches
+    exactly** — S$7.50 casseroles, S$5.50/S$9.50 Freshly Cooked,
+    S$9.00 yoghurt, and each chew's distinct price (S$14/S$23/S$15/
+    S$10/S$20/S$13)
+  - Both calculators' real form fields are present and correctly wired
+  - "Beef 400g" correctly does not appear anywhere (matches reality —
+    that SKU doesn't exist), while "Beef 200g" and both Chicken sizes
+    render correctly
+  - Zero runtime errors anywhere in the rendered page
 - Full production build (`npm run build`) — clean, no errors.
-- Confirmed both `.bundle-card .price` and `.product-card .price` now
-  exist as independent rules with identical values, proving the
-  scoping bug is actually fixed rather than just papered over.
-- Real test of the brand-prefixed includes format against realistic
-  product data — confirmed it produces exactly "Lillidale Plaque Guard
-  60g" / "BetterBone Soft Classic Large ×2" style output.
-- Confirmed both changed files against the real current
-  `origin/staging` (fetched fresh) — same 2 files as the last few
-  bundle rounds, nothing else touched.
-- Both byte-diffed against what was actually build-tested — identical.
+- Confirmed every other file in the original delivery is untouched —
+  byte-identical to what you already have, only this one file changed.
 
 ## How to apply
 
+If you haven't applied the earlier "Wild Balance Dedicated Brand Page"
+zip yet, just swap this file in before patching:
+
 ```bash
-git checkout staging
-git pull origin staging
-
-# copy/overwrite:
-#   app/globals.css
-#   components/ShopClient.jsx
-
-git add .
-git commit -m "Bundle card polish: smaller image, more padding from border, fix price styling scope bug, show brand per item in includes list"
-git push origin staging
+# after extracting the earlier zip's files, overwrite:
+cp wildBalanceGrouping.js  <your-pawvy-website-repo>/lib/wildBalanceGrouping.js
 ```
 
-Worth a look at the same Dental Care Kit bundle again — the price
-should now visually match "S$38.00" on a regular card exactly (same
-size, weight, and font), the image should be noticeably smaller, and
-each includes line should show its brand.
+Then follow the same git commands as before (staging, add, commit,
+push) — no change to that process.
