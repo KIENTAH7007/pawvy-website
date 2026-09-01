@@ -1,45 +1,49 @@
-# Pawvy Website — Point 8 Wording, Without Touching SEO
+# Pawvy Website — Wild Balance Intro Photos
 
 Target branch: **staging**
 Repo: `pawvy-website`
 
-## The idea, confirmed against the real code first
+Both placeholder boxes now show your real photos.
 
-You're right that trimming `product.description` in Pawvy App would
-cost SEO — confirmed exactly why: that field powers both the meta
-description tag *and* the full on-page text on the product's own
-canonical detail page (`/shop/219-...`). Trimming it there for real
-would genuinely reduce what Google indexes for that page.
+## What's in this patch
 
-But the Wild Balance **brand** page is a completely different page,
-showing the same product in a different context. There's no reason it
-has to display the same text — so `FrozenYoghurtToggle.jsx` (the
-component that renders this product specifically on the brand page)
-now shows a short, curated excerpt hardcoded in the website's own
-code, instead of the raw database field. The real `product.description`
-in Pawvy App is completely untouched — you don't need to change
-anything there.
+- **Intro section** (first placeholder): the golden retriever with the
+  Cazuelas Caseras tin.
+- **Feature split section** (second placeholder): the dachshund with
+  the casserole tins and real ingredients.
 
-## Verification — the part that actually matters here
+Both resized/optimized to match the site's existing photo convention —
+your files were 1.1MB and 2.3MB; now 93KB and 161KB, no visible
+quality loss at the size they actually display.
 
-Seeded a real product with your real, full, unedited description text,
-ran the real backend and production Next.js server together, and
-fetched both pages for real:
+## One thing worth a quick look — not fixed, just flagging
 
-- **The brand page's actual visible `<p>` tag** shows the short
-  excerpt, ending cleanly at "110g." — none of the trimmed phrases
-  present.
-- **The product's own detail page** — both its visible on-page text
-  *and* its `<meta name="description">` tag — still show the complete,
-  original, untouched text, word for word. Nothing about its SEO
-  changed at all.
+The second photo has "Slow-cooked, irresistible and easy to serve"
+baked directly into the image itself. That's separate from the real
+page heading/copy already sitting next to it ("Built from real meat,
+real vegetables, real spices"), so a visitor would see two different
+pieces of messaging side by side rather than one photo simply
+illustrating the text. Not necessarily a problem — plenty of sites mix
+a photo's own caption with different surrounding copy — but wanted to
+flag it clearly rather than silently assume it's fine, in case you'd
+rather use a version without the text baked in, or adjust the nearby
+heading to match. Let me know either way.
 
-(One thing worth mentioning since it briefly confused my own first
-check: Next.js embeds the full product data in a hidden payload on
-every page for client-side use — a naive text search across the whole
-page will "find" the full description there even on the brand page.
-That's expected and harmless; what matters is the actual visible `<p>`
-tag, which I checked directly.)
+## Verification performed
+
+- Full production build — clean.
+- **Real end-to-end test**: real backend, real production Next.js
+  server, real fetched page — confirmed both real image paths appear
+  in the actual rendered HTML (not just the config), and confirmed
+  both image files genuinely serve correctly (HTTP 200, byte-identical
+  to what was saved).
+- Confirmed the placeholder boxes are completely gone from these two
+  sections — the only remaining `img-placeholder` elements on the page
+  are the unrelated product cards (Casseroles, Freshly Cooked, Chews),
+  which is expected since no real products were seeded in this test
+  round, not a sign anything's still missing here.
+- All 3 files (config + 2 images) byte-diffed against what was
+  actually tested — identical.
 
 ## How to apply
 
@@ -48,9 +52,13 @@ git checkout staging
 git pull origin staging
 
 # copy/overwrite:
-#   components/FrozenYoghurtToggle.jsx
+#   lib/brandContent.js
+
+# these are NEW files:
+#   public/brand-features/wild-balance/intro-dog-eating.jpg
+#   public/brand-features/wild-balance/feature-ingredients.jpg
 
 git add .
-git commit -m "Show a curated excerpt for the Frozen Yoghurt product on the Wild Balance brand page, leaving the real product.description (and its SEO value on the product's own page) completely untouched"
+git commit -m "Add Wild Balance's real intro and feature-split photos, replacing the two placeholder boxes"
 git push origin staging
 ```
