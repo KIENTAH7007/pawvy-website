@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 import { brandSlug, displayBrandName } from '../lib/brandSlugs';
 import { NEED_CATEGORIES } from '../lib/needTags';
 import { useCart } from '../lib/CartContext';
-import { customerApi, contentApi, getSessionToken, setSessionToken } from '../lib/api';
+import { customerApi, contentApi, shopApi, getSessionToken, setSessionToken } from '../lib/api';
 import { formatPrice } from '../lib/formatPrice';
 
 // FREE_SHIPPING_THRESHOLD matches the $60 free-delivery rule already
@@ -46,7 +46,7 @@ function startsOnNavy(pathname) {
   return false;
 }
 
-export default function Nav({ brands = [] }) {
+export default function Nav() {
   const pathname = usePathname();
   const [shopOpen, setShopOpen] = useState(false);
   const [needOpen, setNeedOpen] = useState(false);
@@ -57,7 +57,24 @@ export default function Nav({ brands = [] }) {
   const [mobileShopOpen, setMobileShopOpen] = useState(false);
   const [mobileNeedOpen, setMobileNeedOpen] = useState(false);
   const [promoBadge, setPromoBadge] = useState(null); // { emoji, multiplier, tooltip } | null
+  const [brands, setBrands] = useState([]);
   const { itemCount, subtotal } = useCart();
+
+  // Real, already-filtered brand list for the Shop dropdown (excludes
+  // anything hidden via Pawvy App's hidden_on_website toggle) — fetched
+  // client-side on mount rather than passed down from a server-side
+  // layout fetch (Aug 2026). A previous version did the fetch in
+  // app/layout.js and passed it down as a prop, which worked but relied
+  // on Next's ISR revalidation to eventually pick up a brand being
+  // unhidden — in practice, after unhiding Wild Balance, the nav still
+  // didn't show it while everywhere else on the site correctly did.
+  // Fetching here instead means every page load gets the real current
+  // list directly, no caching layer in between to get right.
+  useEffect(() => {
+    shopApi.brands()
+      .then(({ brands }) => setBrands(brands))
+      .catch(() => setBrands([]));
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
