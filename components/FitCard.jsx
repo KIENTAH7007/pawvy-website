@@ -5,6 +5,7 @@ import Link from 'next/link';
 import ProductAddButton, { findMatches } from './ProductAddButton';
 import { pickPrimaryMatch } from '../lib/matching';
 import { productUrl } from '../lib/productDisplayName';
+import { formatPrice } from '../lib/formatPrice';
 
 // Local copy of the same tiny helper used in BrandDeepDive.jsx and
 // RecipeSelector.jsx — not worth importing across files for six lines,
@@ -40,7 +41,7 @@ function ImageSlot({ image, alt, hint, className }) {
 // (125g) sharing the same base color, rather than the two looking
 // identical. No new shape/asset needed, and it still shows the
 // variant's real color, just half of it.
-export default function FitCard({ item, products }) {
+export default function FitCard({ item, products, id }) {
   const defaultIndex = Math.max(item.variants.findIndex(v => v.default), 0);
   const [hoverIndex, setHoverIndex] = useState(null);
   const activeIndex = hoverIndex ?? defaultIndex;
@@ -58,6 +59,23 @@ export default function FitCard({ item, products }) {
     });
     return matches.some(m => m.is_new_active);
   });
+
+  // Price display (Aug 2026, per KT/Janice) — same format GiGwi's
+  // CategoryBrowser already uses: the lowest real price across every
+  // variant this card represents, shown as "From $X" when there's more
+  // than one variant, or just "$X" for a single-variant card. Computed
+  // across ALL variants (not just the currently active/hovered one) so
+  // hovering a color swatch never makes the price jump around.
+  const allMatches = item.variants
+    .map(v => findMatches(products, {
+      seriesIncludes: v.seriesIncludesAny || v.seriesIncludes,
+      seriesExcludes: v.seriesExcludes,
+      variationIncludes: v.variationIncludes,
+      variationIncludesAny: v.variationIncludesAny,
+    })[0])
+    .filter(Boolean);
+  const prices = allMatches.map(m => m.effective_price_rrp_sg).filter(p => p != null);
+  const minPrice = prices.length ? Math.min(...prices) : null;
 
   // Click-through target (Aug 2026, per customer feedback) — whichever
   // variant is currently shown (default, or hovered swatch), so clicking
@@ -89,7 +107,7 @@ export default function FitCard({ item, products }) {
     .join(',');
 
   return (
-    <div className="pf-fit-card">
+    <div className="pf-fit-card" id={id}>
       {isNew && <span className="new-tag">New</span>}
       {primary ? (
         <Link href={`${productUrl(primary)}?siblings=${siblingIds}`} className="pf-fit-card-link">
@@ -97,6 +115,9 @@ export default function FitCard({ item, products }) {
           <div className="pf-fit-info" style={{ paddingBottom: 0 }}>
             <h3>{item.name}</h3>
             <div className="fit-for">{item.fitFor}</div>
+            {minPrice != null && (
+              <div className="price">{item.variants.length > 1 ? `From ${formatPrice(minPrice)}` : formatPrice(minPrice)}</div>
+            )}
           </div>
         </Link>
       ) : (
@@ -105,6 +126,9 @@ export default function FitCard({ item, products }) {
           <div className="pf-fit-info" style={{ paddingBottom: 0 }}>
             <h3>{item.name}</h3>
             <div className="fit-for">{item.fitFor}</div>
+            {minPrice != null && (
+              <div className="price">{item.variants.length > 1 ? `From ${formatPrice(minPrice)}` : formatPrice(minPrice)}</div>
+            )}
           </div>
         </>
       )}

@@ -25,6 +25,7 @@ import Link from 'next/link';
 import ProductAddButton from './ProductAddButton';
 import { findMatches, pickPrimaryMatch } from '../lib/matching';
 import { productUrl } from '../lib/productDisplayName';
+import { formatPrice } from '../lib/formatPrice';
 import RecipeSelector from './RecipeSelector';
 import CategoryBrowser from './CategoryBrowser';
 import FitCard from './FitCard';
@@ -54,7 +55,12 @@ function itemAllVariantsOOS(item, products) {
     return matches.every(p => p.stock_status === 'out_of_stock');
   });
 }
-function sortItemsByStock(items, products) {
+// Exported (Aug 2026) so WildBalanceDeepDive.jsx can reuse the exact
+// same out-of-stock sorting logic when it builds its own fitCard-style
+// grids, rather than duplicating this — same reasoning as everywhere
+// else in this codebase that a small utility gets pulled out once a
+// second real caller needs it.
+export function sortItemsByStock(items, products) {
   const available = items.filter(item => !itemAllVariantsOOS(item, products));
   const oos = items.filter(item => itemAllVariantsOOS(item, products));
   return [...available, ...oos];
@@ -92,7 +98,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
 
   return (
     <>
-      {wildBalanceSections && <WildBalanceDeepDive products={products} />}
+      {wildBalanceSections && <WildBalanceDeepDive deepDive={deepDive} products={products} />}
       {pillars && (
         <section className="lil-pillars">
           <div className="wrap">
@@ -195,6 +201,12 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                   variationIncludes: lvl.variationIncludes,
                 });
                 const primary = pickPrimaryMatch(cardMatches);
+                // Price display (Aug 2026, per KT/Janice) — same
+                // min-price/"From $X" logic FitCard.jsx now uses,
+                // computed from cardMatches (already resolved above for
+                // the click-through target), not a separate lookup.
+                const cardPrices = cardMatches.map(m => m.effective_price_rrp_sg).filter(p => p != null);
+                const cardMinPrice = cardPrices.length ? Math.min(...cardPrices) : null;
                 // Explicit sibling ID list (Aug 2026 fix) — the PDP's
                 // variant switcher trusts this over re-deriving via
                 // item_series, since that doesn't hold for every brand's
@@ -218,6 +230,9 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                           <BiteMeter level={lvl.level} />
                         </div>
                         <p className="durability-caption">{lvl.caption}</p>
+                        {cardMinPrice != null && (
+                          <div className="price">{cardMatches.length > 1 ? `From ${formatPrice(cardMinPrice)}` : formatPrice(cardMinPrice)}</div>
+                        )}
                         {lvl.productName && (
                           <div className="product-divider">
                             <p className="product-name">{lvl.productName}</p>
@@ -239,6 +254,9 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                           <BiteMeter level={lvl.level} />
                         </div>
                         <p className="durability-caption">{lvl.caption}</p>
+                        {cardMinPrice != null && (
+                          <div className="price">{cardMatches.length > 1 ? `From ${formatPrice(cardMinPrice)}` : formatPrice(cardMinPrice)}</div>
+                        )}
                         {lvl.productName && (
                           <div className="product-divider">
                             <p className="product-name">{lvl.productName}</p>
@@ -445,6 +463,20 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                 const inStockVariants = resolvedVariants.filter(v => v.product && v.product.stock_status !== 'out_of_stock');
                 const primary = (resolvedVariants.find(v => v.default && v.product && v.product.stock_status !== 'out_of_stock') || inStockVariants[0] || resolvedVariants.find(v => v.product))?.product || null;
                 const siblingIds = resolvedVariants.filter(v => v.product).map(v => v.product.id).join(',');
+                // Price display (Aug 2026, per KT/Janice) — same min-price/
+                // "From $X" logic used everywhere else, computed from
+                // resolvedVariants (already resolved above for the
+                // click-through target), not a separate lookup. This is a
+                // genuinely separate inline card implementation from
+                // components/FitCard.jsx (same visual output, different
+                // source) — fitCardGroups (Lillidale, Salmoil) renders
+                // through this block, fitCards singular (Puzzle Feeder,
+                // East Sea Brother) renders through the real <FitCard>
+                // component instead. Found the hard way: adding price only
+                // to FitCard.jsx left Lillidale/Salmoil silently
+                // unaffected until this block got the same fix too.
+                const groupPrices = resolvedVariants.map(v => v.product?.effective_price_rrp_sg).filter(p => p != null);
+                const groupMinPrice = groupPrices.length ? Math.min(...groupPrices) : null;
                 return (
                 <div className="pf-fit-card" key={item.name}>
                   {primary ? (
@@ -453,6 +485,9 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                       <div className="pf-fit-info">
                         <h3>{item.name}</h3>
                         <div className="fit-for">{item.fitFor}</div>
+                        {groupMinPrice != null && (
+                          <div className="price">{item.variants.length > 1 ? `From ${formatPrice(groupMinPrice)}` : formatPrice(groupMinPrice)}</div>
+                        )}
                       </div>
                     </Link>
                   ) : (
@@ -461,6 +496,9 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                       <div className="pf-fit-info">
                         <h3>{item.name}</h3>
                         <div className="fit-for">{item.fitFor}</div>
+                        {groupMinPrice != null && (
+                          <div className="price">{item.variants.length > 1 ? `From ${formatPrice(groupMinPrice)}` : formatPrice(groupMinPrice)}</div>
+                        )}
                       </div>
                     </>
                   )}

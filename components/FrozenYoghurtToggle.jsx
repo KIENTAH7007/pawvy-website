@@ -33,6 +33,7 @@ export default function FrozenYoghurtToggle({ product }) {
       </div>
       <div className="yog-info">
         <h3>{productDisplayName(product)}</h3>
+        <div className="price">{formatPrice(product.effective_price_rrp_sg)}</div>
         <p>{product.description}</p>
         <div className="yog-toggle">
           <button type="button" className={serving === 'room' ? 'active' : ''} onClick={() => setServing('room')}>
@@ -43,8 +44,8 @@ export default function FrozenYoghurtToggle({ product }) {
           </button>
         </div>
         <div className="yog-desc-line">{DESCS[serving]}</div>
-        <button type="button" className="calc-cart-btn" style={{ marginTop: 16 }} onClick={handleAdd}>
-          {added ? 'Added ✓' : `Add to Cart — ${formatPrice(product.effective_price_rrp_sg)}`}
+        <button type="button" className="fit-add-btn" style={{ marginTop: 16, width: 'auto', padding: '13px 22px' }} onClick={handleAdd}>
+          {added ? 'Added ✓' : 'Add to Cart'}
         </button>
       </div>
     </div>

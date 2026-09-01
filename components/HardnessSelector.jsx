@@ -8,12 +8,27 @@ import { useState } from 'react';
 // button label (e.g. "Teething puppy, senior dog") rather than writing
 // new copy — the guidance already existed on the cards below, this is
 // just making it interactive, not inventing new recommendations.
-export default function HardnessSelector({ levels }) {
+//
+// Generalized (Aug 2026) for Wild Balance's chew-recommendation section,
+// which needed the exact same "tap an option, jump to and highlight the
+// matching card below" interaction, just with different question text
+// and a different id prefix (chew cards vs durability cards). Rather
+// than build a near-duplicate component, this now takes optional
+// `question`/`sub`/`idPrefix` props with defaults matching BetterBone's
+// original hardcoded copy exactly, so BetterBone's existing call site
+// (`<HardnessSelector levels={durability.levels} />`) keeps working
+// completely unchanged.
+export default function HardnessSelector({
+  levels,
+  question = 'How does your dog chew?',
+  sub = 'Tap an option to jump to the right pick',
+  idPrefix = 'durability-card-',
+}) {
   const [selected, setSelected] = useState(null);
 
   function handleSelect(label) {
     setSelected(label);
-    const el = document.getElementById(`durability-card-${label.toLowerCase()}`);
+    const el = document.getElementById(`${idPrefix}${label.toLowerCase()}`);
     if (!el) return;
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     el.classList.add('durability-card-highlight');
@@ -26,9 +41,9 @@ export default function HardnessSelector({ levels }) {
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F36F4A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M8 4a3 3 0 100 6 3 3 0 000-6zM16 4a3 3 0 100 6 3 3 0 000-6zM4 12a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM20 12a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM12 13c-3 0-5.5 2-5.5 4.5S9 21 12 21s5.5-1 5.5-3.5S15 13 12 13z" />
         </svg>
-        How does your dog chew?
+        {question}
       </div>
-      <div className="hardness-selector-sub">Tap an option to jump to the right pick</div>
+      <div className="hardness-selector-sub">{sub}</div>
       <div className="hardness-selector-options">
         {levels.map(lvl => (
           <button
@@ -49,3 +64,4 @@ export default function HardnessSelector({ levels }) {
     </div>
   );
 }
+

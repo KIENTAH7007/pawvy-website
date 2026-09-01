@@ -3,24 +3,31 @@
 import { useState } from 'react';
 import { useCart } from '../lib/CartContext';
 import { formatPrice } from '../lib/formatPrice';
+import { findMatches } from '../lib/matching';
 
-// products: the 8 real Freshly Cooked products (4 flavours × 2 sizes).
-// Feeding rate (200g per 5kg body weight daily) is confirmed consistent
-// across all 4 flavours — see the description data KT provided — so
-// this doesn't need a per-flavour lookup table the way casseroles do.
+// Same real flavour/size matching used by the Freshly Cooked fitCard
+// grid above — one real source of truth, not a second list.
+const FLAVOURS = ['Duck', 'Chicken', 'Salmon', 'Beef'];
+
 export default function FreshlyCookedCalculator({ products }) {
   const { addItem } = useCart();
-  const sizes = [...new Set(products.map(p => p.packSize))].sort((a, b) => a - b);
-  const [packSize, setPackSize] = useState(sizes[0] || 200);
+  const [flavour, setFlavour] = useState('Duck');
+  const [packSize, setPackSize] = useState(200);
   const [weight, setWeight] = useState(7);
   const [days, setDays] = useState(7);
   const [added, setAdded] = useState(false);
-  const [flavourId, setFlavourId] = useState(products.find(p => p.packSize === (sizes[0] || 200))?.id);
 
-  const matchingSizeProducts = products.filter(p => p.packSize === packSize);
-  const selectedProduct = matchingSizeProducts.find(p => p.id === flavourId) || matchingSizeProducts[0];
+  function handleFlavourChange(newFlavour) {
+    setFlavour(newFlavour);
+    if (newFlavour === 'Beef' && packSize === 400) setPackSize(200);
+  }
 
-  const gramsPerDay = weight * 40; // 200g per 5kg = 40g/kg, confirmed rate
+  const selectedProduct = findMatches(products, {
+    seriesIncludes: 'Freshly Cooked',
+    variationIncludes: `${flavour} ${packSize}`,
+  })[0] || null;
+
+  const gramsPerDay = weight * 40; // confirmed 200g-per-5kg rate, consistent across flavours
   const packs = Math.ceil((gramsPerDay * days) / packSize);
 
   function handleAddToCart() {
@@ -31,48 +38,52 @@ export default function FreshlyCookedCalculator({ products }) {
   }
 
   return (
-    <div className="calc">
-      <div className="calc-head"><h3>How much should I feed?</h3></div>
-      <div className="calc-sub">Same 200g-per-5kg guide across all 4 flavours — pick a flavour and pack size, enter your dog&rsquo;s weight and how many days.</div>
+    <div className="hardness-selector wb-calc">
+      <div className="hardness-selector-q">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F36F4A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M9 11H5a2 2 0 00-2 2v3a2 2 0 002 2h.5M9 11V9a2 2 0 012-2h2a2 2 0 012 2v2M9 11h6m0 0h4a2 2 0 012 2v3a2 2 0 01-2 2h-.5" />
+        </svg>
+        How much should I feed?
+      </div>
+      <div className="hardness-selector-sub">Same 200g-per-5kg guide across all 4 flavours — pick a flavour and pack size, enter your dog&rsquo;s weight and how many days.</div>
 
-      <div className="calc-row-full calc-field">
+      <div className="wb-calc-row-full">
         <label htmlFor="fc-flavour">Flavour</label>
-        <select id="fc-flavour" value={flavourId} onChange={e => setFlavourId(Number(e.target.value))}>
-          {matchingSizeProducts.map(p => (
-            <option key={p.id} value={p.id}>{p.variation || p.item_series}</option>
-          ))}
+        <select id="fc-flavour" value={flavour} onChange={e => handleFlavourChange(e.target.value)}>
+          {FLAVOURS.map(f => <option key={f} value={f}>{f}</option>)}
         </select>
       </div>
 
-      <div className="calc-row">
-        <div className="calc-field">
+      <div className="wb-calc-row">
+        <div className="wb-calc-field">
           <label htmlFor="fc-size">Pack size</label>
           <select id="fc-size" value={packSize} onChange={e => setPackSize(Number(e.target.value))}>
-            {sizes.map(s => <option key={s} value={s}>{s}g</option>)}
+            <option value={200}>200g</option>
+            {flavour !== 'Beef' && <option value={400}>400g</option>}
           </select>
         </div>
-        <div className="calc-field">
+        <div className="wb-calc-field">
           <label htmlFor="fc-weight">Dog&rsquo;s weight (kg)</label>
           <input id="fc-weight" type="number" min="0.5" step="0.5" value={weight}
             onChange={e => setWeight(parseFloat(e.target.value) || 0)} />
         </div>
       </div>
-      <div className="calc-row-full calc-field">
+      <div className="wb-calc-row-full">
         <label htmlFor="fc-days">Feed for how many days?</label>
         <input id="fc-days" type="number" min="1" step="1" value={days}
           onChange={e => setDays(parseInt(e.target.value) || 0)} />
       </div>
 
-      <div className="calc-result">
-        <div className="calc-result-nums">
-          <div className="calc-result-num"><div className="n">{Math.round(gramsPerDay)}g</div><div className="l">per day</div></div>
-          <div className="calc-result-num"><div className="n">{packs} pack{packs === 1 ? '' : 's'}</div><div className="l">needed</div></div>
+      <div className="wb-calc-result">
+        <div className="wb-calc-result-nums">
+          <div className="wb-calc-result-num"><div className="n">{Math.round(gramsPerDay)}g</div><div className="l">per day</div></div>
+          <div className="wb-calc-result-num"><div className="n">{packs} pack{packs === 1 ? '' : 's'}</div><div className="l">needed</div></div>
         </div>
-        <button type="button" className="calc-cart-btn" onClick={handleAddToCart} disabled={!selectedProduct}>
-          {added ? 'Added ✓' : selectedProduct ? `Add ${packs} to Cart — ${formatPrice(selectedProduct.effective_price_rrp_sg * packs)}` : 'Add to Cart'}
+        <button type="button" className="fit-add-btn wb-calc-btn" onClick={handleAddToCart} disabled={!selectedProduct}>
+          {added ? 'Added ✓' : selectedProduct ? `Add ${packs} to Cart — ${formatPrice(selectedProduct.effective_price_rrp_sg * packs)}` : 'Unavailable'}
         </button>
       </div>
-      <div className="calc-note">Based on the confirmed 200g-per-5kg-of-body-weight guide, consistent across all 4 flavours. Individual dogs vary — check with your vet for a dog with specific health needs.</div>
+      <div className="hardness-selector-sub" style={{ marginTop: 12, marginBottom: 0 }}>Based on the confirmed 200g-per-5kg-of-body-weight guide, consistent across all 4 flavours. Individual dogs vary — check with your vet for a dog with specific health needs.</div>
     </div>
   );
 }

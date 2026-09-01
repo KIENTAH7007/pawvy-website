@@ -567,6 +567,35 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .hardness-selector-result { margin-top: 16px; font-size: 14.5px; color: var(--dark-gray); }
 .hardness-selector-result strong { color: var(--orange); }
 
+/* Wild Balance feeding calculators — layered on the same
+   .hardness-selector card treatment as BetterBone's chew selector, per
+   KT/Janice's design standardization review (Aug 2026), instead of the
+   separate ivory-card style these used before. */
+.wb-calc { max-width: 720px; text-align: left; margin-top: 32px; }
+.wb-calc .hardness-selector-q, .wb-calc .hardness-selector-sub { text-align: left; justify-content: flex-start; }
+.wb-calc-row-full { margin-bottom: 16px; }
+.wb-calc-row { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; margin-bottom: 16px; }
+.wb-calc-row-full label, .wb-calc-field label {
+  display: block; font-size: 11px; font-weight: 700; letter-spacing: .5px;
+  text-transform: uppercase; color: var(--dark-gray); margin-bottom: 8px;
+}
+.wb-calc-row-full select, .wb-calc-field select, .wb-calc-field input {
+  width: 100%; padding: 11px 12px; border-radius: 9px; border: 1.5px solid rgba(20,33,61,.15);
+  background: var(--cream); color: var(--navy); font-size: 13.5px; font-family: inherit;
+}
+.wb-calc-result {
+  background: var(--cream); border: 1.5px solid rgba(20,33,61,.1); border-radius: 14px;
+  padding: 18px 20px; display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 16px; margin-top: 4px;
+}
+.wb-calc-result-nums { display: flex; gap: 28px; flex-wrap: wrap; }
+.wb-calc-result-num .n { font-size: 22px; font-weight: 800; font-family: 'Fraunces', serif; color: var(--orange); }
+.wb-calc-result-num .l { font-size: 11px; color: var(--dark-gray); margin-top: 2px; }
+.wb-calc-btn { width: auto; padding: 13px 22px; white-space: nowrap; }
+@media (max-width: 700px) {
+  .wb-calc-row { grid-template-columns: 1fr; }
+}
+
 /* Aug 2026, per KT: widen so all 3 pills fit on one row instead of the
    third wrapping to its own line — but only on screens wide enough to
    actually fit it. 700px is deliberately below the real measured width
@@ -609,6 +638,7 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .bite-meter .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(20,33,61,.15); }
 .bite-meter .dot.filled { background: var(--orange); }
 .durability-caption { font-size: 14.5px; color: var(--dark-gray); }
+.durability-info .price { font-family: 'Fraunces', serif; font-weight: 900; font-size: 19px; color: var(--navy); margin-top: 6px; }
 .product-divider { border-top: 1px solid rgba(20,33,61,.1); margin-top: 14px; padding-top: 14px; }
 .product-name { font-weight: 700; color: var(--navy); font-size: 14.5px; line-height: 1.5; }
 
@@ -683,6 +713,8 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .pf-fit-info { padding: 22px 22px 24px; }
 .pf-fit-info h3 { font-weight: 600; font-size: 18px; color: var(--navy); margin-bottom: 4px; }
 .pf-fit-info .fit-for { font-size: 12.5px; font-weight: 700; color: var(--orange); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 14px; }
+.pf-fit-info .price { font-family: 'Fraunces', serif; font-weight: 900; font-size: 19px; color: var(--navy); margin-top: 6px; }
+.pf-fit-card.pf-fit-card-highlight { border-color: var(--orange); box-shadow: 0 0 0 4px rgba(243,111,74,.25); }
 .pf-swatches { display: flex; gap: 8px; align-items: center; margin-bottom: 18px; }
 .pf-swatch { width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(255,255,255,.8); box-shadow: 0 0 0 1px rgba(20,33,61,.12); cursor: pointer; transition: transform .15s ease; }
 .pf-swatch:hover { transform: scale(1.25); }
@@ -1199,52 +1231,14 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
   .cat-intro-grid { grid-template-columns: repeat(2,1fr); }
 }
 
-/* ---------- Wild Balance deep-dive sections (Aug 2026) — Casseroles,
-   Freshly Cooked, Frozen Yoghurt, Natural Chews. See
-   components/WildBalanceDeepDive.jsx and the 4 client components it
-   renders (CasseroleCalculator, FreshlyCookedCalculator, ChewSelector,
-   FrozenYoghurtToggle). Deliberately its own scoped set of classes
-   (.pgrid/.pcard etc.) rather than reusing .product-grid/.product-card
-   — same reasoning as .durability-card, .lil-ba-card, .bundle-card
-   already being their own scoped styles instead of one shared class
-   forced to fit every brand's different layout needs. ---------- */
-.section { padding: 56px 0; }
-.section:nth-child(odd) { background: #fff; }
-.section-head { max-width: 640px; margin: 0 auto 34px; text-align: center; }
-.section-head .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--orange); margin-bottom: 10px; }
-.section-head h2 { font-size: clamp(26px,3.4vw,36px); font-weight: 800; letter-spacing: -.5px; margin-bottom: 12px; }
-.section-head p { font-size: 14.5px; color: var(--dark-gray); line-height: 1.65; }
-
-.pgrid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 34px; }
-.pgrid.chews { grid-template-columns: repeat(3,1fr); }
-.pcard { background: var(--cream); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; transition: border-color .2s, transform .2s; }
-.pcard:hover { border-color: var(--orange); transform: translateY(-2px); }
-.pcard-link { text-decoration: none; color: inherit; display: block; }
-.pcard .img { height: 120px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.pcard .body { padding: 12px 14px 14px; }
-.pcard .name { font-family: 'Fraunces', serif; font-weight: 700; font-size: 14px; margin-bottom: 4px; color: var(--navy); }
-.pcard .sub { font-size: 11px; color: var(--dark-gray); }
-.pcard.chew-highlight { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(243,111,74,.2); }
-
-.calc { background: var(--ivory); border: 1.5px solid var(--line); border-radius: 20px; padding: 30px 34px; max-width: 820px; margin: 0 auto; }
-.calc-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-.calc-head h3 { font-size: 19px; font-weight: 700; color: var(--navy); }
-.calc-sub { font-size: 12.5px; color: var(--dark-gray); margin-bottom: 22px; }
-.calc-row-full { margin-bottom: 16px; }
-.calc-row { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; margin-bottom: 20px; }
-.calc-field label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--dark-gray); margin-bottom: 8px; }
-.calc-field select, .calc-field input {
-  width: 100%; padding: 11px 12px; border-radius: 9px; border: 1.5px solid var(--line);
-  background: #fff; color: var(--navy); font-size: 13.5px; font-family: inherit;
-}
-.calc-result { background: #fff; border: 1.5px solid var(--orange); border-radius: 14px; padding: 20px 22px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
-.calc-result-nums { display: flex; gap: 28px; flex-wrap: wrap; }
-.calc-result-num .n { font-size: 22px; font-weight: 800; font-family: 'Fraunces', serif; color: var(--orange); }
-.calc-result-num .l { font-size: 11px; color: var(--dark-gray); margin-top: 2px; }
-.calc-cart-btn { background: var(--orange); color: #fff; border: none; padding: 13px 22px; border-radius: 9px; font-weight: 700; font-size: 13.5px; cursor: pointer; white-space: nowrap; }
-.calc-cart-btn:disabled { opacity: .6; cursor: not-allowed; }
-.calc-note { font-size: 11px; color: var(--dark-gray); margin-top: 14px; line-height: 1.5; }
-
+/* ---------- Wild Balance's card grids, calculators, and chew
+   recommender were rebuilt (Aug 2026) to use the same real .pf-fit
+   sections, real <FitCard> component, and real .hardness-selector
+   styling every other curated brand page uses — see
+   components/WildBalanceDeepDive.jsx. The .yog-* rules below are the
+   one genuinely new section this page introduces (Frozen Yoghurt's
+   room-temp/frozen toggle) — nothing else needs its own scoped classes
+   anymore. ---------- */
 .yog-wrap { display: flex; gap: 40px; align-items: center; max-width: 900px; margin: 0 auto; flex-wrap: wrap; }
 .yog-img { flex: 0 0 260px; height: 260px; border-radius: 20px; overflow: hidden; background: var(--ivory); display: flex; align-items: center; justify-content: center; color: var(--navy); font-family: 'Fraunces', serif; font-weight: 700; text-align: center; padding: 20px; }
 .yog-info { flex: 1; min-width: 280px; }
@@ -1255,16 +1249,3 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .yog-toggle button.active { border-color: var(--orange); background: #FBEAE3; color: var(--orange); }
 .yog-toggle .ic { font-size: 20px; }
 .yog-desc-line { font-size: 12.5px; color: var(--dark-gray); background: var(--cream); padding: 12px 14px; border-radius: 10px; min-height: 20px; }
-
-.chew-selector { background: #fff; border: 2px solid var(--orange); border-radius: 18px; padding: 26px 30px; max-width: 760px; margin: 0 auto 36px; text-align: center; }
-.chew-selector .q { font-family: 'Fraunces', serif; font-weight: 700; font-size: 18px; margin-bottom: 16px; }
-.chew-opts { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-.chew-opts button { padding: 11px 18px; border-radius: 100px; border: 1.5px solid var(--line); background: var(--cream); font-weight: 600; font-size: 13px; cursor: pointer; }
-.chew-opts button.active { background: var(--orange); border-color: var(--orange); color: #fff; }
-.chew-rec { margin-top: 18px; font-size: 13.5px; color: var(--dark-gray); }
-.chew-rec strong { color: var(--orange); }
-
-@media (max-width: 900px) {
-  .pgrid, .pgrid.chews { grid-template-columns: repeat(2,1fr); }
-  .calc-row { grid-template-columns: 1fr; }
-}

@@ -1,95 +1,102 @@
-import Link from 'next/link';
-import { imageUrl } from '../lib/api';
-import { productDisplayName } from '../lib/productDisplayName';
-import { productUrl } from '../lib/productDisplayName';
-import { formatPrice } from '../lib/formatPrice';
-import { groupWildBalanceProducts } from '../lib/wildBalanceGrouping';
+import FitCard from './FitCard';
+import { findMatches } from '../lib/matching';
+import { sortItemsByStock } from './BrandDeepDive';
 import CasseroleCalculator from './CasseroleCalculator';
 import FreshlyCookedCalculator from './FreshlyCookedCalculator';
 import FrozenYoghurtToggle from './FrozenYoghurtToggle';
-import ChewSelector from './ChewSelector';
+import ChewRecommender from './ChewRecommender';
 
-// Real product photo card, matching GiGwi's CategoryBrowser.jsx pattern
-// exactly (import { imageUrl } from '../lib/api', then
-// <img src={imageUrl(product.image_url)}>) — whatever's already
-// uploaded for each Wild Balance SKU in Pawvy App shows up here
-// automatically, no separate step needed.
-function ProductCard({ product }) {
-  return (
-    <Link href={productUrl(product)} className="pcard-link">
-      <div className="pcard">
-        <div className="img" style={{ background: '#EFE9DD' }}>
-          {product.image_url
-            ? <img src={imageUrl(product.image_url)} alt={productDisplayName(product)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            : <span style={{ fontSize: 11, color: 'var(--dark-gray)' }}>No image yet</span>}
-        </div>
-        <div className="body">
-          <div className="name">{productDisplayName(product)}</div>
-          <div className="sub">{product.variation || ''} · {formatPrice(product.effective_price_rrp_sg)}</div>
-        </div>
-      </div>
-    </Link>
-  );
+// Rebuilt (Aug 2026) to standardize with every other curated brand
+// page, per KT/Janice's design review. Previously had its own bespoke
+// card markup and matching logic — now uses the exact same real
+// <FitCard> component, findMatches/sortItemsByStock utilities, and
+// .pf-fit/.pf-fit-head/.pf-fit-grid section structure Lillidale/Puzzle
+// Feeder/Salmoil/East Sea Brother already use, reading real matching
+// config from deepDive.wbGroups (see lib/brandContent.js) instead of
+// deriving groups from description text. This is a data-config
+// approach now, not a custom grouping algorithm — same standard shape,
+// just needs its own render function (not BrandDeepDive's own generic
+// fitCardGroups block) so the feeding calculators and chew
+// recommender can be interspersed in the right places, and so the
+// Frozen Yoghurt section (not a card grid at all) can render alongside.
+function groupByAnchor(groups, anchor) {
+  return groups.find(g => g.anchor === anchor);
 }
 
-export default function WildBalanceDeepDive({ products }) {
-  const { casseroles, freshlyCooked, yoghurt, chews } = groupWildBalanceProducts(products);
+export default function WildBalanceDeepDive({ deepDive, products }) {
+  const groups = deepDive.wbGroups || [];
+  const casseroles = groupByAnchor(groups, 'casseroles');
+  const freshlyCooked = groupByAnchor(groups, 'freshly-cooked');
+  const naturalChews = groupByAnchor(groups, 'natural-chews');
+
+  const yoghurtProduct = deepDive.yoghurt
+    ? findMatches(products, { seriesIncludes: deepDive.yoghurt.seriesIncludes })[0] || null
+    : null;
 
   return (
     <>
-      {casseroles.length > 0 && (
-        <section className="section" id="casseroles">
+      {casseroles && (
+        <section className="pf-fit lil-fit-group" id={casseroles.anchor}>
           <div className="wrap">
-            <div className="section-head">
-              <div className="eyebrow">Homemade-Style Casseroles</div>
-              <h2>Cooked low and slow, ready in seconds</h2>
-              <p>Real meat and vegetables in their own natural sauce — no freezer, no thawing. Just open the 280g pack and serve.</p>
+            <div className="pf-fit-head">
+              <div className="eyebrow center">{casseroles.eyebrow}</div>
+              <h2>{casseroles.heading}</h2>
+              <p>{casseroles.sub}</p>
             </div>
-            <div className="pgrid">
-              {casseroles.map(p => <ProductCard key={p.id} product={p} />)}
+            <div className="pf-fit-grid">
+              {sortItemsByStock(casseroles.items, products).map(item => (
+                <FitCard item={item} products={products} key={item.name} />
+              ))}
             </div>
-            <CasseroleCalculator products={casseroles} />
+            <CasseroleCalculator products={products} />
           </div>
         </section>
       )}
 
-      {freshlyCooked.length > 0 && (
-        <section className="section" id="freshly-cooked">
+      {freshlyCooked && (
+        <section className="pf-fit lil-fit-group alt" id={freshlyCooked.anchor}>
           <div className="wrap">
-            <div className="section-head">
-              <div className="eyebrow">Freshly Cooked Dog Food</div>
-              <h2>A complete daily meal, no freezer required</h2>
-              <p>90% real meat, cooked low and slow with pumpkin, carrot, and spinach. Shelf-stable until opened — no thawing, ever.</p>
+            <div className="pf-fit-head">
+              <div className="eyebrow center">{freshlyCooked.eyebrow}</div>
+              <h2>{freshlyCooked.heading}</h2>
+              <p>{freshlyCooked.sub}</p>
             </div>
-            <div className="pgrid">
-              {freshlyCooked.map(p => <ProductCard key={p.id} product={p} />)}
+            <div className="pf-fit-grid">
+              {sortItemsByStock(freshlyCooked.items, products).map(item => (
+                <FitCard item={item} products={products} key={item.name} />
+              ))}
             </div>
-            <FreshlyCookedCalculator products={freshlyCooked} />
+            <FreshlyCookedCalculator products={products} />
           </div>
         </section>
       )}
 
-      {yoghurt.length > 0 && (
-        <section className="section" id="frozen-yoghurt">
+      {yoghurtProduct && (
+        <section className="pf-fit lil-fit-group">
           <div className="wrap">
-            <div className="section-head">
-              <div className="eyebrow">Frozen Yoghurt</div>
+            <div className="pf-fit-head">
+              <div className="eyebrow center">Frozen Yoghurt</div>
               <h2>One treat, two ways to serve</h2>
             </div>
-            <FrozenYoghurtToggle product={yoghurt[0]} />
+            <FrozenYoghurtToggle product={yoghurtProduct} />
           </div>
         </section>
       )}
 
-      {chews.length > 0 && (
-        <section className="section" id="natural-chews">
+      {naturalChews && (
+        <section className="pf-fit lil-fit-group alt" id={naturalChews.anchor}>
           <div className="wrap">
-            <div className="section-head">
-              <div className="eyebrow">Natural Chews</div>
-              <h2>Single-ingredient, dehydrated, no additives</h2>
-              <p>Six real animal-part chews — softness and chew time vary by cut. Not sure which one fits your dog? Use the picker below.</p>
+            <div className="pf-fit-head">
+              <div className="eyebrow center">{naturalChews.eyebrow}</div>
+              <h2>{naturalChews.heading}</h2>
+              <p>{naturalChews.sub}</p>
             </div>
-            <ChewSelector products={chews} />
+            <ChewRecommender />
+            <div className="pf-fit-grid">
+              {sortItemsByStock(naturalChews.items, products).map(item => (
+                <FitCard item={item} products={products} id={item.chewCardId} key={item.name} />
+              ))}
+            </div>
           </div>
         </section>
       )}
