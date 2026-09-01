@@ -99,7 +99,6 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
 
   return (
     <>
-      {wildBalanceSections && <WildBalanceDeepDive deepDive={deepDive} products={products} />}
       {pillars && (
         <section className="lil-pillars">
           <div className="wrap">
@@ -319,6 +318,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
       )}
 
       {selector && <RecipeSelector selector={selector} />}
+      {wildBalanceSections && <WildBalanceDeepDive deepDive={deepDive} products={products} />}
 
       {categoryIntro && (
         <section className="cat-intro">

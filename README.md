@@ -1,54 +1,63 @@
-# Pawvy Website — Wild Balance: Images Fixed, Text Fixed, New Hero
+# Pawvy Website — Wild Balance: Intro Sections Built
 
 Target branch: **staging**
 Repo: `pawvy-website`
 
-## What's fixed
+Builds the mockup you approved into real code — two sections now sit
+between the hero and the Casseroles section: the intro (with the
+3-card trust-pillar grid) and the feature split, exactly matching the
+mockup's copy and layout.
 
-### 1. Product images now showing (the real bug)
+## What's genuinely new in this delivery vs. the one you already patched
 
-Every other curated brand (Lillidale, BetterBone, Puzzle Feeder) hand-
-curates a static photo per variant, uploaded once to
-`/public/brand-features/...` and set directly in `lib/brandContent.js`'s
-config. Wild Balance's config never got that treatment — no `image`
-field was ever set on any variant, since the actual intent was always
-to pull whatever's already uploaded for each real SKU in Pawvy App
-automatically (same as GiGwi). That gap meant every card except Frozen
-Yoghurt (which uses a different, already-correct code path) fell
-through to the placeholder.
+- **`lib/brandContent.js`** — added the real `intro` and `featureSplit`
+  config for Wild Balance, same copy as the approved mockup. Both
+  images deliberately left as placeholders (no `image` field set) —
+  see "Adding the real photos later" below.
+- **`components/BrandDeepDive.jsx`** — has one more change on top of
+  the image-fallback fix you already applied: moved where Wild
+  Balance's product sections render, so `intro`/`featureSplit` now
+  correctly appear *before* Casseroles/Freshly Cooked/etc instead of
+  after. This only affects Wild Balance — confirmed Puzzle Feeder
+  (which uses `intro`/`featureSplit` itself) renders exactly as before.
 
-Fixed in `FitCard.jsx` and the second inline card implementation in
-`BrandDeepDive.jsx` (the one Lillidale/Salmoil use — added the same
-fallback there too for consistency, even though their configs already
-specify images): both now fall back to the real matched product's
-`image_url` whenever a variant doesn't have its own static `image` set.
+**`components/FitCard.jsx` and `public/brand-heroes/wild-balance-
+hero.jpg` are unchanged from the zip you already patched** — included
+here again just so this is a complete, self-contained zip rather than
+something you have to cross-reference against the last one. Safe to
+overwrite either way.
 
-### 2. Casserole card text
+## Adding the real photos later, once you have them
 
-Changed from "NO FREEZER, NO THAWING — JUST SERVE" to "280g" — matches
-the pack-size convention other brands' cards use for this line.
+In `lib/brandContent.js`, find `intro:` and `featureSplit:` under
+Wild Balance's config. Each currently has an `imageHint` (the
+placeholder label text) but no `image` field. Once a photo's uploaded
+to `public/brand-features/wild-balance/`, just add:
 
-### 3. New hero photo
+```js
+image: '/brand-features/wild-balance/your-photo-name.jpg',
+```
 
-Replaced with the image you sent. It was 9.2MB at 3278×1655 — far too
-heavy for a web hero background (every other brand's hero photo is
-265–545KB). Resized to 1600px wide and compressed to 148KB, well
-within the range of the existing hero images, no visible quality loss
-at the size it's actually displayed.
+right alongside the existing `imageHint` line for whichever section —
+no other change needed, the placeholder box automatically becomes the
+real photo.
 
 ## Verification performed
 
 - Full production build — clean, no errors.
-- **Real end-to-end test, not just a build check**: seeded a real
-  product with a real `image_url` set, ran the actual backend and
-  actual Next.js production server together, and confirmed via a real
-  fetched page that the image fallback genuinely works — the real
-  uploaded photo renders (`<img src="http://.../wb-anchovy-test.jpg">`),
-  not the placeholder.
-- Confirmed the fitFor text change renders correctly ("280g" shows,
-  the old text is completely gone).
-- All 4 changed files byte-diffed against what was actually tested —
-  identical.
+- **Real end-to-end test**: ran the actual backend and actual Next.js
+  production server together, fetched the real Wild Balance page, and
+  confirmed the section order is genuinely correct (hero → intro →
+  feature split → Casseroles), not just that the code looks right.
+- Confirmed both placeholder boxes render with their labeled hint text
+  correctly, and the real copy renders exactly as approved in the
+  mockup.
+- Confirmed all 4 product sections and the FAQ still render correctly
+  after the reordering, zero errors.
+- Confirmed Puzzle Feeder (a different brand using the same
+  `intro`/`featureSplit` blocks) is completely unaffected by the
+  reordering — fetched its real page, same content renders as before.
+- All 4 files byte-diffed against what was actually tested — identical.
 
 ## How to apply
 
@@ -63,38 +72,6 @@ git pull origin staging
 #   public/brand-heroes/wild-balance-hero.jpg
 
 git add .
-git commit -m "Fix Wild Balance product images falling back to placeholder (no image field was ever set in config); change casserole card text to pack size; replace hero photo"
+git commit -m "Add Wild Balance's intro and feature-split sections before the product cards, matching the approved mockup — images left as placeholders until real photos are ready"
 git push origin staging
 ```
-
----
-
-## Separate: intro sections mockup (item #3 — not code yet)
-
-Attached as its own HTML file, per your request — this is **just a
-mockup for your review**, nothing here touches real code yet.
-
-Researched all 6 existing brand pages' patterns before drafting this.
-Puzzle Feeder — closest in scope to Wild Balance (a curated,
-few-category brand, not GiGwi's 100+ SKU catalogue) — uses two
-sections before its product cards: an `intro` (large image + copy,
-with an optional 3-card "values" grid below) and a `featureSplit`
-(second image + copy block, alternating side). The mockup follows this
-exact real pattern and real CSS, not an invented layout.
-
-**Section 1 (intro + values):** brand story — real food, FEDIAF
-formulation, the no-freezer convenience — plus 3 trust-pillar cards
-(No Freezer/No Thawing, FEDIAF-Formulated, Exclusive to Pawvy). Uses
-your real hero photo.
-
-**Section 2 (feature split):** a closer look at real ingredients —
-real proteins, real vegetables, single-ingredient chews. **This one
-needs a real photo** — I don't have separate Wild Balance ingredient
-photography beyond the one hero shot, so this section uses a clearly
-labeled placeholder. Worth deciding whether you have another photo
-Wild Balance can supply, or whether this second section should be
-cut/reworked around what we actually have.
-
-Take a look and let me know what to adjust — copy, section count,
-whether the feature-split section is worth keeping if we don't have a
-second photo — and I'll only touch real code once this is confirmed.
