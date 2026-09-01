@@ -27,6 +27,7 @@ const TAGLINES = {
   'East Sea Brother': 'Human-grade treats, closely sourced — simple, traceable ingredients.',
   'Salmoil': 'Norwegian-grade omega-3, from real salmon — for coat, joints and heart health.',
   'GiGwi': 'Playful design, durable build — toys made for dogs that play hard.',
+  'Wild Balance': 'Real food, cooked low and slow — no freezer, no thawing, just open and serve.',
 };
 
 // A static, responsive grid — deliberately not a horizontally-scrolling

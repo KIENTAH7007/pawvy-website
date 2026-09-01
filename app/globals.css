@@ -579,7 +579,7 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
   display: block; font-size: 11px; font-weight: 700; letter-spacing: .5px;
   text-transform: uppercase; color: var(--dark-gray); margin-bottom: 8px;
 }
-.wb-calc-row-full select, .wb-calc-field select, .wb-calc-field input {
+.wb-calc-row-full select, .wb-calc-row-full input, .wb-calc-field select, .wb-calc-field input {
   width: 100%; padding: 11px 12px; border-radius: 9px; border: 1.5px solid rgba(20,33,61,.15);
   background: var(--cream); color: var(--navy); font-size: 13.5px; font-family: inherit;
 }

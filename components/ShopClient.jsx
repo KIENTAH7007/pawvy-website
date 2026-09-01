@@ -331,7 +331,7 @@ export default function ShopClient({ initialProducts, brands, showHero = true, b
         <div className="wrap shop-hero-inner">
           <div className="eyebrow">The full collection</div>
           <h1>Shop</h1>
-          <p>Every product, across all six brands, in one place.</p>
+          <p>Every product, across all seven brands, in one place.</p>
           {searchBar}
         </div>
       </section>

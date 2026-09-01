@@ -35,6 +35,13 @@ export default function WildBalanceDeepDive({ deepDive, products }) {
 
   return (
     <>
+      {/* Hero's "Shop now" button links to #shop — every other card
+          type in BrandDeepDive.jsx has this anchor, but this custom
+          Wild Balance renderer never did, so the button silently did
+          nothing. Same zero-height marker pattern already used for the
+          fitCardGroups case, placed right before the first real
+          product section. */}
+      {casseroles && <div id="shop" style={{ height: 0 }} aria-hidden="true" />}
       {casseroles && (
         <section className="pf-fit lil-fit-group" id={casseroles.anchor}>
           <div className="wrap">

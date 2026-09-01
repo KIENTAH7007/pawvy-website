@@ -10,7 +10,7 @@ import PawvyPicksGrid from '../components/PawvyPicksGrid';
 import { contentApi, shopApi } from '../lib/api';
 import { NEED_CATEGORIES } from '../lib/needTags';
 
-const FACTS_FALLBACK = ['Premium Pet Wellness', 'Official Singapore Distributor', 'Six Brands, One Standard', '107+ Retail Partners'];
+const FACTS_FALLBACK = ['Premium Pet Wellness', 'Official Singapore Distributor', 'Seven Brands, One Standard', '107+ Retail Partners'];
 
 const TESTIMONIALS = [
   { quote: 'Thank you for the recommendation! Sparky has not stopped playing since we came home.', who: 'Sparky_yipeedee_dee', image: '/testimonials/sparky.jpg' },
@@ -90,7 +90,7 @@ export default async function Home() {
           <Reveal as="div" className="gallery-head">
             <div>
               <div className="eyebrow">The collection</div>
-              <h2>Six brands, one standard</h2>
+              <h2>Seven brands, one standard</h2>
             </div>
           </Reveal>
           <BrandGallery />

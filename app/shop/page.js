@@ -4,7 +4,7 @@ import { buildOgMeta } from '../../lib/seo';
 import { NEED_CATEGORIES, needLabel } from '../../lib/needTags';
 
 const TITLE = 'Shop | Pawvy';
-const DESCRIPTION = 'Browse natural pet wellness products from BetterBone, Salmoil, Lillidale, Eastsea Brother, Puzzle Feeder and GiGwi.';
+const DESCRIPTION = 'Browse natural pet wellness products from BetterBone, Salmoil, Lillidale, Eastsea Brother, Puzzle Feeder, GiGwi and Wild Balance.';
 
 export async function generateMetadata({ searchParams }) {
   const { need } = await searchParams;
@@ -12,7 +12,7 @@ export async function generateMetadata({ searchParams }) {
   if (validNeed) {
     const label = needLabel(validNeed);
     const title = `${label} | Shop by Need | Pawvy`;
-    const description = `Shop Pawvy products for ${label.toLowerCase()} — vetted across all six brands.`;
+    const description = `Shop Pawvy products for ${label.toLowerCase()} — vetted across all seven brands.`;
     return {
       title,
       description,
