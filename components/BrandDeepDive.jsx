@@ -26,6 +26,7 @@ import ProductAddButton from './ProductAddButton';
 import { findMatches, pickPrimaryMatch } from '../lib/matching';
 import { productUrl } from '../lib/productDisplayName';
 import { formatPrice } from '../lib/formatPrice';
+import { imageUrl } from '../lib/api';
 import RecipeSelector from './RecipeSelector';
 import CategoryBrowser from './CategoryBrowser';
 import FitCard from './FitCard';
@@ -477,11 +478,17 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                 // unaffected until this block got the same fix too.
                 const groupPrices = resolvedVariants.map(v => v.product?.effective_price_rrp_sg).filter(p => p != null);
                 const groupMinPrice = groupPrices.length ? Math.min(...groupPrices) : null;
+                // Same real-photo fallback as FitCard.jsx — this brand's
+                // config already sets a static image on every variant, so
+                // this doesn't change anything today, just protects
+                // against a future item that forgets to.
+                const defaultVariant = item.variants.find(v => v.default) || item.variants[0];
+                const cardImage = defaultVariant.image || (primary?.image_url ? imageUrl(primary.image_url) : null);
                 return (
                 <div className="pf-fit-card" key={item.name}>
                   {primary ? (
                     <Link href={`${productUrl(primary)}?siblings=${siblingIds}`} className="pf-fit-card-link">
-                      <ImageSlot image={(item.variants.find(v => v.default) || item.variants[0]).image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
+                      <ImageSlot image={cardImage} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
                       <div className="pf-fit-info">
                         <h3>{item.name}</h3>
                         <div className="fit-for">{item.fitFor}</div>
@@ -492,7 +499,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                     </Link>
                   ) : (
                     <>
-                      <ImageSlot image={(item.variants.find(v => v.default) || item.variants[0]).image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
+                      <ImageSlot image={cardImage} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
                       <div className="pf-fit-info">
                         <h3>{item.name}</h3>
                         <div className="fit-for">{item.fitFor}</div>

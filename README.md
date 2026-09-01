@@ -1,77 +1,53 @@
-# Pawvy Website — Design Standardization: Wild Balance + Site-Wide Pricing
+# Pawvy Website — Wild Balance: Images Fixed, Text Fixed, New Hero
 
 Target branch: **staging**
 Repo: `pawvy-website`
 
-## What this delivers, per your design review
+## What's fixed
 
-1. **Wild Balance rebuilt on the real shared components** — real `<FitCard>`,
-   real square full-width card images (fixes the cropping/cutoff you saw),
-   real navy `.fit-add-btn`, no more price omitted at brand-page level
-   inconsistency, no more custom bespoke card markup.
-2. **BetterBone's "How does your dog chew?" pattern reused for Wild
-   Balance's chew recommender** — the actual `HardnessSelector.jsx`
-   component, generalized with optional props (defaults exactly match
-   BetterBone's current hardcoded text, so its own page is unaffected),
-   not a lookalike.
-3. **Real pricing added to every curated brand page** (BetterBone,
-   Lillidale, Puzzle Feeder, Salmoil, East Sea Brother, Wild Balance),
-   matching GiGwi's exact format — confirmed against the real GiGwi code
-   before writing this, not guessed.
+### 1. Product images now showing (the real bug)
 
-## Files removed
+Every other curated brand (Lillidale, BetterBone, Puzzle Feeder) hand-
+curates a static photo per variant, uploaded once to
+`/public/brand-features/...` and set directly in `lib/brandContent.js`'s
+config. Wild Balance's config never got that treatment — no `image`
+field was ever set on any variant, since the actual intent was always
+to pull whatever's already uploaded for each real SKU in Pawvy App
+automatically (same as GiGwi). That gap meant every card except Frozen
+Yoghurt (which uses a different, already-correct code path) fell
+through to the placeholder.
 
-- `lib/wildBalanceGrouping.js` — Wild Balance's product matching now
-  goes through the same real `seriesIncludes`/`variationIncludes`
-  config every other brand uses (in `lib/brandContent.js`), not a
-  custom description-text matcher.
-- `components/ChewSelector.jsx` — replaced by `ChewRecommender.jsx`,
-  a thin wrapper around the real `HardnessSelector.jsx`.
+Fixed in `FitCard.jsx` and the second inline card implementation in
+`BrandDeepDive.jsx` (the one Lillidale/Salmoil use — added the same
+fallback there too for consistency, even though their configs already
+specify images): both now fall back to the real matched product's
+`image_url` whenever a variant doesn't have its own static `image` set.
 
-## Two real bugs found and fixed while doing this — worth knowing about
+### 2. Casserole card text
 
-**1. A client/server component boundary crash.** `WildBalanceDeepDive.jsx`
-is a Server Component, and importing `findMatches` from
-`ProductAddButton.jsx` (a `'use client'` file) crashed the page with a
-real 500 error — exactly the class of bug `lib/matching.js`'s own
-comment already warns about. Fixed by importing from the boundary-safe
-`lib/matching.js` instead, in `WildBalanceDeepDive.jsx` and both
-calculators.
+Changed from "NO FREEZER, NO THAWING — JUST SERVE" to "280g" — matches
+the pack-size convention other brands' cards use for this line.
 
-**2. A genuinely confusing one:** adding price to `FitCard.jsx` alone
-left Lillidale and Salmoil silently unaffected. Turns out
-`BrandDeepDive.jsx` has **two separate card implementations sharing the
-same `pf-fit-card` CSS class** — the singular `fitCards` config (Puzzle
-Feeder, East Sea Brother) renders through the real `<FitCard>`
-component, but the plural `fitCardGroups` config (Lillidale, Salmoil)
-has its **own separate inline card markup**, written directly in
-`BrandDeepDive.jsx`, that never went through `FitCard.jsx` at all. This
-took real digging to track down — confirmed with actual debug markers
-in the rendered HTML, not just re-reading the code — since both paths
-produce visually identical output, so nothing *looked* wrong from the
-outside. Fixed by adding the same price logic to that second inline
-block too. Also added a code comment there explaining this so it isn't
-rediscovered the hard way again.
+### 3. New hero photo
 
-## Verification performed — real, not assumed
+Replaced with the image you sent. It was 9.2MB at 3278×1655 — far too
+heavy for a web hero background (every other brand's hero photo is
+265–545KB). Resized to 1600px wide and compressed to 148KB, well
+within the range of the existing hero images, no visible quality loss
+at the size it's actually displayed.
 
-- Full production build (`next build`) — clean, no errors, multiple times
-  through this process as real bugs were found and fixed.
-- **Ran the real backend and real production Next.js server together**
-  (`next start`, not just dev mode) against real seeded data for Wild
-  Balance and BetterBone, then fetched all 7 brand pages for real:
-  Wild Balance, BetterBone, Lillidale, Puzzle Feeder, Salmoil, East Sea
-  Brother, GiGwi — all return 200, zero errors on any of them.
-- **Confirmed real price actually renders on every brand**, not just
-  that the code compiles — extracted the actual price text from each
-  page: Wild Balance (S$7.50), BetterBone (From S$20.00), Lillidale
-  (From S$27.00), Puzzle Feeder (From S$55.90), Salmoil (From S$24.90),
-  East Sea Brother (From S$24.90).
-- Confirmed BetterBone's hardness selector still scrolls/highlights
-  correctly, unaffected by the generalization.
-- Confirmed the old dead CSS/classes (`calc-cart-btn`, `pcard`,
-  `chew-selector`) are completely gone from Wild Balance's output.
-- All 10 changed files byte-diffed against what was actually tested —
+## Verification performed
+
+- Full production build — clean, no errors.
+- **Real end-to-end test, not just a build check**: seeded a real
+  product with a real `image_url` set, ran the actual backend and
+  actual Next.js production server together, and confirmed via a real
+  fetched page that the image fallback genuinely works — the real
+  uploaded photo renders (`<img src="http://.../wb-anchovy-test.jpg">`),
+  not the placeholder.
+- Confirmed the fitFor text change renders correctly ("280g" shows,
+  the old text is completely gone).
+- All 4 changed files byte-diffed against what was actually tested —
   identical.
 
 ## How to apply
@@ -81,34 +57,44 @@ git checkout staging
 git pull origin staging
 
 # copy/overwrite these files:
-#   app/globals.css
 #   components/BrandDeepDive.jsx
 #   components/FitCard.jsx
-#   components/HardnessSelector.jsx
-#   components/WildBalanceDeepDive.jsx
-#   components/CasseroleCalculator.jsx
-#   components/FreshlyCookedCalculator.jsx
-#   components/FrozenYoghurtToggle.jsx
 #   lib/brandContent.js
-
-# this is a NEW file:
-#   components/ChewRecommender.jsx
-
-# these 2 files should be DELETED:
-rm lib/wildBalanceGrouping.js
-rm components/ChewSelector.jsx
+#   public/brand-heroes/wild-balance-hero.jpg
 
 git add .
-git commit -m "Standardize Wild Balance on real shared FitCard/HardnessSelector components; add real pricing to every curated brand page's cards, matching GiGwi's format; fix a client/server boundary crash and a second, undiscovered card-rendering path missing the new price logic"
+git commit -m "Fix Wild Balance product images falling back to placeholder (no image field was ever set in config); change casserole card text to pack size; replace hero photo"
 git push origin staging
 ```
 
-## Worth a real look on S-Web once live
+---
 
-- Wild Balance's product images should now fill the card properly, no
-  more cropping.
-- Every brand page's cards should show a price now — a genuinely
-  visible, site-wide change worth a quick look across all 6.
-- BetterBone's chew selector should behave exactly as before.
-- Wild Balance's chew recommender should scroll to and briefly
-  highlight the matching card when you tap an option.
+## Separate: intro sections mockup (item #3 — not code yet)
+
+Attached as its own HTML file, per your request — this is **just a
+mockup for your review**, nothing here touches real code yet.
+
+Researched all 6 existing brand pages' patterns before drafting this.
+Puzzle Feeder — closest in scope to Wild Balance (a curated,
+few-category brand, not GiGwi's 100+ SKU catalogue) — uses two
+sections before its product cards: an `intro` (large image + copy,
+with an optional 3-card "values" grid below) and a `featureSplit`
+(second image + copy block, alternating side). The mockup follows this
+exact real pattern and real CSS, not an invented layout.
+
+**Section 1 (intro + values):** brand story — real food, FEDIAF
+formulation, the no-freezer convenience — plus 3 trust-pillar cards
+(No Freezer/No Thawing, FEDIAF-Formulated, Exclusive to Pawvy). Uses
+your real hero photo.
+
+**Section 2 (feature split):** a closer look at real ingredients —
+real proteins, real vegetables, single-ingredient chews. **This one
+needs a real photo** — I don't have separate Wild Balance ingredient
+photography beyond the one hero shot, so this section uses a clearly
+labeled placeholder. Worth deciding whether you have another photo
+Wild Balance can supply, or whether this second section should be
+cut/reworked around what we actually have.
+
+Take a look and let me know what to adjust — copy, section count,
+whether the feature-split section is worth keeping if we don't have a
+second photo — and I'll only touch real code once this is confirmed.

@@ -6,6 +6,7 @@ import ProductAddButton, { findMatches } from './ProductAddButton';
 import { pickPrimaryMatch } from '../lib/matching';
 import { productUrl } from '../lib/productDisplayName';
 import { formatPrice } from '../lib/formatPrice';
+import { imageUrl } from '../lib/api';
 
 // Local copy of the same tiny helper used in BrandDeepDive.jsx and
 // RecipeSelector.jsx — not worth importing across files for six lines,
@@ -106,12 +107,24 @@ export default function FitCard({ item, products, id }) {
     .map(p => p.id)
     .join(',');
 
+  // Real photo fallback (Aug 2026) — most curated brands (Lillidale,
+  // BetterBone, Puzzle Feeder) hand-curate a static `image` per variant
+  // in this file's config, uploaded once to /public/brand-features/.
+  // Wild Balance never got that treatment — its config has no `image`
+  // field at all, since the intent was always to pull whatever photo's
+  // already uploaded for each real SKU in Pawvy App automatically
+  // (same as GiGwi's CategoryBrowser). Falls back to primary's real
+  // image_url whenever a variant doesn't specify its own static image,
+  // rather than showing the placeholder — primary is already resolved
+  // from the same active variant this image represents.
+  const activeImage = active.image || (primary?.image_url ? imageUrl(primary.image_url) : null);
+
   return (
     <div className="pf-fit-card" id={id}>
       {isNew && <span className="new-tag">New</span>}
       {primary ? (
         <Link href={`${productUrl(primary)}?siblings=${siblingIds}`} className="pf-fit-card-link">
-          <ImageSlot image={active.image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
+          <ImageSlot image={activeImage} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
           <div className="pf-fit-info" style={{ paddingBottom: 0 }}>
             <h3>{item.name}</h3>
             <div className="fit-for">{item.fitFor}</div>
@@ -122,7 +135,7 @@ export default function FitCard({ item, products, id }) {
         </Link>
       ) : (
         <>
-          <ImageSlot image={active.image} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
+          <ImageSlot image={activeImage} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
           <div className="pf-fit-info" style={{ paddingBottom: 0 }}>
             <h3>{item.name}</h3>
             <div className="fit-for">{item.fitFor}</div>
