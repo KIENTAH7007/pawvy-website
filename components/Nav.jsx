@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { brandSlug, displayBrandName } from '../lib/brandSlugs';
+import { BRAND_SLUGS, brandSlug, displayBrandName } from '../lib/brandSlugs';
 import { NEED_CATEGORIES } from '../lib/needTags';
 import { useCart } from '../lib/CartContext';
 import { customerApi, contentApi, shopApi, getSessionToken, setSessionToken } from '../lib/api';
@@ -46,6 +46,13 @@ function startsOnNavy(pathname) {
   return false;
 }
 
+// Same intentional display order used everywhere else brands are
+// listed (homepage gallery, Shop page's brand filter, StockistDirectory)
+// — the dropdown's own fetch (see the useEffect below) doesn't come
+// pre-sorted this way on its own (the real API just returns alphabetical
+// order), so this needs to be applied here too.
+const BRAND_ORDER = Object.keys(BRAND_SLUGS);
+
 export default function Nav() {
   const pathname = usePathname();
   const [shopOpen, setShopOpen] = useState(false);
@@ -72,7 +79,7 @@ export default function Nav() {
   // list directly, no caching layer in between to get right.
   useEffect(() => {
     shopApi.brands()
-      .then(({ brands }) => setBrands(brands))
+      .then(({ brands }) => setBrands([...brands].sort((a, b) => BRAND_ORDER.indexOf(a.name) - BRAND_ORDER.indexOf(b.name))))
       .catch(() => setBrands([]));
   }, []);
 

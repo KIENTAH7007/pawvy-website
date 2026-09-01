@@ -45,10 +45,10 @@ export default function FreshlyCookedCalculator({ products }) {
         </svg>
         How much should I feed?
       </div>
-      <div className="hardness-selector-sub">Same 200g-per-5kg guide across all 4 flavours — pick a flavour and pack size, enter your dog&rsquo;s weight and how many days.</div>
+      <div className="hardness-selector-sub">Feed 200g Wild Balance Freshly Cooked Food per 5kg pet weight.</div>
 
       <div className="wb-calc-row-full">
-        <label htmlFor="fc-flavour">Flavour</label>
+        <label htmlFor="fc-flavour">Protein</label>
         <select id="fc-flavour" value={flavour} onChange={e => handleFlavourChange(e.target.value)}>
           {FLAVOURS.map(f => <option key={f} value={f}>{f}</option>)}
         </select>
@@ -69,7 +69,7 @@ export default function FreshlyCookedCalculator({ products }) {
         </div>
       </div>
       <div className="wb-calc-row-full">
-        <label htmlFor="fc-days">Feed for how many days?</label>
+        <label htmlFor="fc-days">Feed for (days)</label>
         <input id="fc-days" type="number" min="1" step="1" value={days}
           onChange={e => setDays(parseInt(e.target.value) || 0)} />
       </div>
@@ -77,13 +77,13 @@ export default function FreshlyCookedCalculator({ products }) {
       <div className="wb-calc-result">
         <div className="wb-calc-result-nums">
           <div className="wb-calc-result-num"><div className="n">{Math.round(gramsPerDay)}g</div><div className="l">per day</div></div>
-          <div className="wb-calc-result-num"><div className="n">{packs} pack{packs === 1 ? '' : 's'}</div><div className="l">needed</div></div>
+          <div className="wb-calc-result-num"><div className="n">{packs} pack{packs === 1 ? '' : 's'}</div><div className="l">Wild Balance {flavour}</div></div>
         </div>
         <button type="button" className="fit-add-btn wb-calc-btn" onClick={handleAddToCart} disabled={!selectedProduct}>
-          {added ? 'Added ✓' : selectedProduct ? `Add ${packs} to Cart — ${formatPrice(selectedProduct.effective_price_rrp_sg * packs)}` : 'Unavailable'}
+          {added ? 'Added ✓' : selectedProduct ? `Add ${packs} packs to Cart — ${formatPrice(selectedProduct.effective_price_rrp_sg * packs)}` : 'Unavailable'}
         </button>
       </div>
-      <div className="hardness-selector-sub" style={{ marginTop: 12, marginBottom: 0 }}>Based on the confirmed 200g-per-5kg-of-body-weight guide, consistent across all 4 flavours. Individual dogs vary — check with your vet for a dog with specific health needs.</div>
+      <div className="hardness-selector-sub" style={{ marginTop: 12, marginBottom: 0 }}>Individual dogs vary — check with your vet for a dog with specific health needs.</div>
     </div>
   );
 }

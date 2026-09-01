@@ -38,7 +38,7 @@ function gramsPerDayFor(flavourKey, weight) {
 
 // products: the site's real, already-fetched product list for this
 // brand — same array every other card on the page already uses, not a
-// pre-filtered subset. Resolves each flavour to its real product via
+// pre-filtered subset. Resolves each protein to its real product via
 // the same findMatches/seriesIncludes matching every fitCard uses.
 export default function CasseroleCalculator({ products }) {
   const { addItem } = useCart();
@@ -71,10 +71,10 @@ export default function CasseroleCalculator({ products }) {
         </svg>
         How much should I feed?
       </div>
-      <div className="hardness-selector-sub">Pick a flavour, enter your dog&rsquo;s weight, and how many days you want to feed for.</div>
+      <div className="hardness-selector-sub">Pick a protein, enter your dog&rsquo;s weight, and how many days you want to feed for.</div>
 
       <div className="wb-calc-row-full">
-        <label htmlFor="cc-flavour">Flavour</label>
+        <label htmlFor="cc-flavour">Protein</label>
         <select id="cc-flavour" value={flavourKey} onChange={e => setFlavourKey(e.target.value)}>
           {FLAVOURS.map(f => <option key={f.key} value={f.key}>{f.label}</option>)}
         </select>
@@ -87,7 +87,7 @@ export default function CasseroleCalculator({ products }) {
             onChange={e => setWeight(parseFloat(e.target.value) || 0)} />
         </div>
         <div className="wb-calc-field">
-          <label htmlFor="cc-days">Feed for how many days?</label>
+          <label htmlFor="cc-days">Feed for (days)</label>
           <input id="cc-days" type="number" min="1" step="1" value={days}
             onChange={e => setDays(parseInt(e.target.value) || 0)} />
         </div>
@@ -99,10 +99,10 @@ export default function CasseroleCalculator({ products }) {
           <div className="wb-calc-result-num"><div className="n">{packs} pack{packs === 1 ? '' : 's'}</div><div className="l">needed</div></div>
         </div>
         <button type="button" className="fit-add-btn wb-calc-btn" onClick={handleAddToCart} disabled={!selectedProduct}>
-          {added ? 'Added ✓' : selectedProduct ? `Add ${packs} to Cart — ${formatPrice(selectedProduct.effective_price_rrp_sg * packs)}` : 'Unavailable'}
+          {added ? 'Added ✓' : selectedProduct ? `Add ${packs} packs to Cart — ${formatPrice(selectedProduct.effective_price_rrp_sg * packs)}` : 'Unavailable'}
         </button>
       </div>
-      <div className="hardness-selector-sub" style={{ marginTop: 12, marginBottom: 0 }}>Based on Wild Balance&rsquo;s own feeding guide, per weight bracket — every flavour needs a different amount since calorie density varies. Individual dogs vary — check with your vet for a dog with specific health needs.</div>
+      <div className="hardness-selector-sub" style={{ marginTop: 12, marginBottom: 0 }}>Based on Wild Balance&rsquo;s own feeding guide, per weight bracket — every protein needs a different amount since calorie density varies. Individual dogs vary — check with your vet for a dog with specific health needs.</div>
     </div>
   );
 }

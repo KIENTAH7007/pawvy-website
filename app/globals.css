@@ -591,9 +591,10 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .wb-calc-result-nums { display: flex; gap: 28px; flex-wrap: wrap; }
 .wb-calc-result-num .n { font-size: 22px; font-weight: 800; font-family: 'Fraunces', serif; color: var(--orange); }
 .wb-calc-result-num .l { font-size: 11px; color: var(--dark-gray); margin-top: 2px; }
-.wb-calc-btn { width: auto; padding: 13px 22px; white-space: nowrap; }
+.fit-add-btn.wb-calc-btn { width: auto; padding: 13px 22px; white-space: nowrap; }
 @media (max-width: 700px) {
   .wb-calc-row { grid-template-columns: 1fr; }
+  .fit-add-btn.wb-calc-btn { width: 100%; font-size: 13px; padding: 13px 14px; }
 }
 
 /* Aug 2026, per KT: widen so all 3 pills fit on one row instead of the
