@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { BRAND_SLUGS, BRAND_LOGOS, displayBrandName } from '../lib/brandSlugs';
+import { BRAND_SLUGS, BRAND_LOGOS, brandSlug, displayBrandName } from '../lib/brandSlugs';
 
 // Short, punchy taglines per brand for the gallery cards — same copy
 // confirmed in the reviewed mockup. Real per-brand descriptions live on
@@ -30,6 +30,14 @@ const TAGLINES = {
   'Wild Balance': 'Real food, cooked low and slow — no freezer, no thawing, just open and serve.',
 };
 
+// Original intentional display order (Better Bone → Lillidale → Puzzle
+// Feeder → East Sea Brother → Salmoil → GiGwi → Wild Balance) — used to
+// sort the real, already-filtered brands prop, same pattern ShopClient.jsx
+// already uses for its brand filter sidebar, so a hidden brand just drops
+// out of the row instead of the whole gallery falling back to insertion
+// order from the database.
+const BRAND_ORDER = Object.keys(BRAND_SLUGS);
+
 // A static, responsive grid — deliberately not a horizontally-scrolling
 // track. The scroll-track approach (drag-to-scroll + centering-when-it-
 // fits/left-aligning-when-it-overflows) went through several rounds of
@@ -39,8 +47,14 @@ const TAGLINES = {
 // overflow to detect, nothing to measure — every card is always fully
 // visible, on every screen size, guaranteed by ordinary CSS layout rather
 // than JS calculating anything.
-export default function BrandGallery() {
+//
+// brands: the real, already-filtered brand list (Aug 2026 fix, per KT —
+// this used to iterate the static BRAND_SLUGS list regardless of a
+// brand's hidden_on_website status, so a hidden brand like Wild Balance
+// ahead of launch still showed a card here).
+export default function BrandGallery({ brands = [] }) {
   const gridRef = useRef(null);
+  const orderedBrands = [...brands].sort((a, b) => BRAND_ORDER.indexOf(a.name) - BRAND_ORDER.indexOf(b.name));
 
   // 3D tilt-toward-cursor on each card, desktop only. Purely cosmetic and
   // entirely independent of the grid/scroll question above.
@@ -56,22 +70,22 @@ export default function BrandGallery() {
     function onLeave() { this.style.transform = ''; }
     cards.forEach((c) => { c.addEventListener('mousemove', onMove); c.addEventListener('mouseleave', onLeave); });
     return () => cards.forEach((c) => { c.removeEventListener('mousemove', onMove); c.removeEventListener('mouseleave', onLeave); });
-  }, []);
+  }, [brands]);
 
   return (
     <div className="gallery-grid" ref={gridRef}>
-      {Object.entries(BRAND_SLUGS).map(([name, slug]) => (
-        <Link key={slug} href={`/brands/${slug}`} className="tilt-card">
+      {orderedBrands.map((b) => (
+        <Link key={b.id} href={`/brands/${brandSlug(b.name)}`} className="tilt-card">
           <div className="logostage">
             <img
-              src={BRAND_LOGOS[name]}
-              alt={name}
-              style={{ maxHeight: `${LOGO_BASE_MAX_HEIGHT * (LOGO_SCALE[name] || 1)}px` }}
+              src={BRAND_LOGOS[b.name]}
+              alt={b.name}
+              style={{ maxHeight: `${LOGO_BASE_MAX_HEIGHT * (LOGO_SCALE[b.name] || 1)}px` }}
             />
           </div>
-          <p>{TAGLINES[name]}</p>
+          <p>{TAGLINES[b.name]}</p>
           <span className="go">
-            Shop {displayBrandName(name)}
+            Shop {displayBrandName(b.name)}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
           </span>
         </Link>

@@ -9,8 +9,9 @@ import HomepageBanner from '../components/HomepageBanner';
 import PawvyPicksGrid from '../components/PawvyPicksGrid';
 import { contentApi, shopApi } from '../lib/api';
 import { NEED_CATEGORIES } from '../lib/needTags';
+import { brandCountLabel } from '../lib/brandSlugs';
 
-const FACTS_FALLBACK = ['Premium Pet Wellness', 'Official Singapore Distributor', 'Seven Brands, One Standard', '107+ Retail Partners'];
+const FACTS_FALLBACK_BASE = ['Premium Pet Wellness', 'Official Singapore Distributor', 'BRAND_COUNT_PLACEHOLDER', '107+ Retail Partners'];
 
 const TESTIMONIALS = [
   { quote: 'Thank you for the recommendation! Sparky has not stopped playing since we came home.', who: 'Sparky_yipeedee_dee', image: '/testimonials/sparky.jpg' },
@@ -23,13 +24,25 @@ const TESTIMONIALS = [
 // interactivity (typewriter, marquee, drag/tilt gallery, counters, the
 // form) are client components imported in as islands.
 export default async function Home() {
+  // Real, already-filtered brand list (excludes anything hidden via
+  // Pawvy App's hidden_on_website toggle) — used for both the gallery
+  // cards below and the dynamic "N brands, one standard" text, so a
+  // brand going live or getting hidden doesn't mean hunting down every
+  // place that number was hardcoded (Aug 2026, per KT).
+  const { brands } = await shopApi.brands().catch(() => ({ brands: [] }));
+  // Marquee facts use Title Case ("Premium Pet Wellness") — reuse the same
+  // spelled-out-number logic as brandCountLabel, just title-cased for this
+  // context instead of sentence-cased.
+  const brandCountFact = brandCountLabel(brands.length).replace(/\b\w/g, c => c.toUpperCase());
+  const factsFallback = FACTS_FALLBACK_BASE.map(f => f === 'BRAND_COUNT_PLACEHOLDER' ? brandCountFact : f);
+
   // Ticker messages are managed from the Pawvy App's Ticker Messages admin
   // page — this fetches whatever's currently active at request time, so
   // updates show up live with no website deploy needed. Falls back to the
   // static facts if the list is empty or the backend is unreachable, so
   // the ticker is never just blank.
   const ticker = await contentApi.ticker().catch(() => null);
-  const facts = ticker?.messages?.length ? ticker.messages : FACTS_FALLBACK;
+  const facts = ticker?.messages?.length ? ticker.messages : factsFallback;
   const igPosts = await contentApi.instagramPosts().catch(() => null);
   const igItems = igPosts?.items || [];
   const banners = await contentApi.homepageBanners().catch(() => null);
@@ -90,10 +103,10 @@ export default async function Home() {
           <Reveal as="div" className="gallery-head">
             <div>
               <div className="eyebrow">The collection</div>
-              <h2>Seven brands, one standard</h2>
+              <h2>{brandCountLabel(brands.length)}</h2>
             </div>
           </Reveal>
-          <BrandGallery />
+          <BrandGallery brands={brands} />
         </div>
         <Reveal as="div" className="wrap gallery-cta">
           <p>Know what you're after? Skip the browsing.</p>

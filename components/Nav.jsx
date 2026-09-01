@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BRAND_SLUGS, displayBrandName } from '../lib/brandSlugs';
+import { brandSlug, displayBrandName } from '../lib/brandSlugs';
 import { NEED_CATEGORIES } from '../lib/needTags';
 import { useCart } from '../lib/CartContext';
 import { customerApi, contentApi, getSessionToken, setSessionToken } from '../lib/api';
@@ -46,7 +46,7 @@ function startsOnNavy(pathname) {
   return false;
 }
 
-export default function Nav() {
+export default function Nav({ brands = [] }) {
   const pathname = usePathname();
   const [shopOpen, setShopOpen] = useState(false);
   const [needOpen, setNeedOpen] = useState(false);
@@ -167,8 +167,8 @@ export default function Nav() {
                 <svg className="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6"><path d="M6 9l6 6 6-6" /></svg>
               </Link>
               <div className="dropdown">
-                {Object.entries(BRAND_SLUGS).map(([name, slug]) => (
-                  <Link key={slug} href={`/brands/${slug}`}>{displayBrandName(name)}</Link>
+                {brands.map((b) => (
+                  <Link key={b.id} href={`/brands/${brandSlug(b.name)}`}>{displayBrandName(b.name)}</Link>
                 ))}
               </div>
             </div>
@@ -244,8 +244,8 @@ export default function Nav() {
             </button>
             <div className="mobile-shop-list">
               <Link href="/shop" className="mobile-sublink" onClick={() => setMobileOpen(false)}>All products</Link>
-              {Object.entries(BRAND_SLUGS).map(([name, slug]) => (
-                <Link key={slug} href={`/brands/${slug}`} className="mobile-sublink" onClick={() => setMobileOpen(false)}>{displayBrandName(name)}</Link>
+              {brands.map((b) => (
+                <Link key={b.id} href={`/brands/${brandSlug(b.name)}`} className="mobile-sublink" onClick={() => setMobileOpen(false)}>{displayBrandName(b.name)}</Link>
               ))}
             </div>
           </div>

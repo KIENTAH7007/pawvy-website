@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { shopApi, waitlistApi, imageUrl } from '../lib/api';
 import { useCart } from '../lib/CartContext';
-import { BRAND_SLUGS, displayBrandName } from '../lib/brandSlugs';
+import { BRAND_SLUGS, displayBrandName, brandCountWords } from '../lib/brandSlugs';
 import { formatPrice } from '../lib/formatPrice';
 import { NEED_CATEGORIES, needLabel } from '../lib/needTags';
 import { productDisplayName } from '../lib/productDisplayName';
@@ -331,7 +331,7 @@ export default function ShopClient({ initialProducts, brands, showHero = true, b
         <div className="wrap shop-hero-inner">
           <div className="eyebrow">The full collection</div>
           <h1>Shop</h1>
-          <p>Every product, across all seven brands, in one place.</p>
+          <p>Every product, across all {brandCountWords(brands.length).toLowerCase()}, in one place.</p>
           {searchBar}
         </div>
       </section>
