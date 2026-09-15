@@ -25,8 +25,12 @@ export default function Footer() {
           </div>
         </div>
         <div className="foot-word">PAWVY</div>
-        <div className="wrap foot-bottom" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="wrap foot-bottom" style={{ paddingLeft: 0, paddingRight: 0, display: 'flex', flexWrap: 'wrap', gap: '8px 20px', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>© 2026 Pawvy — Curated for pawrents who want the best for their furkids.</span>
+          <div style={{ display: 'flex', gap: 16 }}>
+            <Link href="/privacy">Privacy Policy</Link>
+            <Link href="/terms">Terms & Conditions</Link>
+          </div>
         </div>
       </div>
     </footer>

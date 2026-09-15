@@ -176,7 +176,10 @@ export default function CartPage() {
                     onChange={e => setGuest(g => ({ ...g, pdpa_consent: e.target.checked }))}
                     style={{ marginTop: 3 }}
                   />
-                  <span>I agree to Pawvy collecting my details to process this order. (Required)</span>
+                  <span>
+                    I agree to Pawvy collecting my details to process this order. (Required) See our{' '}
+                    <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--orange, #F36F4A)' }}>Privacy Policy</a>.
+                  </span>
                 </label>
 
                 <label style={{ display: 'flex', alignItems: 'flex-start', gap: 9, marginTop: 10, fontSize: 13.5, color: 'var(--dark-gray)' }}>

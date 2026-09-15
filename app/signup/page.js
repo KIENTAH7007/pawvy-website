@@ -99,7 +99,10 @@ function SignupForm() {
 
         <label style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 13 }}>
           <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} style={{ marginTop: 3 }} />
-          <span>{PDPA_CONSENT_TEXT}</span>
+          <span>
+            I agree to Pawvy creating an account for me on Pawvy.co using the information above, and to receive account-related emails (including reward/credit updates) and occasional product announcements. See our{' '}
+            <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--orange, #F36F4A)' }}>Privacy Policy</a>.
+          </span>
         </label>
 
         {error && <p style={{ color: 'crimson', fontSize: 13 }}>{error}</p>}
