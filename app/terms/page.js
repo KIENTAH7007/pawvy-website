@@ -12,7 +12,6 @@ export const metadata = {
 
 const wrap = { maxWidth: 760, margin: '140px auto 60px', padding: '0 20px', lineHeight: 1.7, color: '#333' };
 const h2 = { marginTop: 40, marginBottom: 12 };
-const note = { background: '#FBEAE3', border: '1px solid #F3A98A', borderRadius: 8, padding: '10px 14px', fontSize: 13, margin: '8px 0 16px' };
 
 export default function TermsPage() {
   return (
@@ -53,35 +52,29 @@ export default function TermsPage() {
 
       <h2 style={h2}>4. Delivery</h2>
       <p>
-        We aim to deliver orders within a reasonable timeframe from
-        confirmation. Delivery times are estimates, not guarantees, and may
-        be affected by circumstances outside our control.
+        Orders are mailed out within 2 working days of confirmation.
+        Delivery times thereafter are estimates, not guarantees, and may be
+        affected by circumstances outside our control.
       </p>
-      <div style={note}>
-        <strong>Flagging for KT:</strong> worth adding real specifics here —
-        typical delivery timeframe, delivery fee/free-delivery threshold
-        (the site already shows a $60 free-delivery line elsewhere), and
-        areas covered — once confirmed, this section can be filled in or
-        linked to a dedicated Shipping page.
-      </div>
 
       <h2 style={h2}>5. Returns and refunds</h2>
       <p>
-        If there's an issue with your order — damaged, incorrect, or
-        defective items — please contact us and we'll work with you to make
-        it right.
+        You may return an item within <strong>7 days of purchase</strong>{' '}
+        for a refund or exchange. This window matches the same 7-day period
+        during which BUTTONS earned on an order are held before being
+        credited to your account, so any return is settled before rewards
+        for that order are finalised.
       </p>
-      <div style={note}>
-        <strong>Flagging for KT:</strong> this section is intentionally
-        general — it doesn't commit to a specific return window or
-        restocking/exchange policy since that's a real business decision,
-        not something I should set on your behalf. Worth confirming: how
-        many days for a return, does the item need to be unopened, who
-        covers return shipping, and whether opened food/treats can ever be
-        returned for hygiene reasons (common for pet food retailers to
-        exclude). Once confirmed, I can write this properly and build a
-        dedicated Returns page.
-      </div>
+      <p>
+        Unopened items can be returned in this window. Opened food or
+        treats can only be returned for exchange if the product is spoilt —
+        please provide evidence (such as a photo) when you contact us so we
+        can process this quickly.
+      </p>
+      <p>
+        To start a return, please contact us using the details in Section
+        11.
+      </p>
 
       <h2 style={h2}>6. BUTTONS rewards programme</h2>
       <p>
