@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { imageUrl } from '../lib/api';
+import { productImageUrl } from '../lib/api';
 import { productDisplayName } from '../lib/productDisplayName';
 import { formatPrice } from '../lib/formatPrice';
 import { useCart } from '../lib/CartContext';
@@ -40,7 +40,7 @@ export default function FrozenYoghurtToggle({ product }) {
     <div className="yog-wrap">
       <div className="yog-img">
         {product.image_url
-          ? <img src={imageUrl(product.image_url)} alt={productDisplayName(product)} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 20 }} />
+          ? <img src={productImageUrl(product.image_url)} alt={productDisplayName(product)} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 20 }} />
           : <span>{productDisplayName(product)}</span>}
       </div>
       <div className="yog-info">

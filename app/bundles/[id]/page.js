@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { shopApi, imageUrl } from '../../../lib/api';
+import { shopApi, imageUrl, productImageUrl } from '../../../lib/api';
 import { displayBrandName } from '../../../lib/brandSlugs';
 import { productDisplayName } from '../../../lib/productDisplayName';
 import { formatPrice } from '../../../lib/formatPrice';
@@ -65,7 +65,7 @@ export default async function BundlePage({ params }) {
             {bundle.products.map(p => (
               <div key={p.id} className="bd-image-cell">
                 {p.image_url
-                  ? <img src={imageUrl(p.image_url)} alt={productDisplayName(p)} />
+                  ? <img src={productImageUrl(p.image_url)} alt={productDisplayName(p)} />
                   : <span className="bd-image-fallback">{displayBrandName(p.brand_name)}</span>}
               </div>
             ))}
@@ -77,7 +77,7 @@ export default async function BundlePage({ params }) {
             <div className="bd-row" key={p.id}>
               <div className="thumb">
                 {p.image_url
-                  ? <img src={imageUrl(p.image_url)} alt="" />
+                  ? <img src={productImageUrl(p.image_url)} alt="" />
                   : <div className="thumb-fallback" />}
               </div>
               <div className="info">

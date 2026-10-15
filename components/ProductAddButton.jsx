@@ -36,7 +36,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useCart } from '../lib/CartContext';
-import { imageUrl } from '../lib/api';
+import { productImageUrl } from '../lib/api';
 import { findMatches } from '../lib/matching';
 import { formatPrice } from '../lib/formatPrice';
 import QtyStepper from './QtyStepper';
@@ -206,7 +206,7 @@ export default function ProductAddButton({ products, productLabel, variants, ser
                   // that needs the backend prefix — see lib/api.js.
                   const src = current?.forceImage
                     ? current?.image
-                    : (current?.product?.image_url ? imageUrl(current.product.image_url) : current?.image);
+                    : (current?.product?.image_url ? productImageUrl(current.product.image_url) : current?.image);
                   return src
                     ? <img src={src} alt={productLabel} />
                     : <div className="img-placeholder" style={{ width: '100%', height: '100%' }}><span>No photo</span></div>;

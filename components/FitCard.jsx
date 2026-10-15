@@ -6,7 +6,7 @@ import ProductAddButton, { findMatches } from './ProductAddButton';
 import { pickPrimaryMatch } from '../lib/matching';
 import { productUrl } from '../lib/productDisplayName';
 import { formatPrice } from '../lib/formatPrice';
-import { imageUrl } from '../lib/api';
+import { productImageUrl } from '../lib/api';
 
 // Local copy of the same tiny helper used in BrandDeepDive.jsx and
 // RecipeSelector.jsx — not worth importing across files for six lines,
@@ -117,7 +117,7 @@ export default function FitCard({ item, products, id }) {
   // image_url whenever a variant doesn't specify its own static image,
   // rather than showing the placeholder — primary is already resolved
   // from the same active variant this image represents.
-  const activeImage = active.image || (primary?.image_url ? imageUrl(primary.image_url) : null);
+  const activeImage = active.image || (primary?.image_url ? productImageUrl(primary.image_url) : null);
 
   return (
     <div className="pf-fit-card" id={id}>

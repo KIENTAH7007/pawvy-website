@@ -26,7 +26,7 @@ import ProductAddButton from './ProductAddButton';
 import { findMatches, pickPrimaryMatch } from '../lib/matching';
 import { productUrl } from '../lib/productDisplayName';
 import { formatPrice } from '../lib/formatPrice';
-import { imageUrl } from '../lib/api';
+import { productImageUrl } from '../lib/api';
 import RecipeSelector from './RecipeSelector';
 import CategoryBrowser from './CategoryBrowser';
 import FitCard from './FitCard';
@@ -483,7 +483,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                 // this doesn't change anything today, just protects
                 // against a future item that forgets to.
                 const defaultVariant = item.variants.find(v => v.default) || item.variants[0];
-                const cardImage = defaultVariant.image || (primary?.image_url ? imageUrl(primary.image_url) : null);
+                const cardImage = defaultVariant.image || (primary?.image_url ? productImageUrl(primary.image_url) : null);
                 return (
                 <div className="pf-fit-card" key={item.name}>
                   {primary ? (

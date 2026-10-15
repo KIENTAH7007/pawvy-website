@@ -1,22 +1,21 @@
-# Plaque Guard – 60g + 180g size picker
+# Pawvy Website – bigger product images
 
-Add to Cart on Plaque Guard now opens the size-picker modal (same as ProJoint / ProHealth), card shows "From S$x".
+Every product photo on pawvy.co (shop grid, product page, brand pages and their size-picker modals, bundles, cart, category browser) now requests the trimmed square version from the app (`?trim=1`), so products look bigger in their cards with no information cropped. Banners, testimonials, Instagram and social-share images are unchanged.
 
-Only one file changed: `lib/brandContent.js`
+Files changed (11): lib/api.js (new `productImageUrl`), components/BrandDeepDive.jsx, CategoryBrowser.jsx, FitCard.jsx, FrozenYoghurtToggle.jsx, ProductAddButton.jsx, ProductCard.jsx, ShopClient.jsx, app/cart/page.js, app/shop/[id]/page.js, app/bundles/[id]/page.js
+
+REQUIRES the "Pawvy App - Trimmed Product Images" zip deployed to the app. Safe in either order; without it, images just look as they did before.
 
 ## Apply
 ```
 cd pawvy-website
 git checkout staging
-git pull
-# copy lib/brandContent.js from this zip over your existing one
-git add lib/brandContent.js
-git commit -m "Plaque Guard: add 180g variant, size-picker modal"
+git pull origin staging
+# copy the files from this zip over the same paths
+git add -A
+git commit -m "Product images: request trimmed square photos so products look bigger"
 git push origin staging
 ```
-Then, when happy on staging: `git checkout main && git pull && git merge staging -X theirs && git push origin main`
+Then check on staging: GiGwi and BetterBone grids (the Suppa Puppa and Soft Classic/Beef Mini cards from your screenshots), a product page, a Lillidale size-picker modal, and the cart. Go live later with `git checkout main && git pull origin main && git merge staging -X theirs && git push origin main && git checkout staging`.
 
-## Notes
-- Matching: 60g = series contains "Plaque Guard" + variation contains "60g"; 180g = "180g". 60g is the default.
-- The 180g uses the same photo as 60g for now. Drop a `sku-plaqueguard-180g.jpg` into `public/brand-features/lillidale/` and change the 180g `image` path (marked TODO).
-- After deploy, click Add to Cart on Plaque Guard and confirm both sizes appear. If a size is missing, the Pawvy App variation text for it isn't "180g"/"180 g" – tell me the exact text.
+Notes: the Lillidale cards that use a curated photo from the site's own files (not from Pawvy App) are not affected. If any single photo looks off, tell me which product.
