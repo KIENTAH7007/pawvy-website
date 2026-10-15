@@ -1,21 +1,19 @@
-# Pawvy Website – bigger product images
+# Pawvy Website – product card photos fill the whole thumbnail
 
-Every product photo on pawvy.co (shop grid, product page, brand pages and their size-picker modals, bundles, cart, category browser) now requests the trimmed square version from the app (`?trim=1`), so products look bigger in their cards with no information cropped. Banners, testimonials, Instagram and social-share images are unchanged.
+Removes the beige frame around product photos on the product cards (shop grid, brand pages). The photo is already trimmed + squared by the app, so it now fills the card's image area edge to edge. The thumbnail background is white (same as the photos), so a photo that can't be trimmed never shows beige bars.
 
-Files changed (11): lib/api.js (new `productImageUrl`), components/BrandDeepDive.jsx, CategoryBrowser.jsx, FitCard.jsx, FrozenYoghurtToggle.jsx, ProductAddButton.jsx, ProductCard.jsx, ShopClient.jsx, app/cart/page.js, app/shop/[id]/page.js, app/bundles/[id]/page.js
-
-REQUIRES the "Pawvy App - Trimmed Product Images" zip deployed to the app. Safe in either order; without it, images just look as they did before.
+One file changed: `app/globals.css` (the `.product-card .thumb` rules only: background ivory → white, image padding 10px → 0). Requires the earlier "Trimmed Product Images" deliveries (already applied).
 
 ## Apply
 ```
 cd pawvy-website
 git checkout staging
 git pull origin staging
-# copy the files from this zip over the same paths
-git add -A
-git commit -m "Product images: request trimmed square photos so products look bigger"
+# copy app/globals.css from this zip over the existing one
+git add app/globals.css
+git commit -m "Product cards: photo fills thumbnail edge to edge (no beige frame)"
 git push origin staging
 ```
-Then check on staging: GiGwi and BetterBone grids (the Suppa Puppa and Soft Classic/Beef Mini cards from your screenshots), a product page, a Lillidale size-picker modal, and the cart. Go live later with `git checkout main && git pull origin main && git merge staging -X theirs && git push origin main && git checkout staging`.
+Check on staging: BetterBone / GiGwi grids on desktop and mobile, and a card with a "New" or "Low stock" tag. To undo: revert that single commit.
 
-Notes: the Lillidale cards that use a curated photo from the site's own files (not from Pawvy App) are not affected. If any single photo looks off, tell me which product.
+Not changed: bundle cards, the product detail page, Lillidale/brand-page cards (those were already edge to edge).
