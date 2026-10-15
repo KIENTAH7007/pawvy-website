@@ -1,19 +1,21 @@
-# Pawvy Website – product card photos fill the whole thumbnail
+# Pawvy Website – product cards stay aligned (Low stock / Out of stock)
 
-Removes the beige frame around product photos on the product cards (shop grid, brand pages). The photo is already trimmed + squared by the app, so it now fills the card's image area edge to edge. The thumbnail background is white (same as the photos), so a photo that can't be trimmed never shows beige bars.
+Problem: on phones "Low stock" wrapped onto two lines in the top tag row, making that card's photo and text sit lower than its neighbours (and it squeezed/clipped the brand chip). Same risk for "Out of stock".
 
-One file changed: `app/globals.css` (the `.product-card .thumb` rules only: background ivory → white, image padding 10px → 0). Requires the earlier "Trimmed Product Images" deliveries (already applied).
+Fix:
+- The Low stock / Out of stock chip now sits in its own fixed-height slot under the price on EVERY card (empty when in stock), so all cards in a row line up on phone, tablet and desktop.
+- The top row only holds the brand chip, which is never clipped or shown with "…". Slightly smaller type on phones so "East Sea Brother" still fits on one line; on an extremely narrow screen it wraps instead of being cut.
+
+Files: `components/ProductCard.jsx`, `app/globals.css`. Applies to the shop grid and wherever ProductCard is used (e.g. cart upsell).
 
 ## Apply
 ```
 cd pawvy-website
 git checkout staging
 git pull origin staging
-# copy app/globals.css from this zip over the existing one
-git add app/globals.css
-git commit -m "Product cards: photo fills thumbnail edge to edge (no beige frame)"
+# copy components/ProductCard.jsx and app/globals.css from this zip over the existing ones
+git add components/ProductCard.jsx app/globals.css
+git commit -m "Product cards: reserve fixed stock-chip slot so cards align; never clip brand chip"
 git push origin staging
 ```
-Check on staging: BetterBone / GiGwi grids on desktop and mobile, and a card with a "New" or "Low stock" tag. To undo: revert that single commit.
-
-Not changed: bundle cards, the product detail page, Lillidale/brand-page cards (those were already edge to edge).
+Check on staging: a Low stock item and an Out of stock item next to normal ones, on phone (compact + wide), tablet and desktop.

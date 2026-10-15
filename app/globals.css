@@ -1075,9 +1075,18 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .product-card .thumb img { width: 100%; height: 100%; object-fit: contain; padding: 0; }
 .new-tag { position: absolute; top: 10px; left: 10px; z-index: 1; font-size: 12.5px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; color: var(--cream); background: var(--orange); padding: 6px 14px; border-radius: 100px; box-shadow: 0 3px 10px rgba(243,111,74,.35); }
 .product-card .no-img { font-size: 12px; color: var(--dark-gray); font-weight: 600; }
-.product-card .card-tags { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 12px 10px; }
+.product-card .card-tags { display: flex; align-items: center; justify-content: flex-start; gap: 8px; padding: 12px 12px 10px; }
 .product-card .brand-tag { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; background: rgba(20,33,61,.06); border: 1px solid rgba(20,33,61,.08); color: var(--navy); padding: 5px 11px; border-radius: 100px; }
-.product-card .stock-tag { font-size: 10.5px; font-weight: 600; padding: 5px 11px; border-radius: 100px; }
+.product-card .stock-tag { display: inline-block; white-space: nowrap; font-size: 10.5px; font-weight: 600; padding: 5px 11px; border-radius: 100px; }
+/* Reserved on every card so cards in a row always line up, whether or not one
+   has a Low stock / Out of stock chip. Fixed height, a little taller than the chip. */
+.product-card .stock-slot { height: 28px; margin-top: 6px; display: flex; align-items: center; }
+/* Brand chip: never clipped or ellipsised. Slightly smaller type on phones so
+   the longest brand name ("East Sea Brother") still fits on one line in a
+   2-column grid; if a very narrow screen can't fit it, it wraps rather than
+   being cut off. */
+.product-card .brand-tag { max-width: 100%; overflow-wrap: anywhere; line-height: 1.25; }
+@media (max-width: 420px) { .product-card .brand-tag { font-size: 10px; letter-spacing: .2px; padding: 5px 9px; } }
 .product-card .stock-tag.low { background: #fff3cd; color: #8a6300; }
 .product-card .stock-tag.out { background: #fde2e2; color: #a12525; }
 .product-card .info { padding: 18px 20px 20px; }

@@ -20,9 +20,6 @@ export default function ProductCard({ product: p, onAdd }) {
       <Link href={productUrl(p)}>
         <div className="card-tags">
           <span className="brand-tag" style={{ color: p.brand_color || 'var(--navy)' }}>{displayBrandName(p.brand_name)}</span>
-          {(p.stock_status === 'low_stock' || outOfStock) && (
-            <span className={`stock-tag ${outOfStock ? 'out' : 'low'}`}>{outOfStock ? 'Out of stock' : 'Low stock'}</span>
-          )}
         </div>
         <div className="thumb">
           {p.is_new_active && <span className="new-tag">New</span>}
@@ -37,6 +34,16 @@ export default function ProductCard({ product: p, onAdd }) {
           <div className="price">
             {p.is_discount_active && <span className="was">{formatPrice(p.price_rrp_sg)}</span>}
             {formatPrice(p.effective_price_rrp_sg)}
+          </div>
+          {/* Stock status lives in its own reserved-height slot (rendered on
+              EVERY card, empty when in stock) instead of sharing the brand
+              tag's row. Sharing the row made "Low stock" wrap onto two
+              lines on phones, which pushed that card's photo and everything
+              below it out of line with its neighbours. */}
+          <div className="stock-slot">
+            {(p.stock_status === 'low_stock' || outOfStock) && (
+              <span className={`stock-tag ${outOfStock ? 'out' : 'low'}`}>{outOfStock ? 'Out of stock' : 'Low stock'}</span>
+            )}
           </div>
         </div>
       </Link>
