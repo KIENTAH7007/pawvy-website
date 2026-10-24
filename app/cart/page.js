@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '../../lib/CartContext';
 import { shopApi, checkoutApi, customerApi, getSessionToken, productImageUrl } from '../../lib/api';
-import { readRefCode } from '../../lib/referral';
+import { readRefCode, normalizeRefCode } from '../../lib/referral';
 import ProductCard from '../../components/ProductCard';
 import { displayBrandName } from '../../lib/brandSlugs';
 import { productDisplayName } from '../../lib/productDisplayName';
@@ -39,7 +39,23 @@ export default function CartPage() {
   // way to actually check out as a guest. See README for the matching
   // backend contract this now expects.
   const [guest, setGuest] = useState({ email: '', name: '', phone: '', address: '', pdpa_consent: false, create_account: true });
+  const [refCode, setRefCode] = useState('');
+  const [refState, setRefState] = useState('idle'); // idle | checking | valid | invalid
   const [loggedInAddress, setLoggedInAddress] = useState('');
+  // Prefill from a remembered referral link, then let the customer type or change it.
+  useEffect(() => { const saved = readRefCode(); if (saved) setRefCode(saved); }, []);
+  useEffect(() => {
+    const code = normalizeRefCode(refCode);
+    if (!code) { setRefState('idle'); return; }
+    if (code.length < 4) { setRefState('invalid'); return; }
+    setRefState('checking');
+    const t = setTimeout(() => {
+      customerApi.checkReferralCode(code)
+        .then(r => setRefState(r.valid ? 'valid' : 'invalid'))
+        .catch(() => setRefState('idle'));
+    }, 350);
+    return () => clearTimeout(t);
+  }, [refCode]);
   const [checkingOut, setCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState(null);
 
@@ -87,8 +103,13 @@ export default function CartPage() {
         shipping_address: customer ? loggedInAddress : guest.address,
         buttons_redeem: customer ? requestedB : 0,
       };
-      // A referral link remembered for 30 days still counts if they check out as a guest and create an account here.
-      if (!customer && readRefCode()) body.referral_code = readRefCode();
+      // The code typed in the checkout field wins; otherwise a referral link remembered for 30 days still counts.
+      // It only matters when the guest also creates an account (server ignores it otherwise / for existing accounts).
+      if (!customer && guest.create_account) {
+        const typed = normalizeRefCode(refCode);
+        const code = typed && refState !== 'invalid' ? typed : (typed ? '' : readRefCode());
+        if (code) body.referral_code = code;
+      }
       if (!customer) {
         body.guest_email = guest.email;
         body.guest_name = guest.name;
@@ -198,6 +219,29 @@ export default function CartPage() {
                   />
                   <span>Also create a free Pawvy rewards account for me, so I can earn BUTTONS on this order and track it later.</span>
                 </label>
+
+                {guest.create_account && (
+                  <div style={{ marginTop: 12 }}>
+                    <label style={{ display: 'block', fontSize: 13.5, color: 'var(--dark-gray)', fontWeight: 600 }}>
+                      Referral code <span style={{ fontWeight: 400, color: '#888' }}>(optional)</span>
+                      <input
+                        value={refCode} onChange={e => setRefCode(normalizeRefCode(e.target.value))}
+                        placeholder="e.g. KOKOHONEY" maxLength={12} autoCapitalize="characters" autoComplete="off"
+                        style={{
+                          display: 'block', width: '100%', marginTop: 6, padding: '10px 12px', borderRadius: 8,
+                          border: '1.5px solid ' + (refState === 'valid' ? '#2fbf71' : refState === 'invalid' ? '#e5534b' : '#ddd'),
+                          textTransform: 'uppercase', letterSpacing: 2, fontSize: 15, boxSizing: 'border-box',
+                        }}
+                      />
+                    </label>
+                    <span style={{ display: 'block', fontSize: 13, marginTop: 6, color: refState === 'valid' ? '#1f9a58' : refState === 'invalid' ? '#c0392b' : '#777', fontWeight: refState === 'valid' || refState === 'invalid' ? 600 : 400 }}>
+                      {refState === 'valid' && '✓ Code accepted — you\'ll both get 150 BUTTONS after your first purchase.'}
+                      {refState === 'invalid' && 'We couldn\'t find that code. Check the spelling, or clear it to continue without one.'}
+                      {refState === 'checking' && 'Checking…'}
+                      {refState === 'idle' && 'Got a code from a friend or ambassador? Enter it and you both get 150 BUTTONS after your first purchase.'}
+                    </span>
+                  </div>
+                )}
 
                 {!guest.create_account && (
                   <p className="hint" style={{ marginTop: 10, color: 'var(--orange)', fontWeight: 600 }}>
