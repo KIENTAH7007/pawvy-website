@@ -139,10 +139,9 @@ export default function Nav() {
     return () => { document.body.style.overflow = ''; };
   }, [mobileOpen]);
 
-  const unlocked = subtotal >= FREE_SHIPPING_THRESHOLD;
-  const focText = unlocked
-    ? 'Free delivery unlocked!'
-    : `Add ${formatPrice(FREE_SHIPPING_THRESHOLD - subtotal)} for free delivery`;
+  // Fixed wording (Oct 2026): free delivery is checked after BUTTONS are applied,
+  // so a live "add $X" amount would be misleading — just state the threshold.
+  const focText = `${formatPrice(FREE_SHIPPING_THRESHOLD).replace(/\.00$/, '')} for free delivery`;
   const firstName = customer?.name?.split(' ')[0] || 'there';
   // Homepage-only exception (Aug 2026, per KT): the banner carousel can
   // show light-colored images, and a transparent nav over a light banner
@@ -207,7 +206,7 @@ export default function Nav() {
             </div>
           )}
 
-          <div className={`foc-pill${unlocked ? ' unlocked' : ''}`}>
+          <div className="foc-pill">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7h11v8H3zM14 10h4l3 3v2h-7zM7 19a2 2 0 100-4 2 2 0 000 4zM17.5 19a2 2 0 100-4 2 2 0 000 4z" /></svg>
             <span>{focText}</span>
           </div>

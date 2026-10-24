@@ -22,6 +22,8 @@ export default function AccountPage() {
   const [bonusMessage, setBonusMessage] = useState(null);
   const [birthdayNotice, setBirthdayNotice] = useState(null);
   const [referralLink, setReferralLink] = useState('');
+  const [ambassadorStats, setAmbassadorStats] = useState(null);
+  const [copied, setCopied] = useState('');
   const [passwordForm, setPasswordForm] = useState({ password: '', confirm: '' });
   const [savingPassword, setSavingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState(null);
@@ -34,14 +36,15 @@ export default function AccountPage() {
 
   function load() {
     customerApi.me()
-      .then(({ customer, pet, buttons_balance, active_multiplier, active_multiplier_source, active_campaign_name }) => {
+      .then(({ customer, pet, buttons_balance, active_multiplier, active_multiplier_source, active_campaign_name, ambassador_stats }) => {
         setCustomer(customer);
         setPet(pet);
         setBalance(buttons_balance);
         setActiveMultiplier(active_multiplier);
         setActiveMultiplierSource(active_multiplier_source);
         setActiveCampaignName(active_campaign_name);
-        setReferralLink(`${window.location.origin}/signup?ref=${customer.referral_code}`);
+        setReferralLink(`${window.location.origin}/r/${customer.referral_code}`);
+        setAmbassadorStats(ambassador_stats || null);
         setProfileForm({
           name: customer.name || '', phone: customer.phone || '', address: customer.address || '',
           instagram_handle: customer.instagram_handle || '', preferred_contact_channel: customer.preferred_contact_channel || '',
@@ -55,6 +58,12 @@ export default function AccountPage() {
       })
       .catch(() => { setSessionToken(null); router.push('/login'); })
       .finally(() => setLoading(false));
+  }
+
+  function copyText(text, msg) {
+    const done = () => { setCopied(msg); setTimeout(() => setCopied(''), 2500); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(done);
+    else done();
   }
 
   async function saveProfile(e) {
@@ -158,9 +167,25 @@ export default function AccountPage() {
           )}
 
           <div className="account-card">
-            <div className="account-card-label">Your Referral Link — you and your friends get BUTTONS</div>
-            <input readOnly value={referralLink} className="account-referral-input" onFocus={e => e.target.select()} />
+            <div className="account-card-label">Your referral code — you and your friends get 150 BUTTONS</div>
+            <div className="account-code">{customer.referral_code}</div>
+            <div className="account-code-btns">
+              <button type="button" className="account-code-btn" onClick={() => copyText(customer.referral_code, 'Code copied ✓')}>Copy code</button>
+              <button type="button" className="account-code-btn" onClick={() => copyText(referralLink, 'Link copied ✓')}>Copy link</button>
+            </div>
+            <div className="account-code-note">{copied || `Friends can sign up at pawvy.co/join and type your code, or use your link: ${referralLink.replace(/^https?:\/\//, '')}`}</div>
           </div>
+
+          {ambassadorStats && (
+            <div className="account-card">
+              <div className="account-card-label">Ambassador stats</div>
+              <div className="account-stats">
+                <div><strong>{ambassadorStats.signed_up}</strong><span>friends joined</span></div>
+                <div><strong>{ambassadorStats.purchased}</strong><span>made a purchase</span></div>
+                <div><strong>{ambassadorStats.buttons_earned}B</strong><span>BUTTONS earned</span></div>
+              </div>
+            </div>
+          )}
 
           {!customer.profile_bonus_claimed && (
             <div className="account-bonus-banner">

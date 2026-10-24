@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '../../lib/CartContext';
 import { shopApi, checkoutApi, customerApi, getSessionToken, productImageUrl } from '../../lib/api';
+import { readRefCode } from '../../lib/referral';
 import ProductCard from '../../components/ProductCard';
 import { displayBrandName } from '../../lib/brandSlugs';
 import { productDisplayName } from '../../lib/productDisplayName';
@@ -27,8 +28,6 @@ export default function CartPage() {
   const { items, updateQty, removeItem, subtotal, addItem } = useCart();
   const [topSellers, setTopSellers] = useState([]);
   const isMobile = useIsMobile();
-  const freeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
-  const shipping = freeShipping ? 0 : SHIPPING_COST;
 
   const [customer, setCustomer] = useState(null); // logged-in customer, if any
   const [buttonsBalance, setButtonsBalance] = useState(0);
@@ -45,8 +44,15 @@ export default function CartPage() {
   const [checkoutError, setCheckoutError] = useState(null);
 
   const requestedB = Math.max(0, parseInt(redeemInput) || 0);
-  const maxRedeemableB = customer ? Math.min(buttonsBalance, Math.floor((subtotal * 0.30) / 0.02)) : 0;
+  // Normal customers: up to 30% of the order in BUTTONS. Special ambassadors: no cap (balance only).
+  // Must match redemptionCapPct() in pawvy-app server/lib/buttons.js.
+  const capPct = customer && customer.is_ambassador ? 1 : 0.30;
+  const maxRedeemableB = customer ? Math.min(buttonsBalance, Math.floor((subtotal * capPct) / 0.02 + 1e-9)) : 0;
   const previewRedemptionValue = customer ? Math.min(requestedB, maxRedeemableB) * 0.02 : 0;
+  // Free delivery is checked AFTER BUTTONS are applied (shipping never earns BUTTONS).
+  // Must match server/routes/checkout.js in pawvy-app.
+  const freeShipping = (subtotal - previewRedemptionValue) >= FREE_SHIPPING_THRESHOLD - 0.001;
+  const shipping = freeShipping ? 0 : SHIPPING_COST;
   const total = Math.max(0, subtotal + shipping - previewRedemptionValue);
 
   useEffect(() => {
@@ -81,6 +87,8 @@ export default function CartPage() {
         shipping_address: customer ? loggedInAddress : guest.address,
         buttons_redeem: customer ? requestedB : 0,
       };
+      // A referral link remembered for 30 days still counts if they check out as a guest and create an account here.
+      if (!customer && readRefCode()) body.referral_code = readRefCode();
       if (!customer) {
         body.guest_email = guest.email;
         body.guest_name = guest.name;
@@ -205,7 +213,7 @@ export default function CartPage() {
             <div className="cart-buttons-box">
               <div style={{ fontSize: 13, color: 'var(--dark-gray)' }}>Your BUTTONS balance: <strong style={{ color: 'var(--navy)' }}>{buttonsBalance}B</strong></div>
               <div className="field" style={{ marginTop: 10, marginBottom: 0 }}>
-                <label>Redeem BUTTONS on this order (up to {maxRedeemableB}B — 30% of subtotal, or your balance, whichever is lower)</label>
+                <label>Redeem BUTTONS on this order (up to {maxRedeemableB}B{customer.is_ambassador ? ' — or your balance, whichever is lower' : ' — 30% of subtotal, or your balance, whichever is lower'})</label>
                 <input
                   type="number" min="0" max={maxRedeemableB} value={redeemInput}
                   onChange={e => setRedeemInput(e.target.value)}
@@ -224,11 +232,6 @@ export default function CartPage() {
           <div style={{ marginTop: 22 }}>
             <Row label="Subtotal" value={subtotal} />
             <Row label={freeShipping ? 'Shipping (free!)' : 'Shipping'} value={shipping} />
-            {!freeShipping && (
-              <p style={{ fontSize: 12.5, color: 'var(--dark-gray)' }}>
-                Add {formatPrice(FREE_SHIPPING_THRESHOLD - subtotal)} more for free shipping.
-              </p>
-            )}
             {previewRedemptionValue > 0 && <Row label="BUTTONS redeemed" value={-previewRedemptionValue} />}
             <Row label="Total" value={total} bold />
           </div>

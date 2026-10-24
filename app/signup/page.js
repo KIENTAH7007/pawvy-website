@@ -1,9 +1,10 @@
 'use client';
 
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { customerApi } from '../../lib/api';
+import { normalizeRefCode, saveRefCode, readRefCode } from '../../lib/referral';
 
 const PDPA_CONSENT_TEXT = 'I agree to Pawvy creating an account for me on Pawvy.co using the information above, and to receive account-related emails (including reward/credit updates) and occasional product announcements. See our Privacy Policy.';
 
@@ -20,7 +21,8 @@ export default function SignupPage() {
 function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const referralCode = searchParams.get('ref') || '';
+  // Code from the link (?ref=) wins; otherwise one remembered from an earlier visit (30 days).
+  const urlRef = normalizeRefCode(searchParams.get('ref'));
   // Where to send someone who decides not to sign up after all — set when
   // this page is reached from the login flow's "no account found" handoff
   // (e.g. from checkout, via /login?next=/cart). Defaults to /cart since
@@ -33,6 +35,27 @@ function SignupForm() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [done, setDone] = useState(false);
+  const [referralCode, setReferralCode] = useState(urlRef);
+  const [refState, setRefState] = useState('idle'); // idle | checking | valid | invalid
+
+  useEffect(() => {
+    if (urlRef) saveRefCode(urlRef);
+    else { const saved = readRefCode(); if (saved) setReferralCode(saved); }
+  }, [urlRef]);
+
+  // Live "Code accepted" check — debounced so we don't ask the server on every keystroke.
+  useEffect(() => {
+    const code = normalizeRefCode(referralCode);
+    if (!code) { setRefState('idle'); return; }
+    if (code.length < 4) { setRefState('invalid'); return; }
+    setRefState('checking');
+    const t = setTimeout(() => {
+      customerApi.checkReferralCode(code)
+        .then(r => setRefState(r.valid ? 'valid' : 'invalid'))
+        .catch(() => setRefState('idle'));
+    }, 350);
+    return () => clearTimeout(t);
+  }, [referralCode]);
 
   function update(field, value) {
     setForm(f => ({ ...f, [field]: value }));
@@ -50,7 +73,7 @@ function SignupForm() {
         pdpa_consent: true,
         pdpa_consent_text: PDPA_CONSENT_TEXT,
         source: 'website',
-        referral_code: referralCode || undefined,
+        referral_code: normalizeRefCode(referralCode) || undefined,
       });
       setDone(true);
     } catch (err) {
@@ -75,9 +98,6 @@ function SignupForm() {
   return (
     <div style={{ maxWidth: 440, margin: '140px auto 40px', padding: '0 20px' }}>
       <h1>Create your Pawvy account</h1>
-      {referralCode && (
-        <p style={{ fontSize: 13, color: '#666' }}>Referred by code: <strong>{referralCode}</strong></p>
-      )}
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 24 }}>
         <label>
@@ -95,6 +115,24 @@ function SignupForm() {
         <label>
           Address (needed if we're mailing your order — you can add this later too)
           <input value={form.address} onChange={e => update('address', e.target.value)} style={inputStyle} />
+        </label>
+
+        <label>
+          Referral code <span style={{ color: '#888', fontWeight: 400 }}>(optional)</span>
+          <input
+            value={referralCode} onChange={e => setReferralCode(normalizeRefCode(e.target.value))}
+            placeholder="e.g. KOKOHONEY" maxLength={12} autoCapitalize="characters" autoComplete="off"
+            style={{
+              ...inputStyle, textTransform: 'uppercase', letterSpacing: 2,
+              borderColor: refState === 'valid' ? '#2fbf71' : refState === 'invalid' ? '#e5534b' : undefined,
+            }}
+          />
+          <span style={{ display: 'block', fontSize: 13, marginTop: 6, color: refState === 'valid' ? '#1f9a58' : refState === 'invalid' ? '#c0392b' : '#777', fontWeight: refState === 'valid' || refState === 'invalid' ? 600 : 400 }}>
+            {refState === 'valid' && '✓ Code accepted — you\'ll both get 150 BUTTONS after your first purchase.'}
+            {refState === 'invalid' && 'We couldn\'t find that code. Check the spelling, or leave it blank to continue.'}
+            {refState === 'checking' && 'Checking…'}
+            {(refState === 'idle') && 'Got a code from a friend? Enter it and you both get 150 BUTTONS after your first purchase.'}
+          </span>
         </label>
 
         <label style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 13 }}>

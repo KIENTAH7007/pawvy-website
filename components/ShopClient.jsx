@@ -213,8 +213,6 @@ export default function ShopClient({ initialProducts, brands, showHero = true, b
     window.history.replaceState({}, '', url);
   }, [needFilter]);
 
-  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
-  const unlocked = remaining === 0 && itemCount > 0;
   const visibleProducts = inStockOnly ? products.filter(p => p.stock_status !== 'out_of_stock') : products;
 
   const sidebar = (
@@ -270,11 +268,9 @@ export default function ShopClient({ initialProducts, brands, showHero = true, b
           onChange={e => setSearchInput(e.target.value)}
         />
       </div>
-      {itemCount > 0 && (
-        <div className={`shop-foc${unlocked ? ' unlocked' : ''}`}>
-          {unlocked ? "You've got free delivery! 🎉" : `Add ${formatPrice(remaining)} more for free delivery`}
-        </div>
-      )}
+      <div className="shop-foc">
+        {`${formatPrice(FREE_SHIPPING_THRESHOLD).replace(/\.00$/, '')} for free delivery`}
+      </div>
     </div>
   );
 

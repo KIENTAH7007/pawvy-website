@@ -826,6 +826,15 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .account-card-label { font-size: 12.5px; font-weight: 600; color: var(--dark-gray); text-transform: uppercase; letter-spacing: .5px; }
 .account-balance { font-family: 'Fraunces', serif; font-weight: 900; font-size: 40px; color: var(--navy); margin-top: 4px; }
 .account-referral-input { width: 100%; margin-top: 10px; padding: 12px 14px; border-radius: 12px; border: 2px solid rgba(20,33,61,.12); background: var(--ivory); font-size: 13.5px; color: var(--navy); font-weight: 600; }
+.account-code { font-family: 'Fraunces', serif; font-weight: 700; font-size: 34px; letter-spacing: 4px; text-align: center; color: var(--navy); background: #fff; border: 2px dashed rgba(243,111,74,.4); border-radius: 16px; padding: 14px 10px; margin-top: 12px; word-break: break-all; }
+.account-code-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.account-code-btn { border: 2px solid var(--navy); background: #fff; color: var(--navy); border-radius: 999px; padding: 9px 18px; font-weight: 700; font-size: 13px; cursor: pointer; }
+.account-code-btn:hover { background: var(--navy); color: #fff; }
+.account-code-note { font-size: 12.5px; color: var(--dark-gray); margin-top: 10px; line-height: 1.5; }
+.account-stats { display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+.account-stats > div { flex: 1; min-width: 100px; }
+.account-stats strong { display: block; font-family: 'Fraunces', serif; font-size: 28px; color: var(--navy); }
+.account-stats span { font-size: 12.5px; color: var(--dark-gray); }
 .account-bonus-banner { background: rgba(243,111,74,.08); border: 2px solid rgba(243,111,74,.25); border-radius: 16px; padding: 18px 20px; margin-bottom: 16px; }
 .account-bonus-banner strong { color: var(--navy); font-size: 15px; }
 .account-bonus-banner p { font-size: 13.5px; color: var(--dark-gray); margin-top: 6px; line-height: 1.6; }
