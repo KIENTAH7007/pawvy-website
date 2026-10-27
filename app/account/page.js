@@ -167,7 +167,7 @@ export default function AccountPage() {
           )}
 
           <div className="account-card">
-            <div className="account-card-label">Your referral code — you and your friends get 150 BUTTONS</div>
+            <div className="account-card-label">Your referral code — you and your friends get 200 BUTTONS</div>
             <div className="account-code">{customer.referral_code}</div>
             <div className="account-code-btns">
               <button type="button" className="account-code-btn" onClick={() => copyText(customer.referral_code, 'Code copied ✓')}>Copy code</button>

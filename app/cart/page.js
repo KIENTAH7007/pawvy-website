@@ -235,10 +235,10 @@ export default function CartPage() {
                       />
                     </label>
                     <span style={{ display: 'block', fontSize: 13, marginTop: 6, color: refState === 'valid' ? '#1f9a58' : refState === 'invalid' ? '#c0392b' : '#777', fontWeight: refState === 'valid' || refState === 'invalid' ? 600 : 400 }}>
-                      {refState === 'valid' && '✓ Code accepted — you\'ll both get 150 BUTTONS after your first purchase.'}
+                      {refState === 'valid' && '✓ Code accepted — you\'ll both get 200 BUTTONS after your first purchase.'}
                       {refState === 'invalid' && 'We couldn\'t find that code. Check the spelling, or clear it to continue without one.'}
                       {refState === 'checking' && 'Checking…'}
-                      {refState === 'idle' && 'Got a code from a friend or ambassador? Enter it and you both get 150 BUTTONS after your first purchase.'}
+                      {refState === 'idle' && 'Got a code from a friend or ambassador? Enter it and you both get 200 BUTTONS after your first purchase.'}
                     </span>
                   </div>
                 )}
