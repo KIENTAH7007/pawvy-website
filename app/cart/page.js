@@ -226,7 +226,7 @@ export default function CartPage() {
                       Referral code <span style={{ fontWeight: 400, color: '#888' }}>(optional)</span>
                       <input
                         value={refCode} onChange={e => setRefCode(normalizeRefCode(e.target.value))}
-                        placeholder="e.g. KOKOHONEY" maxLength={12} autoCapitalize="characters" autoComplete="off"
+                        maxLength={12} autoCapitalize="characters" autoComplete="off"
                         style={{
                           display: 'block', width: '100%', marginTop: 6, padding: '10px 12px', borderRadius: 8,
                           border: '1.5px solid ' + (refState === 'valid' ? '#2fbf71' : refState === 'invalid' ? '#e5534b' : '#ddd'),

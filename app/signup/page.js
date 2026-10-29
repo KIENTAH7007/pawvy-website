@@ -121,7 +121,7 @@ function SignupForm() {
           Referral code <span style={{ color: '#888', fontWeight: 400 }}>(optional)</span>
           <input
             value={referralCode} onChange={e => setReferralCode(normalizeRefCode(e.target.value))}
-            placeholder="e.g. KOKOHONEY" maxLength={12} autoCapitalize="characters" autoComplete="off"
+            maxLength={12} autoCapitalize="characters" autoComplete="off"
             style={{
               ...inputStyle, textTransform: 'uppercase', letterSpacing: 2,
               borderColor: refState === 'valid' ? '#2fbf71' : refState === 'invalid' ? '#e5534b' : undefined,
