@@ -18,7 +18,7 @@
 // Pawvy App screenshot of GiGwi's actual item_series format — flagged in
 // the README, needs a real click-through per category after deploy.
 import { useState, useMemo } from 'react';
-import { productImageUrl } from '../lib/api';
+import { productImageUrl, THUMB_SIZE } from '../lib/api';
 import { formatPrice } from '../lib/formatPrice';
 import { pickPrimaryMatch } from '../lib/matching';
 import { productUrl } from '../lib/productDisplayName';
@@ -99,7 +99,7 @@ function GiGwiCard({ card, products }) {
           <div className="thumb">
             {anyNew && <span className="new-tag">New</span>}
             {coverMatch?.image_url
-              ? <img src={productImageUrl(coverMatch.image_url)} alt={card.name} />
+              ? <img src={productImageUrl(coverMatch.image_url, THUMB_SIZE)} alt={card.name} loading="lazy" decoding="async" />
               : <span className="no-img">No image</span>}
           </div>
           <div className="info">
@@ -117,7 +117,7 @@ function GiGwiCard({ card, products }) {
           <div className="thumb">
             {anyNew && <span className="new-tag">New</span>}
             {coverMatch?.image_url
-              ? <img src={productImageUrl(coverMatch.image_url)} alt={card.name} />
+              ? <img src={productImageUrl(coverMatch.image_url, THUMB_SIZE)} alt={card.name} loading="lazy" decoding="async" />
               : <span className="no-img">No image</span>}
           </div>
           <div className="info">

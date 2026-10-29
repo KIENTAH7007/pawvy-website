@@ -30,6 +30,13 @@ const AUTO_ADVANCE_MS = 6000;
 export default function HomepageBanner({ banners }) {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
+  // Speed (Oct 2026): only the FIRST banner's images download at page load, with
+  // high priority, so it appears as fast as possible. The other slides' images
+  // are only requested once the first has finished (or after a short fallback
+  // wait), and then only the slide about to show next (plus any already shown).
+  // Previously every slide's images downloaded at once and competed with the first.
+  const [ready, setReady] = useState(false);
+  const [seen, setSeen] = useState(() => new Set([0]));
   const hasBanners = banners && banners.length > 0;
 
   // Root cause of the "loads scrolled to the old hero position instead of
@@ -52,6 +59,14 @@ export default function HomepageBanner({ banners }) {
       window.scrollTo(0, 0);
     }
   }, [hasBanners]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setReady(true), 2500);
+    return () => clearTimeout(t);
+  }, []);
+  useEffect(() => {
+    setSeen(prev => (prev.has(active) ? prev : new Set(prev).add(active)));
+  }, [active]);
 
   // Auto-advance, paused on hover/focus — an auto-rotating carousel that
   // can never be paused is a real accessibility problem (WCAG 2.2.2),
@@ -82,7 +97,10 @@ export default function HomepageBanner({ banners }) {
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
     >
-      {banners.map((b, i) => (
+      {banners.map((b, i) => {
+        const n = banners.length;
+        const loadNow = i === 0 || i === active || seen.has(i) || (ready && i === (active + 1) % n);
+        return (
         <a
           key={i}
           href={b.link}
@@ -90,22 +108,30 @@ export default function HomepageBanner({ banners }) {
           aria-hidden={i !== active}
           tabIndex={i === active ? 0 : -1}
         >
-          <picture>
-            {b.mobileImage && b.mobileImage !== b.image && (
-              <source media="(max-width: 700px)" srcSet={imageUrl(b.mobileImage)} />
-            )}
-            {b.tabletImage && b.tabletImage !== b.image && (
-              <source media="(max-width: 1024px)" srcSet={imageUrl(b.tabletImage)} />
-            )}
-            <img src={imageUrl(b.image)} alt={b.headline || 'Pawvy'} className="banner-slide-bg" />
-          </picture>
+          {loadNow && (
+            <picture>
+              {b.mobileImage && b.mobileImage !== b.image && (
+                <source media="(max-width: 700px)" srcSet={imageUrl(b.mobileImage)} />
+              )}
+              {b.tabletImage && b.tabletImage !== b.image && (
+                <source media="(max-width: 1024px)" srcSet={imageUrl(b.tabletImage)} />
+              )}
+              <img
+                src={imageUrl(b.image)} alt={b.headline || 'Pawvy'} className="banner-slide-bg"
+                {...(i === 0
+                  ? { fetchPriority: 'high', loading: 'eager', onLoad: () => setReady(true) }
+                  : { decoding: 'async' })}
+              />
+            </picture>
+          )}
           {b.headline && (
             i === 0
               ? <h1 className={`banner-caption${b.showCaption === false ? ' sr-only' : ''}`}>{b.headline}</h1>
               : <p className={`banner-caption${b.showCaption === false ? ' sr-only' : ''}`}>{b.headline}</p>
           )}
         </a>
-      ))}
+        );
+      })}
 
       {banners.length > 1 && (
         <div className="banner-dots" role="tablist" aria-label="Banner slides">

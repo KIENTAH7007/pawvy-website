@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '../../lib/CartContext';
-import { shopApi, checkoutApi, customerApi, getSessionToken, productImageUrl } from '../../lib/api';
+import { shopApi, checkoutApi, customerApi, getSessionToken, productImageUrl, THUMB_SIZE } from '../../lib/api';
 import { readRefCode, normalizeRefCode } from '../../lib/referral';
 import ProductCard from '../../components/ProductCard';
 import { displayBrandName } from '../../lib/brandSlugs';
@@ -151,7 +151,7 @@ export default function CartPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
                   <div className="cart-item-thumb">
                     {item.image_url ? (
-                      <img src={productImageUrl(item.image_url)} alt={productDisplayName(item)} />
+                      <img src={productImageUrl(item.image_url, THUMB_SIZE)} alt={productDisplayName(item)} />
                     ) : (
                       <span>No image</span>
                     )}

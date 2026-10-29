@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { shopApi, waitlistApi, imageUrl, productImageUrl } from '../lib/api';
+import { shopApi, waitlistApi, imageUrl, productImageUrl, THUMB_SIZE } from '../lib/api';
 import { useCart } from '../lib/CartContext';
 import { BRAND_SLUGS, displayBrandName, brandCountWords } from '../lib/brandSlugs';
 import { formatPrice } from '../lib/formatPrice';
@@ -111,7 +111,7 @@ function BundleCard({ bundle }) {
               {bundle.products.slice(0, 4).map(p => (
                 <div key={p.id} className="bundle-card-img-cell">
                   {p.image_url
-                    ? <img src={productImageUrl(p.image_url)} alt="" />
+                    ? <img src={productImageUrl(p.image_url, THUMB_SIZE)} alt="" loading="lazy" decoding="async" />
                     : <span className="bundle-card-img-fallback">{displayBrandName(p.brand_name)}</span>}
                 </div>
               ))}

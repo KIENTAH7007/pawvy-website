@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { displayBrandName } from '../lib/brandSlugs';
 import { productDisplayName, productUrl } from '../lib/productDisplayName';
-import { productImageUrl } from '../lib/api';
+import { productImageUrl, THUMB_SIZE } from '../lib/api';
 import { formatPrice } from '../lib/formatPrice';
 import Link from 'next/link';
 import QtyStepper from './QtyStepper';
@@ -24,7 +24,7 @@ export default function ProductCard({ product: p, onAdd }) {
         <div className="thumb">
           {p.is_new_active && <span className="new-tag">New</span>}
           {p.image_url ? (
-            <img src={productImageUrl(p.image_url)} alt={name} />
+            <img src={productImageUrl(p.image_url, THUMB_SIZE)} alt={name} loading="lazy" decoding="async" />
           ) : (
             <span className="no-img">No image</span>
           )}
