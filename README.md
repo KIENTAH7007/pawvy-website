@@ -1,30 +1,22 @@
-# Pawvy Website – Faster Images and First Banner
+# Pawvy Website – 600px Photos
+One-line change: product cards, category covers, cart and bundle thumbnails now ask for the 600 px photo (was 480).
+Product pages and brand pages still use the 1000 px photo. Deploy after the App zip.
 
-## What it does
-- Homepage banner: only the FIRST banner's image downloads at page load (high priority). The next slide's image is fetched
-  after the first has loaded, then each slide as it comes up. Phones/tablets still get their own smaller banner versions.
-- Product cards, category covers, cart and bundle thumbnails ask for the small 480px trimmed photo; product pages and brand
-  pages keep the large version. Card photos also load lazily.
-No wording or layout changes.
-
-## Deploy order
-After the App zip is live (it works before that too, just without the speed-up).
-
-## Git steps
+## Git steps (staging)
 ```
 cd pawvy-website
 git checkout staging
 git pull origin staging
 ```
-Copy the code files from this folder into the repo, keeping the folders (NOT README.md, NOT the zip):
-app/bundles/[id]/page.js, app/cart/page.js, components/CategoryBrowser.jsx, components/HomepageBanner.jsx,
-components/ProductCard.jsx, components/ShopClient.jsx, lib/api.js
+Copy lib/api.js from this folder into the repo (same path). NOT README.md, NOT the zip.
 ```
 git add -A
-git commit -m "Small product thumbnails, first banner priority"
+git commit -m "Small product photos 600px"
 git push origin staging
 ```
-Check the homepage and shop page on staging, then merge to main:
+Check the shop page on staging (product photos load, sharp).
+
+## Git steps (merge to main)
 ```
 git checkout main
 git pull origin main
