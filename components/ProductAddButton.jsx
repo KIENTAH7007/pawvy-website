@@ -66,9 +66,12 @@ export { findMatches };
 // example seen so far (Classic/Beef x Mini/Small/Large).
 function parseSizeFlavor(variation, prefix) {
   let rest = (variation || '').trim();
-  if (prefix) {
-    const esc = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    rest = rest.replace(new RegExp(`^${esc}\\s*`, 'i'), '').trim();
+  // prefix may be one word or a list of accepted words (e.g. Soft / Light)
+  for (const pre of (Array.isArray(prefix) ? prefix : [prefix])) {
+    if (!pre) continue;
+    const esc = pre.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const stripped = rest.replace(new RegExp(`^${esc}\\s*`, 'i'), '').trim();
+    if (stripped !== rest) { rest = stripped; break; }
   }
   const parts = rest.split(/\s+/).filter(Boolean);
   if (parts.length === 0) return { flavor: '', size: '' };
@@ -84,7 +87,7 @@ function Portal({ children }) {
   return createPortal(children, document.body);
 }
 
-export default function ProductAddButton({ products, productLabel, variants, seriesIncludes, seriesExcludes, variationIncludes }) {
+export default function ProductAddButton({ products, productLabel, variants, seriesIncludes, seriesExcludes, variationIncludes, variationIncludesAny }) {
   const { addItem } = useCart();
   const isDynamic = !variants;
 
@@ -105,13 +108,13 @@ export default function ProductAddButton({ products, productLabel, variants, ser
   // ---- Dynamic mode (BetterBone: real Size x Flavor discovery) ----
   const dynamicMatches = useMemo(() => {
     if (!isDynamic) return [];
-    return findMatches(products, { seriesIncludes, seriesExcludes, variationIncludes });
-  }, [isDynamic, products, seriesIncludes, seriesExcludes, variationIncludes]);
+    return findMatches(products, { seriesIncludes, seriesExcludes, variationIncludes, variationIncludesAny });
+  }, [isDynamic, products, seriesIncludes, seriesExcludes, variationIncludes, variationIncludesAny]);
 
   const parsed = useMemo(() => {
     if (!isDynamic) return [];
-    return dynamicMatches.map(p => ({ ...parseSizeFlavor(p.variation, variationIncludes), product: p }));
-  }, [isDynamic, dynamicMatches, variationIncludes]);
+    return dynamicMatches.map(p => ({ ...parseSizeFlavor(p.variation, variationIncludesAny || variationIncludes), product: p }));
+  }, [isDynamic, dynamicMatches, variationIncludes, variationIncludesAny]);
 
   const sizes = useMemo(() => [...new Set(parsed.map(x => x.size).filter(Boolean))], [parsed]);
   const flavors = useMemo(() => [...new Set(parsed.map(x => x.flavor).filter(Boolean))], [parsed]);

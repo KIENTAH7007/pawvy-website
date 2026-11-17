@@ -199,6 +199,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                   seriesIncludes: lvl.seriesIncludes,
                   seriesExcludes: lvl.seriesExcludes,
                   variationIncludes: lvl.variationIncludes,
+                  variationIncludesAny: lvl.variationIncludesAny,
                 });
                 const primary = pickPrimaryMatch(cardMatches);
                 // Price display (Aug 2026, per KT/Janice) — same
@@ -271,6 +272,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                       productLabel={`BetterBone ${lvl.label}`}
                       seriesIncludes={lvl.seriesIncludes}
                       variationIncludes={lvl.variationIncludes}
+                      variationIncludesAny={lvl.variationIncludesAny}
                     />
                   </div>
                 </div>
