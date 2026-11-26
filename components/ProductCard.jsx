@@ -7,6 +7,7 @@ import { productImageUrl, THUMB_SIZE } from '../lib/api';
 import { formatPrice } from '../lib/formatPrice';
 import Link from 'next/link';
 import QtyStepper from './QtyStepper';
+import ImageCarousel from './ImageCarousel';
 
 // Shared between the Shop grid and Cart's upsell section — identical to
 // the Vite version, just using next/link instead of react-router-dom.
@@ -24,7 +25,13 @@ export default function ProductCard({ product: p, onAdd }) {
         <div className="thumb">
           {p.is_new_active && <span className="new-tag">New</span>}
           {p.image_url ? (
-            <img src={productImageUrl(p.image_url, THUMB_SIZE)} alt={name} loading="lazy" decoding="async" />
+            // Extra photos (p.gallery) flip with arrows / swipe; with none, this is the same single <img> as before.
+            <ImageCarousel
+              images={[p.image_url, ...(p.gallery || [])].map(u => productImageUrl(u, THUMB_SIZE))}
+              alt={name}
+            >
+              <img src={productImageUrl(p.image_url, THUMB_SIZE)} alt={name} loading="lazy" decoding="async" />
+            </ImageCarousel>
           ) : (
             <span className="no-img">No image</span>
           )}

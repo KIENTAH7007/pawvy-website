@@ -1,36 +1,33 @@
-# Pawvy Website - Better Bone hardness rename (Soft -> Light, Medium -> Moderate)
+# Pawvy Website — Multiple product photos
 
-The Better Bone durability cards and Add to Cart find products by the hardness word in the product's Variation.
-This patch makes each level accept BOTH the old and the new word, so nothing changes until you rename, and nothing breaks after:
-- Soft level: matches "Soft" or "Light"
-- Moderate level: matches "Medium" or "Moderate"
-- Hard level: matches "Hard"
-The size/flavour picker strips whichever hardness word the product uses (Light Veggie Mini -> flavour Veggie, size Mini).
-Card titles shown to customers are NOT changed in this patch (still Soft / Moderate / Hard).
+Deploy the **Pawvy App zip first**, then this one. Until a SKU has extra photos in the app, nothing looks different.
 
-Files (complete, replace as-is):
-- lib/brandContent.js
-- components/BrandDeepDive.jsx
-- components/ProductAddButton.jsx
+## What changes
+- **Product page**: if a SKU has extra photos, a big photo with arrows, thumbnails underneath, and swipe on phones. No auto-rotation.
+- **Shop grid cards**: arrows on desktop (click for the next photo, no hover effect), swipe + dots on phones. Clicking the photo itself still opens the product.
+- **Grouped brand cards** (Lillidale, Salmoil, Puzzle Feeder, East Sea Brother, GiGwi): the card's cover stays as it is; photos added to the card's default SKU follow it with the same arrows / swipe.
+- Better Bone's brand-page cards are a different card type and are unchanged this round (its Shop cards and product pages do get photos).
 
-## Staging
+## Files (complete files, copy over the same paths)
+app/globals.css, app/shop/[id]/page.js,
+components/BrandDeepDive.jsx, CategoryBrowser.jsx, FitCard.jsx, ProductCard.jsx, ImageCarousel.jsx (NEW)
+
+## Deploy to STAGING first
 ```
+cd pawvy-website
 git checkout staging
 git pull
 git merge main
-# copy the 3 files from this zip over the repo (same paths)
-git add lib/brandContent.js components/BrandDeepDive.jsx components/ProductAddButton.jsx
-git commit -m "Better Bone: accept Light/Moderate hardness wording alongside Soft/Medium"
+# copy every file from this zip into the repo, same paths (replace when asked)
+git add -A
+git commit -m "Multiple product photos: gallery, shop arrows/swipe, grouped cards"
 git push origin staging
 ```
 
-## Merge to main (do this BEFORE renaming products in the app)
+## Then merge to MAIN
 ```
 git checkout main
 git pull
 git merge staging
 git push origin main
 ```
-
-## Then rename in the app
-Products & Pricing: change Variation (e.g. "Soft Classic Mini" -> "Light Veggie Mini"). Keep "Better Bone" in Item Series and keep the pattern <Hardness> <Flavour> <Size>.

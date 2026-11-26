@@ -1130,7 +1130,7 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .variant-btn.oos { opacity: .55; }
 .variant-oos-tag { display: block; font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .3px; margin-top: 2px; }
 .product-detail-grid { display: flex; gap: 40px; flex-wrap: wrap; }
-.product-detail-image { width: 320px; height: 320px; background: var(--mid-cream); border-radius: 24px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+.product-detail-image { position: relative; width: 320px; height: 320px; background: var(--mid-cream); border-radius: 24px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
 .product-detail-image img { width: 100%; height: 100%; object-fit: cover; }
 .product-detail-image span { font-size: 13px; color: var(--dark-gray); }
 .product-detail-info { flex: 1; min-width: 280px; }
@@ -1273,3 +1273,31 @@ footer.site-footer { background: var(--navy); color: var(--cream); padding-top: 
 .yog-toggle button.active { border-color: var(--orange); background: #FBEAE3; color: var(--orange); }
 .yog-toggle .ic { font-size: 20px; }
 .yog-desc-line { font-size: 12.5px; color: var(--dark-gray); background: var(--cream); padding: 12px 14px; border-radius: 10px; min-height: 20px; }
+
+
+/* ── Multiple product photos (Nov 2026) ───────────────────────────────
+   No hover effects and no auto-rotation: photos only change on a click on an
+   arrow / thumbnail or a swipe. Arrows are always visible on desktop and
+   hidden on touch screens (where swiping + the dots do the job). */
+.img-carousel { position: relative; width: 100%; height: 100%; touch-action: pan-y; }
+.img-carousel > img { display: block; width: 100%; height: 100%; object-fit: contain; user-select: none; -webkit-user-drag: none; }
+.pf-fit-card .img-carousel { height: auto; aspect-ratio: 1 / 1; }
+.pf-fit-card .img-carousel > img { object-fit: cover; }
+.img-carousel-arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; width: 30px; height: 30px; border-radius: 50%; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.92); color: var(--navy); box-shadow: 0 2px 8px rgba(20,33,61,.22); cursor: pointer; }
+.img-carousel-arrow:hover { background: #fff; color: var(--orange); }
+.img-carousel-arrow.prev { left: 8px; }
+.img-carousel-arrow.next { right: 8px; }
+.img-carousel-dots { position: absolute; left: 0; right: 0; bottom: 8px; z-index: 2; display: flex; justify-content: center; gap: 6px; pointer-events: none; }
+.img-carousel-dots span { width: 7px; height: 7px; border-radius: 50%; background: rgba(20,33,61,.28); box-shadow: 0 0 0 1px rgba(255,255,255,.7); }
+.img-carousel-dots span.on { background: var(--orange); }
+@media (hover: none) and (pointer: coarse) {
+  .img-carousel .img-carousel-arrow { display: none; }
+}
+.product-detail-gallery { width: 320px; flex-shrink: 0; }
+.product-detail-gallery .product-detail-image { touch-action: pan-y; }
+.product-detail-thumbs { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.product-detail-thumbs button { width: 56px; height: 56px; padding: 0; border-radius: 10px; border: 2px solid transparent; background: var(--mid-cream); overflow: hidden; cursor: pointer; opacity: .75; }
+.product-detail-thumbs button.on { border-color: var(--orange); opacity: 1; }
+.product-detail-thumbs button:hover { opacity: 1; }
+.product-detail-thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; }
+@media (max-width: 480px) { .product-detail-gallery { width: 100%; max-width: 320px; } }

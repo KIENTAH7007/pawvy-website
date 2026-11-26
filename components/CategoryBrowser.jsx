@@ -23,6 +23,7 @@ import { formatPrice } from '../lib/formatPrice';
 import { pickPrimaryMatch } from '../lib/matching';
 import { productUrl } from '../lib/productDisplayName';
 import ProductAddButton from './ProductAddButton';
+import ImageCarousel from './ImageCarousel';
 import Link from 'next/link';
 
 function matchByPrefix(products, prefix) {
@@ -88,6 +89,17 @@ function GiGwiCard({ card, products }) {
   // variation. The PDP can't correctly re-derive "siblings" from
   // item_series here, so pass the real resolved set explicitly instead.
   const siblingIds = matches.filter(Boolean).map(m => m.id).join(',');
+  // Extra photos (Nov 2026): follow the cover SKU; arrows / swipe, no change when there are none.
+  const coverUrls = coverMatch?.image_url
+    ? [coverMatch.image_url, ...(coverMatch.gallery || [])].map(u => productImageUrl(u, THUMB_SIZE))
+    : [];
+  const coverSlot = coverMatch?.image_url
+    ? (
+      <ImageCarousel images={coverUrls} alt={card.name}>
+        <img src={productImageUrl(coverMatch.image_url, THUMB_SIZE)} alt={card.name} loading="lazy" decoding="async" />
+      </ImageCarousel>
+    )
+    : <span className="no-img">No image</span>;
 
   return (
     <div className="product-card">
@@ -98,9 +110,7 @@ function GiGwiCard({ card, products }) {
           </div>
           <div className="thumb">
             {anyNew && <span className="new-tag">New</span>}
-            {coverMatch?.image_url
-              ? <img src={productImageUrl(coverMatch.image_url, THUMB_SIZE)} alt={card.name} loading="lazy" decoding="async" />
-              : <span className="no-img">No image</span>}
+            {coverSlot}
           </div>
           <div className="info">
             <h3>{card.name}</h3>
@@ -116,9 +126,7 @@ function GiGwiCard({ card, products }) {
           </div>
           <div className="thumb">
             {anyNew && <span className="new-tag">New</span>}
-            {coverMatch?.image_url
-              ? <img src={productImageUrl(coverMatch.image_url, THUMB_SIZE)} alt={card.name} loading="lazy" decoding="async" />
-              : <span className="no-img">No image</span>}
+            {coverSlot}
           </div>
           <div className="info">
             <h3>{card.name}</h3>

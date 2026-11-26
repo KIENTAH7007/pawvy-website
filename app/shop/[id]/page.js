@@ -7,6 +7,7 @@ import { productDisplayName, productTitleTag, productUrl } from '../../../lib/pr
 import { formatPrice } from '../../../lib/formatPrice';
 import { buildOgMeta, buildProductJsonLd } from '../../../lib/seo';
 import AddToCartSection from '../../../components/AddToCartSection';
+import { ProductGallery } from '../../../components/ImageCarousel';
 
 // Descriptive URLs (Aug 2026, per KT — SEO) route as `/shop/{id}-{slug}`,
 // but only the leading numeric ID is ever actually used to look the
@@ -127,13 +128,21 @@ export default async function ProductPage({ params, searchParams }) {
       </Link>
 
       <div className="product-detail-grid">
-        <div className="product-detail-image">
-          {product.image_url ? (
-            <img src={productImageUrl(product.image_url)} alt={name} />
-          ) : (
-            <span>No image</span>
-          )}
-        </div>
+        {(product.gallery || []).length > 0 && product.image_url ? (
+          // Several photos: big photo + thumbnails + arrows + swipe (no auto-rotation).
+          <ProductGallery
+            alt={name}
+            images={[product.image_url, ...product.gallery].map(u => ({ full: productImageUrl(u), thumb: productImageUrl(u, 600) }))}
+          />
+        ) : (
+          <div className="product-detail-image">
+            {product.image_url ? (
+              <img src={productImageUrl(product.image_url)} alt={name} />
+            ) : (
+              <span>No image</span>
+            )}
+          </div>
+        )}
 
         <div className="product-detail-info">
           <div className="product-detail-brand" style={{ color: product.brand_color || 'var(--orange)' }}>{displayBrandName(product.brand_name)}</div>

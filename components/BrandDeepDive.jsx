@@ -26,7 +26,8 @@ import ProductAddButton from './ProductAddButton';
 import { findMatches, pickPrimaryMatch } from '../lib/matching';
 import { productUrl } from '../lib/productDisplayName';
 import { formatPrice } from '../lib/formatPrice';
-import { productImageUrl } from '../lib/api';
+import { productImageUrl, THUMB_SIZE } from '../lib/api';
+import ImageCarousel from './ImageCarousel';
 import RecipeSelector from './RecipeSelector';
 import CategoryBrowser from './CategoryBrowser';
 import FitCard from './FitCard';
@@ -486,11 +487,20 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                 // against a future item that forgets to.
                 const defaultVariant = item.variants.find(v => v.default) || item.variants[0];
                 const cardImage = defaultVariant.image || (primary?.image_url ? productImageUrl(primary.image_url) : null);
+                // Extra photos (Nov 2026): the card's cover is unchanged; photos added in the
+                // Pawvy App to this group's default SKU follow it (arrows / swipe).
+                const galleryProduct = resolvedVariants.find(v => v.default && v.product)?.product || primary;
+                const cardExtras = (galleryProduct?.gallery || []).map(u => productImageUrl(u, THUMB_SIZE));
+                const cardSlot = (
+                  <ImageCarousel images={[cardImage, ...cardExtras]} alt={item.name} imgClassName="pf-fit-image">
+                    <ImageSlot image={cardImage} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
+                  </ImageCarousel>
+                );
                 return (
                 <div className="pf-fit-card" key={item.name}>
                   {primary ? (
                     <Link href={`${productUrl(primary)}?siblings=${siblingIds}`} className="pf-fit-card-link">
-                      <ImageSlot image={cardImage} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
+                      {cardSlot}
                       <div className="pf-fit-info">
                         <h3>{item.name}</h3>
                         <div className="fit-for">{item.fitFor}</div>
@@ -501,7 +511,7 @@ export default function BrandDeepDive({ deepDive, brandDisplayName, products }) 
                     </Link>
                   ) : (
                     <>
-                      <ImageSlot image={cardImage} alt={item.name} hint={item.imageHint} className="pf-fit-image" />
+                      {cardSlot}
                       <div className="pf-fit-info">
                         <h3>{item.name}</h3>
                         <div className="fit-for">{item.fitFor}</div>
